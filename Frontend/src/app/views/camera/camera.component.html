@@ -1,0 +1,7 @@
+<div>
+    <webcam [trigger]="trigger" (imageCapture)="handleImage($event)" (initError)="handleInitError($event)"></webcam>
+</div>
+<p-button (click)="triggerSnapshot()" [loading]="isLoading">Take Picture</p-button>
+<div class="p-3" *ngIf="responseData">
+    {{ responseData}}
+</div>
