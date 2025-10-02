@@ -1,8 +1,9 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from Config.database import Base, engine
 from Config.middleware_and_cors import MyMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from Controller import agent_controller
+from fastapi.responses import JSONResponse
 
 # import tables so that they are created
 from Entity.UserEntity import UserEntity
@@ -30,6 +31,24 @@ api_router.include_router(agent_controller.router, tags=["Agents"])
 @api_router.get("/")
 def read_root():
     return {"Server is running"}
+
+
+@api_router.delete("/delete-all-tables")
+def delete_all_tables():
+    try:
+        Base.metadata.drop_all(engine)
+        return JSONResponse(content={"message": "All tables deleted successfully", "status": "success"}, status_code=200)
+    except Exception as e:
+        return JSONResponse(content={"message": f"Failed to delete tables: {str(e)}", "status": "failed"}, status_code=500)
+
+@api_router.post("create-all-tables")
+def create_all_tables():
+    try:
+        Base.metadata.create_all(engine)
+        return JSONResponse(content={"message": "All tables created successfully", "status": "success"}, status_code=200)
+    except Exception as e:
+        return JSONResponse(content={"message": f"Failed to create tables: {str(e)}", "status": "failed"}, status_code=500)
+
 
 
 app.include_router(api_router)

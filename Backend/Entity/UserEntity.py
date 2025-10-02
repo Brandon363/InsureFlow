@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Enum, Date, DateTime, Integer
+from sqlalchemy import Column, String, Enum, Date, DateTime, Integer, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from Config.database import Base
@@ -22,6 +22,7 @@ class UserEntity(Base):
     phone_number = Column(String(20), nullable=True)
     address = Column(String(255), nullable=True)
     date_of_birth = Column(Date, nullable=False)
+    is_logged_in = Column(Boolean, nullable=False)
     date_created = Column(DateTime, default=datetime.utcnow, nullable=True)
     date_updated = Column(DateTime, onupdate=datetime.utcnow, nullable=True)
     entity_status = Column(Enum(EntityStatus), nullable=False, default=EntityStatus.ACTIVE)

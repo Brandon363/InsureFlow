@@ -18,6 +18,7 @@ class UserDTO(BaseModel):
     place_of_birth: str
     phone_number: Optional[str] = None
     address: Optional[str]
+    is_logged_in: bool
     date_created: datetime
     date_updated: datetime
     entity_status: EntityStatus
@@ -49,6 +50,7 @@ class UserUpdateRequest(BaseModel):
     date_of_birth: Optional[date] = None
     village_of_origin: Optional[str] = None
     place_of_birth: Optional[str] = None
+    is_logged_in: Optional[bool] = None
 
 
 class UserLoginRequest(BaseModel):
