@@ -5,10 +5,17 @@ from starlette.middleware.cors import CORSMiddleware
 from Controller import agent_controller
 
 # import tables so that they are created
+from Entity.UserEntity import UserEntity
 from Entity.AgentEntity import AgentEntity
+from Entity.ClaimEntity import ClaimEntity
+from Entity.DocumentEntity import DocumentEntity
+from Entity.NotificationEntity import NotificationEntity
+from Entity.PaymentEntity import PaymentEntity
+from Entity.PolicyEntity import PolicyEntity
 
 # create the tables if they don't exist
 Base.metadata.create_all(bind=engine)
+
 
 
 

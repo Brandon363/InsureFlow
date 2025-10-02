@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from Entity.AgentEntity import AgentEntity
 from Repository import agent_repository
-from Schema.agent_schema import AgentResponse, AgentCreateRequest, AgentUpdateRequest
+from Model.AgentModel import AgentResponse, AgentCreateRequest, AgentUpdateRequest
 from Utils.Enums import EntityStatus
 
 
