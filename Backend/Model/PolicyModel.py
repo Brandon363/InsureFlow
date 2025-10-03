@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date, datetime
 from typing import Optional, List
 
@@ -21,8 +21,8 @@ class PolicyDTO(BaseModel):
     date_updated: Optional[datetime] = None
     entity_status: EntityStatus
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class PolicyCreateRequest(BaseModel):
     policy_number: str
@@ -54,5 +54,4 @@ class PolicyResponse(BaseResponse):
     policy: Optional[PolicyDTO] = None
     policies: Optional[List[PolicyDTO]] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

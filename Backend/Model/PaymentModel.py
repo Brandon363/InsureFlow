@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date, datetime
 from typing import Optional, List
 from enum import Enum
@@ -22,8 +22,8 @@ class PaymentDTO(BaseModel):
     date_updated: Optional[datetime] = None
     entity_status: EntityStatus
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class PaymentCreate(BaseModel):
     user_id: int
@@ -51,5 +51,4 @@ class PaymentResponse(BaseResponse):
     payment: Optional[PaymentDTO] = None
     payments: Optional[List[PaymentDTO]] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

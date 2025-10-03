@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from Model.ResponseModel import BaseResponse
 from Utils.Enums import ClaimStatus, EntityStatus
 
@@ -21,6 +21,7 @@ class ClaimDTO(BaseModel):
     date_created: datetime
     date_updated: datetime
     entity_status: EntityStatus
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ClaimCreate(BaseModel):
@@ -46,5 +47,4 @@ class ClaimResponse(BaseResponse):
     claim: Optional[ClaimDTO] = None
     claims: Optional[List[ClaimDTO]] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

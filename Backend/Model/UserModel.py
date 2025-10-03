@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date, datetime
 from typing import Optional, List
 
@@ -20,11 +20,12 @@ class UserDTO(BaseModel):
     address: Optional[str]
     is_logged_in: bool
     date_created: datetime
-    date_updated: datetime
+    date_updated: Optional[datetime] = None
     entity_status: EntityStatus
 
-    class Config:
-        from_attribute = True
+    # class Config:
+    #     from_attribute = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreateRequest(BaseModel):
