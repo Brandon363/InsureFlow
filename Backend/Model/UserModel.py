@@ -23,6 +23,9 @@ class UserDTO(BaseModel):
     date_updated: datetime
     entity_status: EntityStatus
 
+    class Config:
+        from_attribute = True
+
 
 class UserCreateRequest(BaseModel):
     id_number: str
@@ -63,10 +66,8 @@ class UserPasswordUpdate(BaseModel):
     new_password: str
 
 
-class AgentResponse(BaseResponse):
+class UserResponse(BaseResponse):
     user: Optional[UserDTO] = None
     users: Optional[List[UserDTO]] = None
 
-    class Config:
-        orm_mode = True
 

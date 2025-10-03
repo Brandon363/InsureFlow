@@ -92,5 +92,5 @@ def delete_agent(db_session: Session, agent_id: int) -> AgentResponse:
     db_session.commit()
     db_session.refresh(existing_agent)
 
-    return AgentResponse(status_code=201, message="Tender successfully deleted", success=True, agent=existing_agent)
+    return AgentResponse(status_code=201, message="Agent successfully deleted", success=True, agent=existing_agent)
 
