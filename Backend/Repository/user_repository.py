@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from Entity.UserEntity import UserEntity
 from Utils.Enums import EntityStatus
 
-
 def find_active_user_by_id(db_session: Session, user_id: int):
     return db_session.query(UserEntity).filter(
         UserEntity.id == user_id, UserEntity.entity_status == EntityStatus.ACTIVE).first()

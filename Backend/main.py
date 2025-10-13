@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter, HTTPException
 from Config.database import Base, engine
 from Config.middleware_and_cors import MyMiddleware
 from starlette.middleware.cors import CORSMiddleware
-from Controller import agent_controller, user_controller, policy_controller
+from Controller import agent_controller, user_controller, policy_controller, claim_controller, document_controller
 from fastapi.responses import JSONResponse
 
 # import tables so that they are created
@@ -26,7 +26,9 @@ app = FastAPI(
 )
 
 api_router = APIRouter(prefix="/api/v1")
-api_router.include_router(policy_controller.router, tags=["Policy"])
+api_router.include_router(document_controller.router, tags=["Documents"])
+api_router.include_router(claim_controller.router, tags=["Claims"])
+api_router.include_router(policy_controller.router, tags=["Policies"])
 api_router.include_router(user_controller.router, tags=["Users"])
 api_router.include_router(agent_controller.router, tags=["Agents"])
 

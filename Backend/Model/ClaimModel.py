@@ -25,8 +25,17 @@ class ClaimDTO(BaseModel):
 
 
 class ClaimCreate(BaseModel):
-    pass
-
+    id: int
+    claim_number: Optional[str]
+    policy_id: Optional[str]
+    user_id: Optional[int]
+    type: Optional[str]
+    status: Optional[ClaimStatus]
+    description: Optional[str]
+    incident_date: Optional[date]
+    amount: Optional[float]
+    documents: Optional[List[str]]
+    notes: Optional[str]
 
 class ClaimUpdate(BaseModel):
     id: int

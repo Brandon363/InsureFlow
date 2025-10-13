@@ -5,14 +5,9 @@ from Repository import user_repository
 from Utils.Enums import EntityStatus
 
 
-#CRUD
-#LoginUser
-
-
 def get_active_user_by_id(db_session: Session, user_id: int) -> UserResponse:
     if user_id is None:
         return UserResponse(status_code=400, success=False, message="User ID cannot be null")
-
     db_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
     if db_user is None:
         return UserResponse(status_code=404, success=False, message=f"User with id {user_id} not found")

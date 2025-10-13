@@ -31,14 +31,14 @@ def get_all_active_users(db: db_dependency):
 
 @router.post('/create-user', response_model=None)
 def create_user (create_request: UserCreateRequest, db: db_dependency):
-    return UserService.create_user (db_session=db, create_request=create_request)
+    return UserService.create_user(db_session=db, create_request=create_request)
 
 
 @router.put('update-user/{user_id}', response_model=None)
 def update_user (update_request: UserUpdateRequest, user_id: int, db: db_dependency):
-    return UserService.update_user (db_session=db, update_request=update_request)
+    return UserService.update_user(db_session=db, update_request=update_request)
 
 
 @router.delete('delete-user/{user_id}', response_model=None)
 def delete_user (user_id: int, db: db_dependency) -> UserResponse:
-    return UserService.delete_user (db_session=db,user_id=user_id)
+    return UserService.delete_user(db_session=db,user_id=user_id)

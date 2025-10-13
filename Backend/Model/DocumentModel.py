@@ -44,7 +44,7 @@ class DocumentUpdate(BaseModel):
     mime_type: Optional[str] = None
     size: Optional[int] = None
 
-class ClaimResponse(BaseResponse):
+class DocumentResponse(BaseResponse):
     document: Optional[DocumentDTO] = None
     documents: Optional[List[DocumentDTO]] = None
 

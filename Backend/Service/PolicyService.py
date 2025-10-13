@@ -48,7 +48,7 @@ def get_all_active_policies(db_session: Session) -> PolicyResponse:
 
 
 def create_policy(db_session: Session, create_request: PolicyCreateRequest) -> PolicyResponse:
-    db_policy_response = get_active_policy_by_id(db_session=db_session, policy_number=create_request.policy_number)
+    db_policy_response = get_active_policy_by_id(db_session=db_session, policy_id=create_request.policy_number)
 
     if db_policy_response.success:
         return PolicyResponse(status_code=400, success=False, message="Policy number already exists")

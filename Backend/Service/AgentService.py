@@ -46,7 +46,7 @@ def create_agent(db_session: Session, create_request: AgentCreateRequest) -> Age
     db_agent_response = get_active_agent_by_agent_number(db_session=db_session, agent_number=create_request.agent_number)
 
     if db_agent_response.success:
-        return AgentResponse(status_code=400, success=False, message=f"Agent number already exists")
+        return AgentResponse(status_code=400, success=False, message="Agent number already exists")
 
     agent_entity: AgentEntity = AgentEntity(**create_request.dict())
     db_session.add(agent_entity)
@@ -75,7 +75,6 @@ def update_agent(db_session:Session, update_request: AgentUpdateRequest) -> Agen
     db_session.commit()
     db_session.refresh(db_agent)
     return AgentResponse(status_code=201, success=True, message="Agent edited successfully", agent=db_agent)
-
 
 
 def delete_agent(db_session: Session, agent_id: int) -> AgentResponse:
