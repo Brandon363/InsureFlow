@@ -23,7 +23,8 @@ class AgentCreateRequest(BaseModel):
 
 
 class AgentUpdateRequest(BaseModel):
-    id: int = Field(description="This is the agent's id")
+    # Remove id field since it comes from URL path in agent_controller
+    # id: int = Field(description="This is the agent's id")
     user_id: int
     agent_number: str
     model_config = ConfigDict(from_attributes=True)

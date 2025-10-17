@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from Entity.AgentEntity import AgentEntity
-from Repository import agent_repository
+from Repository import agent_repository, user_repository
 from Model.AgentModel import AgentResponse, AgentCreateRequest, AgentUpdateRequest
 from Utils.Enums import EntityStatus
 
@@ -42,6 +42,12 @@ def get_all_active_agents(db_session:Session)-> AgentResponse:
 
 
 def create_agent(db_session: Session, create_request: AgentCreateRequest) -> AgentResponse:
+    # Validate if user exists before creating the agent
+    existing_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=create_request.user_id)
+
+    if not existing_user:
+        return AgentResponse(status_code= 404, success=False, message=f"User with id {create_request.user_id} does not exist")
+
     # see if agent number exists
     db_agent_response = get_active_agent_by_agent_number(db_session=db_session, agent_number=create_request.agent_number)
 
@@ -56,25 +62,31 @@ def create_agent(db_session: Session, create_request: AgentCreateRequest) -> Age
     return AgentResponse(status_code=201, success=True, message="Agent created successfully", agent=agent_entity)
 
 
-def update_agent(db_session:Session, update_request: AgentUpdateRequest) -> AgentResponse:
-    # see if agent number exists
-    db_agent = agent_repository.find_active_agent_by_agent_number(db_session=db_session, agent_number=update_request.agent_number)
+def update_agent(db_session:Session, agent_id:int, update_request: AgentUpdateRequest) -> AgentResponse:
+    # Find the agent by ID to ensure it exists
+    existing_agent = agent_repository.find_active_agent_by_id(db_session=db_session, agent_id=agent_id)
 
-    if db_agent and db_agent.id != update_request.id:
-        return AgentResponse(status_code=400, success=False, message=f"Agent number already exists")
+    if not existing_agent:
+        return AgentResponse(status_code=404, success=False, message=f"Agent with id {agent_id} not found")
 
+    # Check if agent number is being changed anf if it conflicts with another agent
+    if update_request.agent_number != existing_agent.agent_number:
+        agent_with_the_same_number = agent_repository.find_active_agent_by_agent_number(db_session=db_session, agent_number=update_request.agent_number)
+
+        if agent_with_the_same_number:
+            return AgentResponse(status_code=400, success=False, message=f"Agent number '{update_request.agent_number}' already exists")
 
     # Convert update data to dict (exclude unset fields)
     update_dict = update_request.dict(exclude_unset=True)
 
     # Process specific fields
     for key, value in update_dict.items():
-        if value is not None:
-            setattr(db_agent, key, value)
+        if value is not None and hasattr(existing_agent, key):
+            setattr(existing_agent, key, value)
 
     db_session.commit()
-    db_session.refresh(db_agent)
-    return AgentResponse(status_code=201, success=True, message="Agent edited successfully", agent=db_agent)
+    db_session.refresh(existing_agent)
+    return AgentResponse(status_code=200, success=True, message="Agent updated successfully", agent=existing_agent)
 
 
 def delete_agent(db_session: Session, agent_id: int) -> AgentResponse:

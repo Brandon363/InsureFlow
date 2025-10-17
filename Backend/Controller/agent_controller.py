@@ -17,9 +17,11 @@ def create_agent(create_request: AgentCreateRequest, db: db_dependency):
     return AgentService.create_agent(db_session=db, create_request=create_request)
 
 
-@router.put('update-agent/{agent_id}', response_model=AgentResponse)
+@router.put('/update-agent/{agent_id}', response_model=AgentResponse)
 def update_agent(update_request: AgentUpdateRequest, agent_id: int, db: db_dependency):
-    return AgentService.update_agent(db_session=db, update_request=update_request)
+    # Set the ID from path parameter into the request
+    update_request.id = agent_id
+    return AgentService.update_agent(db_session=db, agent_id=agent_id, update_request=update_request)
 
 @router.get('get-all-active-agents', response_model=AgentResponse)
 def get_all_active_agents(db: db_dependency):
