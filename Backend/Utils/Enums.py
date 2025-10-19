@@ -52,3 +52,14 @@ class NotificationType(str, Enum):
     CLAIM_UPDATE = 'CLAIM_UPDATE'
     POLICY_UPDATE = 'POLICY_UPDATE'
     ANNOUNCEMENT = 'ANNOUNCEMENT'
+
+
+class NotificationStatus(str, Enum):
+    UNREAD = 'UNREAD'
+    READ = 'READ'
+    ARCHIVED = 'ARCHIVED'
+
+
+class DocumentType(str, Enum):
+    CLAIM_DOCUMENT = "CLAIM_DOCUMENT"  # Claim-related documents
+    SUPPORTING_DOCUMENT = "SUPPORTING_DOCUMENT"  # Personal documents like IDs, licenses, etc.

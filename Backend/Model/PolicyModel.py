@@ -37,7 +37,7 @@ class PolicyCreateRequest(BaseModel):
     details: dict
 
 class PolicyUpdateRequest(BaseModel):
-    policy_number: int
+    policy_id: int
     policy_number: Optional[str] = None
     user_id: Optional[int] = None
     type: Optional[PolicyType] = None

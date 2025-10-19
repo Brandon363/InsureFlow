@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from Model.ClaimModel import ClaimResponse, ClaimCreate, ClaimUpdate
 from Entity.ClaimEntity import ClaimEntity
-from Repository import claim_repository
+from Repository import claim_repository, user_repository
 from Utils.Enums import EntityStatus
 
 
@@ -12,7 +12,7 @@ def get_active_claim_by_id(db_session: Session, claim_id: int) -> ClaimResponse:
     if db_claim is None:
         return ClaimResponse(status_code=404, success=False, message=f"Claim with id {claim_id} not found")
 
-    return ClaimResponse(status_code=200, success=True, message="Claim successfully", claim=db_claim)
+    return ClaimResponse(status_code=200, success=True, message="Claim successfully found", claim=db_claim)
 
 
 def get_active_claim_by_claim_number(db_session: Session, claim_number: str) -> ClaimResponse:
@@ -22,7 +22,7 @@ def get_active_claim_by_claim_number(db_session: Session, claim_number: str) -> 
     if db_claim_number is None:
         return ClaimResponse(status_code=404, success=False, message=f"Claim with number {claim_number} not found")
 
-    return ClaimResponse(status_code=200, success=True, message="Claim successfully", claim=db_claim_number)
+    return ClaimResponse(status_code=200, success=True, message="Claim successfully found", claim=db_claim_number)
 
 
 def get_active_claim_by_policy_id(db_session: Session, policy_id: int) -> ClaimResponse:
@@ -42,7 +42,7 @@ def get_active_claim_by_user_id(db_session: Session, user_id: int) -> ClaimRespo
     if db_user_id is None:
         return ClaimResponse(status_code=404, success=False, message=f"Claim for user ID {user_id} not found")
 
-    return ClaimResponse(status_code=200, success=True, message="Claim retrieved successfully", claim=db_user_id)
+    return ClaimResponse(status_code=200, success=True, message="Claim successfully found", claim=db_user_id)
 
 
 def get_all_active_claims(db_session: Session) -> ClaimResponse:
@@ -54,6 +54,11 @@ def get_all_active_claims(db_session: Session) -> ClaimResponse:
 
 
 def create_claim(db_session: Session, create_request: ClaimCreate) -> ClaimResponse:
+    existing_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=create_request.user_id)
+
+    if not existing_user:
+        return ClaimResponse(status_code=404, success=False, message=f"User ID {create_request.user_id} not found")
+
     db_claim_response = get_active_claim_by_claim_number(db_session=db_session, claim_number=create_request.claim_number)
 
     if db_claim_response.success:
@@ -64,33 +69,40 @@ def create_claim(db_session: Session, create_request: ClaimCreate) -> ClaimRespo
     db_session.commit()
     db_session.refresh(claim_entity)
 
-    return ClaimResponse(status_code=201, success=True, message="Claim created successfully", claim=claim_entity)
+    return ClaimResponse(status_code=200, success=True, message="Claim created successfully", claim=claim_entity)
 
 
-def update_claim(db_session: Session, update_request: ClaimUpdate) -> ClaimResponse:
-    db_claim = claim_repository.find_active_claim_by_claim_number(db_session=db_session, claim_number=update_request.claim_number)
+def update_claim(db_session: Session, claim_id:int, update_request: ClaimUpdate) -> ClaimResponse:
+    existing_claim = claim_repository.find_active_claim_by_id(db_session=db_session, claim_id=claim_id)
 
-    if db_claim and db_claim.id != update_request.id:
-        return ClaimResponse(status_code=400, success=False, message="Claim number already exists")
+    if not existing_claim:
+        return ClaimResponse(status_code=404, success=False, message=f"Claim with ID {claim_id} not found")
+
+    if update_request.claim_number != existing_claim.claim_number:
+        claim_with_the_same_number = claim_repository.find_active_claim_by_claim_number(db_session=db_session, claim_number=update_request.claim_number)
+
+        if claim_with_the_same_number:
+            return ClaimResponse(status_code=400, success=False, message=f"Claim number '{update_request.claim_number}' already exists")
 
     update_dict = update_request.dict(exclude_unset=True)
+
     for key, value in update_dict.items():
-        if value is not None:
-            setattr(db_claim, key, value)
-
-    db_session.commit()
-    db_session.refresh(db_claim)
-    return ClaimResponse(status_code=201, success=True, message="Claim edited successfully", claim=db_claim)
-
-
-def delete_claim(db_session: Session, id: int) -> ClaimResponse:
-    existing_claim = claim_repository.find_active_claim_by_claim_number(db_session, id)
-
-    if existing_claim is None:
-        return ClaimResponse(status_code=404, message=f"Claim ID {id} not found", success=False)
-
-    existing_claim.entity_status = EntityStatus.DELETED
+        if value is not None and hasattr(existing_claim, key):
+            setattr(existing_claim, key, value)
 
     db_session.commit()
     db_session.refresh(existing_claim)
+    return ClaimResponse(status_code=200, success=True, message="Claim edited successfully", claim=existing_claim)
+
+
+def delete_claim(db_session: Session, claim_id: int) -> ClaimResponse:
+    existing_claim = claim_repository.find_active_claim_by_id(db_session=db_session, claim_id=claim_id)
+
+    if existing_claim is None:
+        return ClaimResponse(status_code=404, success=False, message=f"Claim with ID {claim_id} does not exist")
+
+    existing_claim.entity_status = EntityStatus.DELETED
+    db_session.delete(existing_claim)
+    db_session.commit()
+
     return ClaimResponse(status_code=201, message="Claim successfully deleted", success=True, claim=existing_claim)

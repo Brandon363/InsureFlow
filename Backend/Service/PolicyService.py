@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from Entity import PolicyEntity
+from Entity.PolicyEntity import PolicyEntity
 from Model.PolicyModel import PolicyResponse, PolicyCreateRequest, PolicyUpdateRequest
-from Repository import policy_repository
+from Repository import policy_repository, user_repository
 from Utils.Enums import EntityStatus
 
 
@@ -48,7 +48,12 @@ def get_all_active_policies(db_session: Session) -> PolicyResponse:
 
 
 def create_policy(db_session: Session, create_request: PolicyCreateRequest) -> PolicyResponse:
-    db_policy_response = get_active_policy_by_id(db_session=db_session, policy_id=create_request.policy_number)
+    existing_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=create_request.user_id)
+
+    if not existing_user:
+        return PolicyResponse(status_code=404, success=False, message=f"User with ID {create_request.user_id} does not exist", policy=None)
+
+    db_policy_response = get_active_policy_by_policy_number(db_session=db_session, policy_number=create_request.policy_number)
 
     if db_policy_response.success:
         return PolicyResponse(status_code=400, success=False, message="Policy number already exists")
@@ -61,21 +66,27 @@ def create_policy(db_session: Session, create_request: PolicyCreateRequest) -> P
     return PolicyResponse(status_code=201, success=True, message="Policy created successfully", policy=policy_entity)
 
 
-def update_policy(db_session: Session, update_request: PolicyUpdateRequest) -> PolicyResponse:
-    db_policy = policy_repository.find_active_policy_by_policy_number(db_session=db_session, policy_number=update_request.policy_number)
+def update_policy(db_session: Session, policy_id: int, update_request: PolicyUpdateRequest) -> PolicyResponse:
+    existing_policy = policy_repository.find_active_policy_by_id(db_session=db_session, policy_id=update_request.policy_id)
 
-    if db_policy and db_policy.id != update_request.id:
-        return PolicyResponse(status_code=400, success=False, message="Policy number already exists")
+    if not existing_policy:
+        return PolicyResponse(status_code=404, success=False, message=f"Policy with ID {policy_id} not found")
+
+    if update_request.policy_number != existing_policy.policy_number:
+        policy_with_the_same_number = policy_repository.find_active_policy_by_policy_number(db_session=db_session, policy_number=update_request.policy_number)
+
+        if policy_with_the_same_number:
+            return PolicyResponse(status_code=400, success=False, message=f"Policy number '{update_request.policy_number}' already exists")
 
     update_dict = update_request.dict(exclude_unset=True)
 
     for key, value in update_dict.items():
-        if value is not None:
-            setattr(db_policy, key, value)
+        if value is not None and hasattr(existing_policy, key):
+            setattr(existing_policy, key, value)
 
     db_session.commit()
-    db_session.refresh(db_policy)
-    return PolicyResponse(status_code=200, success=True, message="Policy successfully updated", policy =db_policy)
+    db_session.refresh(existing_policy)
+    return PolicyResponse(status_code=200, success=True, message="Policy successfully updated", policy=existing_policy)
 
 
 def delete_policy(db_session: Session, policy_id: int) -> PolicyResponse:
@@ -88,4 +99,4 @@ def delete_policy(db_session: Session, policy_id: int) -> PolicyResponse:
     db_session.delete(existing_policy)
     db_session.commit()
 
-    return PolicyResponse(status_code=201, success=True, message="Policy successfully deleted", policy =existing_policy)
+    return PolicyResponse(status_code=201, success=True, message="Policy successfully deleted", policy=existing_policy)

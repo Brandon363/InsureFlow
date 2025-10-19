@@ -69,7 +69,7 @@ def update_agent(db_session:Session, agent_id:int, update_request: AgentUpdateRe
     if not existing_agent:
         return AgentResponse(status_code=404, success=False, message=f"Agent with id {agent_id} not found")
 
-    # Check if agent number is being changed anf if it conflicts with another agent
+    # Check if agent number is being changed and if it conflicts with another agent
     if update_request.agent_number != existing_agent.agent_number:
         agent_with_the_same_number = agent_repository.find_active_agent_by_agent_number(db_session=db_session, agent_number=update_request.agent_number)
 

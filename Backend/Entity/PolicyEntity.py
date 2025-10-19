@@ -29,4 +29,4 @@ class PolicyEntity(Base):
     user = relationship("UserEntity", back_populates="policies")
     claims = relationship("ClaimEntity", back_populates="policy")
     payments = relationship("PaymentEntity", back_populates="policy")
-    # documents = relationship("DocumentEntity", back_populates="policy")
+    documents = relationship("DocumentEntity", back_populates="policy")

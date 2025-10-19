@@ -12,5 +12,10 @@ def find_active_user_by_id_number(db_session: Session, id_number: str):
         UserEntity.id_number == id_number, UserEntity.entity_status == EntityStatus.ACTIVE).first()
 
 
+def find_active_user_by_email(db_session: Session, email: str):
+    return db_session.query(UserEntity).filter(
+        UserEntity.email == email, UserEntity.entity_status == EntityStatus.ACTIVE).first()
+
+
 def find_all_active_users(db_session: Session):
     return db_session.query(UserEntity).filter(UserEntity.entity_status == EntityStatus.ACTIVE).all()

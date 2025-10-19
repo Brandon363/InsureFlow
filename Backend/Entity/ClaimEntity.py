@@ -31,4 +31,5 @@ class ClaimEntity(Base):
     policy = relationship("PolicyEntity", back_populates="claims")
     documents = relationship("DocumentEntity", back_populates="claim")
     user = relationship("UserEntity", foreign_keys=[user_id], back_populates="claims")
+    notifications = relationship("NotificationEntity", back_populates="claim")
     processed_by_user = relationship("UserEntity", foreign_keys=[processed_by])

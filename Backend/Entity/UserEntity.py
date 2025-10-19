@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from Config.database import Base
 from sqlalchemy.orm import relationship
-
+from Utils.password_utils import hash_password, verify_password
 from Entity.ClaimEntity import ClaimEntity
 from Utils.Enums import UserRole, EntityStatus
 
@@ -27,9 +27,19 @@ class UserEntity(Base):
     date_updated = Column(DateTime, onupdate=datetime.utcnow, nullable=True)
     entity_status = Column(Enum(EntityStatus), nullable=False, default=EntityStatus.ACTIVE)
 
-    agent = relationship("AgentEntity", back_populates="user")
+    agent = relationship("AgentEntity", back_populates="user", uselist=False)
     policies = relationship("PolicyEntity", back_populates="user")
     claims = relationship("ClaimEntity", foreign_keys=[ClaimEntity.user_id], back_populates="user")
     payments = relationship("PaymentEntity", back_populates="user")
     documents = relationship("DocumentEntity", back_populates="user")
     notifications = relationship("NotificationEntity", back_populates="user")
+
+
+    def set_password(self, password: str):
+        # Hash and set the password
+        self.password = hash_password(password)
+
+
+    def check_password(self, password: str) -> bool:
+        # Check if the provided password matches the hashed password
+        return verify_password(password,  self.password)

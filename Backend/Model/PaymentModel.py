@@ -1,7 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import date, datetime
 from typing import Optional, List
-from enum import Enum
 
 from Model.ResponseModel import BaseResponse
 from Utils.Enums import PaymentStatus, PaymentMethod, EntityStatus
@@ -14,8 +13,8 @@ class PaymentDTO(BaseModel):
     amount: float
     status: PaymentStatus
     payment_method: PaymentMethod
-    transaction_id: int
-    receipt_url: Optional[str]
+    transaction_id: str
+    receipt_url: Optional[str] = None
     paid_at: date
     due_date: date
     date_created: datetime
@@ -31,10 +30,11 @@ class PaymentCreate(BaseModel):
     amount: float
     status: PaymentStatus
     payment_method: PaymentMethod
-    transaction_id: int
+    transaction_id: str
     receipt_url: Optional[str] = None
     paid_at: date
     due_date: date
+
 
 class PaymentUpdate(BaseModel):
     user_id: Optional[int] = None
@@ -42,10 +42,11 @@ class PaymentUpdate(BaseModel):
     amount: Optional[float] = None
     status: Optional[PaymentStatus] = None
     payment_method: Optional[PaymentMethod] = None
-    transaction_id: Optional[int] = None
+    transaction_id: Optional[str] = None
     receipt_url: Optional[str] = None
     paid_at: Optional[date] = None
     due_date: Optional[date] = None
+
 
 class PaymentResponse(BaseResponse):
     payment: Optional[PaymentDTO] = None

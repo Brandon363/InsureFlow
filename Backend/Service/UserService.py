@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from Entity.UserEntity import UserEntity
-from Model.UserModel import UserResponse, UserCreateRequest, UserUpdateRequest
+from Model.UserModel import UserResponse, UserCreateRequest, UserUpdateRequest, UserLoginRequest, UserPasswordUpdate
 from Repository import user_repository
 from Utils.Enums import EntityStatus
 
@@ -26,6 +26,17 @@ def get_active_user_by_id_number(db_session: Session, id_number: str) -> UserRes
     return UserResponse(status_code=200, success=True, message="User successfully found", user=db_user)
 
 
+def get_active_user_by_email(db_session: Session, email: str) -> UserResponse:
+    if email is None:
+        return UserResponse(status_code=400, success=False, message="Email cannot be null")
+
+    db_user = user_repository.find_active_user_by_email(db_session=db_session, email=email)
+    if db_user is None:
+        return UserResponse(status_code=404, success=False, message=f"User with email {email} not found")
+
+    return UserResponse(status_code=200, success=True, message="User successfully found", user=db_user)
+
+
 def get_all_active_users(db_session: Session) -> UserResponse:
     db_users = user_repository.find_all_active_users(db_session=db_session)
 
@@ -36,12 +47,36 @@ def get_all_active_users(db_session: Session) -> UserResponse:
 
 
 def create_user(db_session: Session, create_request: UserCreateRequest) -> UserResponse:
+    # Check if ID number already exists
+    existing_user_by_id = user_repository.find_active_user_by_id_number(db_session=db_session, id_number=create_request.id_number)
+
+    if existing_user_by_id:
+        return UserResponse(status_code=400, success=False, message="ID number already exists")
+
+
+    # Check if email already exists
+    existing_user_by_email = user_repository.find_active_user_by_email(db_session=db_session, email=create_request.email)
+
+    if existing_user_by_email:
+        return UserResponse(status_code=400, success=False, message="Email already exists")
+
     db_user_response = get_active_user_by_id_number(db_session=db_session, id_number=create_request.id_number)
 
     if db_user_response.success:
         return UserResponse(status_code=400, success=False, message="User id already exists")
 
-    user_entity = UserEntity(**create_request.dict())
+    # Create user entity
+    user_entity = UserEntity()
+
+    # Set basic attributes
+    for key, value in create_request.dict().items():
+        if key != 'password' and hasattr(user_entity, key):
+            setattr(user_entity, key, value)
+
+    # Hash and set password
+    user_entity.set_password(create_request.password)
+
+    # user_entity = UserEntity(**create_request.dict())
     # user_entity.is_logged_in = False
     db_session.add(user_entity)
     db_session.commit()
@@ -50,16 +85,88 @@ def create_user(db_session: Session, create_request: UserCreateRequest) -> UserR
     return UserResponse(status_code=201, success=True, message="User created successfully", user=user_entity)
 
 
-def update_user(db_session: Session, update_request: UserUpdateRequest) -> UserResponse:
-    db_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=update_request.user_id)
+def login_user(db_session: Session, login_request: UserLoginRequest) -> UserResponse:
+    # Find user by email
+    db_user = user_repository.find_active_user_by_email(db_session=db_session, email=login_request.email)
+
+    if not db_user:
+        return UserResponse(status_code=401, success=False, message="Invalid email or password")
+
+    # Handle case where user has no password (shouldn't happen but safe check)
+    if not db_user.check_password(login_request.password):
+        return UserResponse(status_code=401, success=False, message="Account setup incomplete. Please contact administrator.")
+
+    # Verify password
+    if not db_user.check_password(login_request.password):
+        return UserResponse(status_code=401, success=False, message="Invalid email or password")
+
+    # Update login status
+    db_user.is_logged_in = True
+    db_session.commit()
+    db_session.refresh(db_user)
+
+    return UserResponse(status_code=200, success=True, message="Login successful", user=db_user)
+
+
+def logout_user(db_session: Session, user_id: int) -> UserResponse:
+    db_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
+
+    if not db_user:
+        return UserResponse(status_code=404, success=False, message="User not found")
+
+    # Update logout status
+    db_user.is_logged_in = False
+    db_session.commit()
+    db_session.refresh(db_user)
+
+    return UserResponse(status_code=200, success=True, message="Logout successful", user=db_user)
+
+
+def update_user_password(db_session: Session, user_id: int, password_update: UserPasswordUpdate) -> UserResponse:
+    db_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
+
+    if not db_user:
+        return UserResponse(status_code=404, success=False, message="User not found")
+
+    # Verify old password
+    if not db_user.check_password(password_update.old_password):
+        return UserResponse(status_code=401, success=False, message="Invalid password")
+
+    # Set new password
+    db_user.set_password(password_update.new_password)
+    db_session.commit()
+
+    return UserResponse(status_code=200, success=True, message="Password updated successfully", user=db_user)
+
+
+def update_user(db_session: Session, user_id:int, update_request: UserUpdateRequest) -> UserResponse:
+    db_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
+
+    if not db_user:
+        return UserResponse(status_code=404, success=False, message=f"User with id {user_id} not found")
+
+    # Check if ID number is being changed and conflicts with another user
+    if update_request.id_number and update_request.id_number != db_user.id_number:
+        user_with_same_id =user_repository.find_active_user_by_id_number(db_session=db_session, id_number=update_request.id_number)
+
+        if user_with_same_id:
+            return UserResponse(status_code=400, success=False, message=f"ID number '{update_request.id_number}' already exists")
+
+    # Check if email is being changed and conflicts with another user
+    if update_request.email and update_request.email != db_user.email:
+        user_with_same_email = user_repository.find_active_user_by_email(db_session=db_session, email=update_request.email)
+
+        if user_with_same_email:
+            return UserResponse(status_code=400, success=False, message=f"Email '{update_request.email}' already exists")
 
     if db_user and db_user.id != update_request.id:
         return UserResponse(status_code=400, success=False, message="User id already exists")
 
     update_dict = update_request.dict(exclude_unset=True)
 
+    # Process specific fields (exclude password from regular update)
     for key, value in update_dict.items():
-        if value is not None:
+        if value is not None and hasattr(db_user, key) and key != 'password':
             setattr(db_user, key, value)
 
     db_session.commit()
@@ -73,6 +180,7 @@ def delete_user(db_session: Session, user_id: int) -> UserResponse:
         return UserResponse(status_code=404, success=False, message="User does not exist")
 
     existing_user.entity_status = EntityStatus.DELETED
+    existing_user.is_logged_in = False  # Ensure logged out when deleted
     db_session.delete(existing_user)
     db_session.commit()
 

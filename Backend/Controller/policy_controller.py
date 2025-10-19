@@ -40,11 +40,12 @@ def create_policy(create_request: PolicyCreateRequest, db: db_dependency):
     return PolicyService.create_policy(db_session=db, create_request=create_request)
 
 
-@router.put('update-policy/{policy_id}', response_model=PolicyResponse)
+@router.put('/update-policy/{policy_id}', response_model=PolicyResponse)
 def update_policy(update_request: PolicyUpdateRequest, policy_id: int, db: db_dependency):
-    return PolicyService.update_policy(db_session=db, update_request=update_request)
+    update_request.policy_id = policy_id
+    return PolicyService.update_policy(db_session=db, policy_id=policy_id, update_request=update_request)
 
 
-@router.delete('delete-policy/{policy_id}', response_model=PolicyResponse)
+@router.delete('/delete-policy/{policy_id}', response_model=PolicyResponse)
 def delete_policy(policy_id: int, db: db_dependency) -> PolicyResponse:
-    return PolicyService.delete_policy(db_session=db,policy_id=policy_id)
+    return PolicyService.delete_policy(db_session=db, policy_id=policy_id)

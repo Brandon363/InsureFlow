@@ -24,4 +24,4 @@ class DocumentEntity(Base):
 
     user = relationship("UserEntity", back_populates="documents")
     claim = relationship("ClaimEntity", back_populates="documents")
-    # policy = relationship("PolicyEntity", back_populates="documents")
+    policy = relationship("PolicyEntity", back_populates="documents")
