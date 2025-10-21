@@ -314,17 +314,27 @@ export const MyPreset = definePreset(Aura, {
         iconSize: "1rem",
         anchorGutter: "2px",
         primary: {
-            50: "#f4fafc",
-            100: "#cbe6f2",
-            200: "#a1d3e8",
-            300: "#78bfde",
-            400: "#4eacd4",
-            500: "#2598ca",
-            600: "#1f81ac",
-            700: "#1a6a8d",
-            800: "#14546f",
-            900: "#0f3d51",
-            950: "#092633"
+            // 50: "#f4fafc",
+            // 100: "#cbe6f2",
+            // 200: "#a1d3e8",
+            // 300: "#78bfde",
+            // 400: "#4eacd4",
+            // 500: "#2598ca",
+            // 600: "#1f81ac",
+            // 700: "#1a6a8d",
+            // 800: "#14546f",
+            // 900: "#0f3d51",
+            // 950: "#092633"
+            50: "#ecf7f1",
+            100: "#d1f0d6",
+            200: "#b5e8bb",
+            300: "#99dfa0",
+            400: "#7dd685",
+            500: "#18733F",
+            600: "#146235",
+            700: "#0f512c",
+            800: "#0a4122",
+            900: "#063119"
         },
         formField: {
             paddingX: "0.75rem",
@@ -559,8 +569,8 @@ export const MyPreset = definePreset(Aura, {
                     // 800: "#00021c",
                     // 900: "#000114",
                     950: "#00010d",
-                    0:   "#ffffff",   // Lightest, used for contrast or highlights (e.g., buttons on dark bg)
-                    50:  "#f2f3f7",   // Very light blue-gray
+                    0: "#ffffff",   // Lightest, used for contrast or highlights (e.g., buttons on dark bg)
+                    50: "#f2f3f7",   // Very light blue-gray
                     100: "#d9dbe8",   // Light gray-blue
                     200: "#b0b3cc",   // Muted steel blue
                     300: "#888bb0",   // Dusty navy

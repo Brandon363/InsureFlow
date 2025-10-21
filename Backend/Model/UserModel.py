@@ -12,32 +12,31 @@ class UserDTO(BaseModel):
     email: str
     first_name: str
     last_name: str
-    role: UserRole
+    user_role: UserRole
     date_of_birth: date
     village_of_origin: str
     place_of_birth: str
     phone_number: Optional[str] = None
     address: Optional[str]
     is_logged_in: bool
+    is_verified: bool
     date_created: datetime
     date_updated: Optional[datetime] = None
     entity_status: EntityStatus
 
-    # class Config:
-    #     from_attribute = True
     model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreateRequest(BaseModel):
-    id_number: str
+    id_number: str #
     email: str
-    first_name: str
-    last_name: str
-    role: UserRole
-    date_of_birth: date
-    village_of_origin: str
+    first_name: str #
+    last_name: str #
+    user_role: UserRole
+    date_of_birth: date #
+    village_of_origin: str #
     place_of_birth: str
-    phone_number: Optional[str] = None
+    phone_number: Optional[str] = None #
     address: Optional[str] = None
     password: str
 
@@ -48,7 +47,7 @@ class UserUpdateRequest(BaseModel):
     email: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    role: Optional[UserRole] = None
+    user_role: Optional[UserRole] = None
     phone_number: Optional[str] = None
     address: Optional[str] = None
     date_of_birth: Optional[date] = None

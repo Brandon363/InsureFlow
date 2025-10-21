@@ -173,6 +173,7 @@ def update_user(db_session: Session, user_id:int, update_request: UserUpdateRequ
     db_session.refresh(db_user)
     return UserResponse(status_code=200, success=True, message="User successfully updated", user=db_user)
 
+
 def delete_user(db_session: Session, user_id: int) -> UserResponse:
     existing_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
 
@@ -185,3 +186,14 @@ def delete_user(db_session: Session, user_id: int) -> UserResponse:
     db_session.commit()
 
     return UserResponse(status_code=201, success=True, message="User successfully deleted", user=existing_user)
+
+
+def is_user_logged_in(db_session: Session, user_id: int) ->UserResponse:
+    db_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
+    if not db_user:
+        return UserResponse(status_code=404, success=False, message=f"User with id {user_id} not found")
+
+    if db_user.is_logged_in:
+        return UserResponse(status_code=200, success=True, message="User is logged in", user=db_user)
+    else:
+        return UserResponse(status_code=401, success=False, message="User is not logged in")

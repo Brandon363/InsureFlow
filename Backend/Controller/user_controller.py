@@ -18,6 +18,10 @@ db_dependency = Annotated[Session, Depends(get_db)]
 def get_active_user_by_id(user_id: int, db: db_dependency):
     return UserService.get_active_user_by_id(db_session=db, user_id=user_id)
 
+@router.get('/is-user-logged-in/{user_id}', response_model=UserResponse)
+def is_user_logged_in(user_id: int, db: db_dependency):
+    return UserService.is_user_logged_in(db_session=db, user_id=user_id)
+
 
 @router.get('/get-active-user-by-id-number/{id_number}', response_model=UserResponse)
 def get_active_user_by_id_number(id_number: str, db: db_dependency):

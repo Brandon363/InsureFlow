@@ -1,0 +1,121 @@
+<div class="flex" style="height: 100vh; overflow-x: hidden;">
+    <div class="surface-border surface-card border-right-1 h-screen overflow-y-auto flex-shrink-0 hidden md:block">
+        <!-- <p-menu [model]="items" styleClass="border-0 p-3">
+            <ng-template #start>
+                <div class="flex align-items-center gap-3 py-3 px-2 mb-2">
+                    <img src="assets/images/favicon.ico" alt="logo"
+                        class="w-2 border-1 border-round-lg surface-border" />
+                    <div class="flex flex-column">
+                        <span class="text-lg text-900 font-bold mb-1">BidSmart Pro</span>
+                        <span class="text-sm text-500">AI Tender Assistant</span>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template #submenuheader let-item>
+                <span class="text-primary font-bold">{{ item.label }}</span>
+            </ng-template>
+            <ng-template #item let-item>
+                <a pRipple class="flex items-center p-menu-item-link py-2 border-round-lg "
+                    [routerLink]="item.routerLink"
+                    [ngClass]="{ 'bg-primary border-round-lg': isActiveMenu(item.routerLink) }">
+                    <span [class]="item.icon"></span>
+                    <span class="ml-1">{{ item.label }}</span>
+                    <p-badge *ngIf="item.badge" class="ml-auto" [value]="item.badge" />
+                    <span *ngIf="item.shortcut"
+                        class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{
+                        item.shortcut }}</span>
+                </a>
+            </ng-template>
+        </p-menu> -->
+        <div class="p-2 flex flex-column items-center justify-content-center mx-">
+            <div class=" mb-3 mt-1">
+                <img src="assets/images/favicon.png" alt="logo" width="45"
+                    class=" p-1 border-1 border-round-2xl border-500" />
+            </div>
+            <p-menu class="hidden"></p-menu>
+            <!-- <a pRipple class="p-menu-item-link my-2 border-round-lg hover:surface-100 hover:border-1 hover:border-round-2xl" [pTooltip]="item.label"
+                *ngFor="let item of items" [routerLink]="item.routerLink"
+                [ngClass]="{ 'bg-primary ': isActiveMenu(item.routerLink) }">
+                <p-overlaybadge severity="success" class="mt-1" [value]="item.badge"
+                    *ngIf="item.badge && item.badge !== '0'">
+                    <span [class]="item.icon" class="text-lg p-1"></span>
+                </p-overlaybadge>
+                <span [class]="item.icon" class="text-lg p-1" *ngIf="!item.badge || item.badge == '0'"></span>
+            </a> -->
+            <a pRipple class="p-menu-item-link my-2 border-round-lg"
+                [ngClass]="{ 'bg-primary': isActiveMenu(item.routerLink), 'hover:surface-100 hover:border-1 hover:border-round-2xl': !isActiveMenu(item.routerLink) }"
+                [pTooltip]="item.label" *ngFor="let item of items" [routerLink]="item.routerLink"
+                (click)="item.command ? item.command({item: item}) : null">
+                <p-overlaybadge severity="success" class="mt-1" [value]="item.badge"
+                    *ngIf="item.badge && item.badge !== '0'">
+                    <span [class]="item.icon" class="text-lg p-1"></span>
+                </p-overlaybadge>
+                <span [class]="item.icon" class="text-lg p-1" *ngIf="!item.badge || item.badge == '0'"></span>
+            </a>
+            <!-- <a pRipple
+                class="p-menu-item-link my-2 border-round-lg hover:surface-100 hover:border-1 hover:border-round-2xl"
+                [pTooltip]="item.label" *ngFor="let item of items" [routerLink]="item.routerLink"
+                [ngClass]="{ 'bg-primary text-white': isActiveMenu(item.routerLink) }">
+
+                <p-overlaybadge severity="success" class="mt-1" [value]="item.badge"
+                    *ngIf="item.badge && item.badge !== '0'">
+                    <span [class]="item.icon" class="text-lg"></span>
+                </p-overlaybadge>
+
+                <span [class]="item.icon" class="text-lg" *ngIf="!item.badge || item.badge == '0'"></span>
+            </a> -->
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-column min-w-0">
+
+        <div class="w-full h-4rem surface-card  border-bottom-1 surface-border
+            shadow-1 z-5 flex justify-content-end align-items-center px-3 gap-3 ">
+            <p-overlaybadge severity="danger" class="mt-1" *ngIf="allActiveUnreadNotifications.length > 0">
+                <i class="pi pi-bell" style="font-size: 1rem; color: var(--p-primary-color);"></i>
+            </p-overlaybadge>
+            <div *ngIf="allActiveUnreadNotifications.length == 0">
+                <i class="pi pi-bell" style="font-size: 1rem; color: var(--p-primary-color);"></i>
+            </div>
+            <div>
+
+                <p-button (onClick)="toggleDarkMode()" [icon]="themeIcon" [rounded]="true" [text]="true" />
+            </div>
+
+            <div>
+                <div class="flex items-center gap-2">
+                    <p-avatar [label]="avatarText" styleClass="mr-2 text-sm p-2 bg-primary" shape="circle" />
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto surface-ground min-w-0">
+            <div class="p-3 md:pb-0 md:mb-0 md:px-5 md:py-2 router-outlet-container w-full max-w-full">
+                <div *ngIf="isManipulatingData" class="spinner-overlay min-h-screen">
+                    <p-progressSpinner></p-progressSpinner>
+                </div>
+                <router-outlet></router-outlet>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- <p-toolbar class="sticky bottom-0 left-0 w-full z-5 md:hidden">
+    <div *ngFor="let item of items" class="px-1">
+        <span class="text-lg" [class]="item.icon" [routerLink]="item.routerLink" routerLinkActive="active-button"
+            (click)="item.command ? item.command({item: item}) : null"></span>
+    </div>
+</p-toolbar> -->
+
+<p-toolbar class="sticky bottom-0 left-0 w-full z-5 md:hidden">
+    <a pRipple class="p-menu-item-link my-2 border-round-lg"
+        [ngClass]="{ 'bg-primary': isActiveMenu(item.routerLink), 'hover:surface-100 hover:border-1 hover:border-round-2xl': !isActiveMenu(item.routerLink) }"
+        [pTooltip]="item.label" *ngFor="let item of items" [routerLink]="item.routerLink"
+        (click)="item.command ? item.command({item: item}) : null">
+        <p-overlaybadge severity="success" class="mt-1" [value]="item.badge" *ngIf="item.badge && item.badge !== '0'">
+            <span [class]="item.icon" class="text-lg p-1"></span>
+        </p-overlaybadge>
+        <span [class]="item.icon" class="text-lg p-1" *ngIf="!item.badge || item.badge == '0'"></span>
+    </a>
+</p-toolbar>

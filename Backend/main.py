@@ -26,7 +26,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
-api_router = APIRouter(prefix="/api/v1")
+# api_router = APIRouter(prefix="/api/v1")
+api_router = APIRouter()
 app.include_router(payment_controller.router, tags=["Payments"])
 app.include_router(notification_controller.router, tags=["Notifications"])
 api_router.include_router(document_controller.router, tags=["Documents"])
