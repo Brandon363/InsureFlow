@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from Controller import agent_controller, user_controller, policy_controller, claim_controller, document_controller, \
     payment_controller, notification_controller
 from fastapi.responses import JSONResponse
+from Controller.start_up_functions_controller import lifespan
 
 # import tables so that they are created
 from Entity.UserEntity import UserEntity
@@ -23,7 +24,8 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Insure Flow API",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # api_router = APIRouter(prefix="/api/v1")

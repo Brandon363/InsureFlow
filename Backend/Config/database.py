@@ -1,12 +1,7 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+
 
 # Define your database connection parameters
 server = '38.242.223.198'
