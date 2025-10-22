@@ -14,6 +14,7 @@ export interface UserDTO {
   phone_number?: string;
   address?: string;
   is_logged_in: boolean;
+  is_verified?: boolean;
   date_created: Date;
   date_updated?: Date;
   entity_status: EntityStatus;

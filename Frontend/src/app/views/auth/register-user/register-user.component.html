@@ -3,8 +3,8 @@
         <!-- <form [formGroup]="registerForm"> -->
         <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
             <div class="text-center mb-5">
-                <img src="assets/images/Champions logo.png" alt="Image" height="50" class="mb-3 border-round-2xl">
-                <div class="text-500 font-medium mb-3">Sign up</div>
+                <img src="assets/images/Champions logo.png" alt="Image" height="80" class="mb-3 border-round-2xl">
+                <div class="text-800 text-3xl font-medium mb-3">Sign up</div>
                 <span class="text-600 font-medium line-height-3">Already have an account?</span>
                 <a class="font-medium no-underline ml-2 text-blue-500 cursor-pointer" routerLink="/login">Sign
                     in!</a>
@@ -13,68 +13,64 @@
             <form [formGroup]="registerForm">
                 <div class="card grid">
                     <div class="col-6">
-                        <label for="first_name" class="block text-500 mb-2">first name</label>
-                        <input formControlName="first_name" id="first_name" type="text" placeholder="first name"
-                            pInputText class="w-full mb-3">
+                        <label for="first_name" class="block text-800 mb-2">First Name</label>
+                        <input formControlName="first_name" id="first_name" type="text" pInputText class="w-full mb-3">
                     </div>
                     <div class="col-6">
-                        <label for="last_name" class="block text-500 mb-2">last name</label>
-                        <input formControlName="last_name" id="last_name" type="text" placeholder="last name" pInputText
-                            class="w-full mb-3">
+                        <label for="last_name" class="block text-800 mb-2">Last Name</label>
+                        <input formControlName="last_name" id="last_name" type="text" pInputText class="w-full mb-3">
                     </div>
                     <div class="col-6">
-                        <label for="id_number" class="block text-500 mb-2">id number</label>
-                        <input formControlName="id_number" id="id_number" type="text" placeholder="id number" pInputText
-                            class="w-full mb-3">
+                        <label for="id_number" class="block text-800 mb-2">Id Number</label>
+                        <input formControlName="id_number" id="id_number" type="text" pInputText class="w-full mb-3">
                     </div>
                     <div class="col-6">
-                        <label for="phone_number" class="block text-500 mb-2">phone number</label>
+                        <label for="phone_number" class="block text-800 mb-2">Phone Number</label>
                         <!-- <p-inputmask mask="(263) 999-999-9999" formControlName="phone_number" id="phone_number"
                             placeholder="(263) 999-999-9999" class="w-full" /> -->
-                        <input formControlName="phone_number" id="phone_number" type="number" placeholder="phonr number" pInputText
+                        <input formControlName="phone_number" id="phone_number" type="number" pInputText
                             class="w-full mb-3">
                     </div>
                     <div class="col-6">
-                        <label for="date_of_birth" class="block text-500 mb-2">date of birth</label>
+                        <label for="date_of_birth" class="block text-800 mb-2">Date of Birth</label>
                         <p-datepicker formControlName="date_of_birth" [fluid]="true" [showIcon]="true"
                             inputId="buttondisplay" [showOnFocus]="false" />
                     </div>
                     <div class="col-6">
-                        <label for="village_of_origin" class="block text-500 mb-2">village</label>
-                        <input formControlName="village_of_origin" id="village_of_origin" type="text"
-                            placeholder="village" pInputText class="w-full mb-3">
+                        <label for="village_of_origin" class="block text-800 mb-2">Village</label>
+                        <input formControlName="village_of_origin" id="village_of_origin" type="text" pInputText
+                            class="w-full mb-3">
                     </div>
 
                     <div class="col-6">
-                        <label for="address" class="block text-500 mb-2">address</label>
+                        <label for="address" class="block text-800 mb-2">Address</label>
                         <textarea rows="3" cols="30" formControlName="address" pTextarea [autoResize]="true"
                             fluid></textarea>
                     </div>
 
                     <div class="col-6">
-                        <label for="place_of_birth" class="block text-500 mb-2">place of birth</label>
+                        <label for="place_of_birth" class="block text-800 mb-2">Place Of Birth</label>
                         <textarea rows="3" cols="30" formControlName="place_of_birth" pTextarea [autoResize]="true"
                             fluid></textarea>
                     </div>
 
                     <div class="col-12">
-                        <label for="email" class="block text-500 mb-2">email</label>
-                        <input formControlName="email" id="email" type="text" placeholder="email" pInputText
+                        <label for="email" class="block text-800 mb-2">Email</label>
+                        <input formControlName="email" id="email" type="text" pInputText class="w-full mb-3">
+                    </div>
+
+                    <div class="col-6">
+                        <label for="password" class="block text-800 mb-2">Password</label>
+                        <input formControlName="password" id="password" type="password" pInputText class="w-full mb-3">
+                    </div>
+                    <div class="col-6">
+                        <label for="confirm_password" class="block text-800 mb-2">Confirm Password</label>
+                        <input formControlName="confirm_password" id="confirm_password" type="password" pInputText
                             class="w-full mb-3">
                     </div>
 
-                    <div class="col-6">
-                        <label for="password" class="block text-500 mb-2">password</label>
-                        <input formControlName="password" id="password" type="password" placeholder="password"
-                            pInputText class="w-full mb-3">
-                    </div>
-                    <div class="col-6">
-                        <label for="confirm_password" class="block text-500 mb-2">confirm password</label>
-                        <input formControlName="confirm_password" id="confirm_password" type="password"
-                            placeholder="confirm password" pInputText class="w-full mb-3">
-                    </div>
-
-                    <div *ngIf="registerForm.get('confirm_password')?.hasError('NoPassswordMatch')">
+                    <div class="text-red-600 text-sm"
+                        *ngIf="registerForm.get('confirm_password')?.hasError('NoPassswordMatch')">
                         Passwords do not match
                     </div>
                 </div>
@@ -83,7 +79,7 @@
                 <!-- <div class="flex align-items-center justify-content-between mb-6">
                     <div class="flex align-items-center">
                         <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2"></p-checkbox>
-                        <label for="rememberme1" class="text-500 me</label>
+                        <label for="rememberme1" class="text-800 me</label>
                     </div>
                     <a class="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer">Forgot
                         password?</a>

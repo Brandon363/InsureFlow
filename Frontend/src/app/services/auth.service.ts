@@ -44,7 +44,6 @@ export class AuthService {
   }
 
   getCurrentUser(): UserDTO {
-    // const token_data = this.getDecodedToken() as MyJwtPayload
     const cached = sessionStorage.getItem('currentUser')
     if (cached) {
       const token_data = JSON.parse(cached) as UserDTO;
@@ -60,13 +59,17 @@ export class AuthService {
         date_of_birth: new Date,
         village_of_origin: '',
         place_of_birth: '',
-        is_logged_in: false
+        is_logged_in: false,
+        is_verified: false
       }
       return user;
     }
     else {
       this.messageService.add({ severity: 'warn', summary: 'Logged Out', detail: `User details not found, login again` });
-      this.logout()
+      // this.logout()
+      this.router.navigate(['/login']);
+      sessionStorage.clear();
+      this.authStatus.next(false);
       return {} as UserDTO
     }
   }
@@ -124,6 +127,7 @@ export class AuthService {
         if (userResponse.success) {
           this.currentUser.next(null);
           this.authStatus.next(false);
+          sessionStorage.clear();
         }
 
         return userResponse;

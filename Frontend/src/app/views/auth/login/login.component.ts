@@ -6,6 +6,7 @@ import { AuthService } from '../../../services/auth.service';
 import { UserLoginRequest } from '../../../models/user.interface';
 import { SharedModules } from '../../shared/shared_modules';
 import { Router } from '@angular/router';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -17,9 +18,10 @@ export class LoginComponent implements OnDestroy, OnInit {
   loginSubscription!: Subscription;
   loadingSubscription!: Subscription;
   notificationSubscription!: Subscription;
-  email: string = '';
+  // email: string = '';
   loading: boolean = false;
-  password: string = '';
+  // password: string = '';
+  loginForm!: FormGroup;
 
   constructor(
     private loadingService: LoadingService,
@@ -36,6 +38,11 @@ export class LoginComponent implements OnDestroy, OnInit {
         this.loading = isLoading;
       });
     });
+
+    this.loginForm = new FormGroup({
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [Validators.required])
+    });
   }
 
 
@@ -47,14 +54,14 @@ export class LoginComponent implements OnDestroy, OnInit {
 
 
   onLogin() {
-    if (this.password.trim() === '' || this.email.trim() === '') {
-      this.messageService.add({ severity: 'error', summary: 'Failed', detail: `Enter valid username and password` });
-      return
-    }
+    // if (this.password.trim() === '' || this.email.trim() === '') {
+    //   this.messageService.add({ severity: 'error', summary: 'Failed', detail: `Enter valid username and password` });
+    //   return
+    // }
     this.loadingService.setLoadingState(true);
     const loginRequest: UserLoginRequest = {
-      email: this.email,
-      password: this.password
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password
     };
 
     this.loginSubscription = this.authService.login(loginRequest).subscribe((response) => {
@@ -80,7 +87,7 @@ export class LoginComponent implements OnDestroy, OnInit {
 
   @HostListener('document:keydown.enter', ['$event'])
   handleGlobalEnter() {
-    if (this.password.trim() === '' || this.email.trim() === '') {
+    if (this.loginForm.invalid) {
       return
     }
     else {
