@@ -1,11 +1,18 @@
 from sqlalchemy.orm import Session
 from Entity.DocumentEntity import DocumentEntity
-from Utils.Enums import EntityStatus
+from Utils.Enums import EntityStatus, DocumentType
 
 
 def find_active_document_by_id(db_session: Session, document_id: int):
     return db_session.query(DocumentEntity).filter(
         DocumentEntity.id == document_id, DocumentEntity.entity_status == EntityStatus.ACTIVE).first()
+
+
+def find_active_id_document_by_user_id(db_session: Session, user_id: int):
+    return db_session.query(DocumentEntity).filter(
+        DocumentEntity.user_id == user_id,
+        DocumentEntity.type == DocumentType.NATIONAL_ID,
+        DocumentEntity.entity_status == EntityStatus.ACTIVE).first()
 
 
 def find_all_active_documents(db_session: Session, skip: int = 0, limit: int = 100):

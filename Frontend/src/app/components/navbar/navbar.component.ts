@@ -196,8 +196,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isActiveMenu(path: string): boolean {
     const url = this.router.url;
 
-    if (path === '/tenders') {
-      return url.startsWith('/tenders') || url.startsWith('/view-tender') || url.startsWith('/smart-analyze-tender') || url.startsWith('/add-tender') || url.startsWith('/chat-with-tender');
+    if (path === '/clients') {
+      return url.startsWith('/clients') || url.startsWith('/user') || url.startsWith('/edit-user') || url.startsWith('/add-tender') || url.startsWith('/chat-with-tender');
     }
     if (path === '/proposals') {
       return url.startsWith('/proposals') || url.startsWith('/view-proposal') || url.startsWith('/create-proposal') || url.startsWith('/edit-proposal');

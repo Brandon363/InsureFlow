@@ -37,18 +37,19 @@ export class RegisterUserComponent implements OnDestroy, OnInit {
     this.loading = false;
 
     this.registerForm = new FormGroup({
-      first_name: new FormControl('', [Validators.required]),
-      last_name: new FormControl('', [Validators.required]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required]),
+      first_name: new FormControl(null, [Validators.required]),
+      last_name: new FormControl(null, [Validators.required]),
+      other_names: new FormControl(null, [Validators.required]),
+      email: new FormControl(null, [Validators.required, Validators.email]),
+      password: new FormControl(null, [Validators.required]),
       // user_role: new FormControl('', [Validators.required]),
-      id_number: new FormControl('', [Validators.required]),
-      date_of_birth: new FormControl('', [Validators.required]),
-      village_of_origin: new FormControl('', [Validators.required]),
-      place_of_birth: new FormControl('', [Validators.required]),
-      address: new FormControl('', [Validators.required]),
-      phone_number: new FormControl('', [Validators.required]),
-      confirm_password: new FormControl('', [Validators.required]),
+      id_number: new FormControl(null, [Validators.required]),
+      date_of_birth: new FormControl(null, [Validators.required]),
+      village_of_origin: new FormControl(null, [Validators.required]),
+      place_of_birth: new FormControl(null, [Validators.required]),
+      address: new FormControl(null, [Validators.required]),
+      phone_number: new FormControl(null, [Validators.required]),
+      confirm_password: new FormControl(null, [Validators.required]),
     }, { validators: this.passwordMatchValidator() });
 
 
@@ -98,7 +99,8 @@ export class RegisterUserComponent implements OnDestroy, OnInit {
       user_role: UserRole.ADMIN,
       date_of_birth: this.registerForm.value.date_of_birth.toISOString().split('T')[0],
       village_of_origin: this.registerForm.value.village_of_origin,
-      place_of_birth: this.registerForm.value.place_of_birth
+      place_of_birth: this.registerForm.value.place_of_birth,
+      other_names: this.registerForm.value.other_names
     };
 
     this.loginSubscription = this.authService.register(loginRequest).subscribe((response) => {

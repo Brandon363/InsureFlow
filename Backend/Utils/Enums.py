@@ -63,3 +63,4 @@ class NotificationStatus(str, Enum):
 class DocumentType(str, Enum):
     CLAIM_DOCUMENT = "CLAIM_DOCUMENT"  # Claim-related documents
     SUPPORTING_DOCUMENT = "SUPPORTING_DOCUMENT"  # Personal documents like IDs, licenses, etc.
+    NATIONAL_ID = "NATIONAL_ID"

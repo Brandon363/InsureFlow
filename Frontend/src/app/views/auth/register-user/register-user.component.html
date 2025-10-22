@@ -16,14 +16,28 @@
                         <label for="first_name" class="block text-800 mb-2">First Name</label>
                         <input formControlName="first_name" id="first_name" type="text" pInputText class="w-full mb-3">
                     </div>
+
                     <div class="col-6">
                         <label for="last_name" class="block text-800 mb-2">Last Name</label>
                         <input formControlName="last_name" id="last_name" type="text" pInputText class="w-full mb-3">
                     </div>
+
+                    <div class="col-6">
+                        <label for="email" class="block text-800 mb-2">Email</label>
+                        <input formControlName="email" id="email" type="text" pInputText class="w-full mb-3">
+                    </div>
+
+                    <div class="col-6">
+                        <label for="other_names" class="block text-800 mb-2">Other Names</label>
+                        <input formControlName="other_names" id="other_names" type="text" pInputText
+                            class="w-full mb-3">
+                    </div>
+
                     <div class="col-6">
                         <label for="id_number" class="block text-800 mb-2">Id Number</label>
                         <input formControlName="id_number" id="id_number" type="text" pInputText class="w-full mb-3">
                     </div>
+
                     <div class="col-6">
                         <label for="phone_number" class="block text-800 mb-2">Phone Number</label>
                         <!-- <p-inputmask mask="(263) 999-999-9999" formControlName="phone_number" id="phone_number"
@@ -31,11 +45,13 @@
                         <input formControlName="phone_number" id="phone_number" type="number" pInputText
                             class="w-full mb-3">
                     </div>
+
                     <div class="col-6">
                         <label for="date_of_birth" class="block text-800 mb-2">Date of Birth</label>
                         <p-datepicker formControlName="date_of_birth" [fluid]="true" [showIcon]="true"
                             inputId="buttondisplay" [showOnFocus]="false" />
                     </div>
+                    
                     <div class="col-6">
                         <label for="village_of_origin" class="block text-800 mb-2">Village</label>
                         <input formControlName="village_of_origin" id="village_of_origin" type="text" pInputText
@@ -52,11 +68,6 @@
                         <label for="place_of_birth" class="block text-800 mb-2">Place Of Birth</label>
                         <textarea rows="3" cols="30" formControlName="place_of_birth" pTextarea [autoResize]="true"
                             fluid></textarea>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="email" class="block text-800 mb-2">Email</label>
-                        <input formControlName="email" id="email" type="text" pInputText class="w-full mb-3">
                     </div>
 
                     <div class="col-6">

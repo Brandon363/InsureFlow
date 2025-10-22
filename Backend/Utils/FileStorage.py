@@ -8,18 +8,22 @@ from Utils.Enums import DocumentType
 BASE_DOCUMENTS_DIR = Path("backend/Documents")
 CLAIM_DOCUMENTS_DIR = BASE_DOCUMENTS_DIR / "claim_documents"
 SUPPORTING_DOCUMENTS_DIR = BASE_DOCUMENTS_DIR / "supporting_documents"
+NATIONAL_ID_DIR = BASE_DOCUMENTS_DIR / "national_id_documents"
 
 
 def ensure_directories_exist():
     # Create document directories if they don't exist
     CLAIM_DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
     SUPPORTING_DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
+    NATIONAL_ID_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def get_storage_directory(document_type: DocumentType) -> Path:
     # Get the appropriate storage directory based on document type
     if document_type == DocumentType.CLAIM_DOCUMENT:
         return CLAIM_DOCUMENTS_DIR
+    if document_type == DocumentType.NATIONAL_ID:
+        return NATIONAL_ID_DIR
     else:  # SUPPORTING_DOCUMENT
         return SUPPORTING_DOCUMENTS_DIR
 
@@ -33,7 +37,6 @@ def generate_unique_filename(original_filename: str) -> str:
 
 async def save_uploaded_file(file: UploadFile, document_type: DocumentType) -> Tuple[str, str, int]:
     # Save an uploaded file to the appropriate directory
-
     ensure_directories_exist()
 
     # Generate unique filename

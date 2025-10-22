@@ -6,6 +6,7 @@ import { UserService } from '../../../services/user.service';
 import { LoadingService } from '../../../services/loading.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-view-all-users',
@@ -44,6 +45,7 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
     private productBufferLevelService: UserService,
     private loadingService: LoadingService,
     private messageService: MessageService,
+    private router: Router,
     private confirmationService: ConfirmationService) { }
 
   cards: any[] = [];
@@ -75,7 +77,7 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.getAllSubscription = this.productBufferLevelService.getAllActiveUsers().subscribe()
     this.retrieveSubscription = this.productBufferLevelService.retrieveUserData().subscribe((response) => {
-
+      console.log(response);
       this.allProductBufferLevels = response;
       this.allProductBufferLevels = response.sort((a, b) => {
         const dateA = a.date_updated ? new Date(a.date_updated).getTime() : 0;
@@ -110,12 +112,12 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
   }
 
 
-  viewProductBufferLevel(productBufferLevel: UserDTO) {
-    if (productBufferLevel) {
-      this.selectedProductBufferLevel = productBufferLevel;
-      this.showEditProductBufferLevelDialog = true;
-    }
-  }
+  // viewProductBufferLevel(productBufferLevel: UserDTO) {
+  //   if (productBufferLevel) {
+  //     this.selectedProductBufferLevel = productBufferLevel;
+  //     this.showEditProductBufferLevelDialog = true;
+  //   }
+  // }
 
 
   onDeleteProductBufferLevel(productBufferLevel: UserDTO) {
@@ -201,6 +203,11 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
         icon: "pi pi-verified"
       }
     ]
+  }
+
+
+  viewUserDetails(user: UserDTO) {
+    this.router.navigate(['/user/', user.id]);
   }
 
 }

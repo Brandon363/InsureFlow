@@ -1,11 +1,13 @@
-from sqlalchemy import Column, String, Enum, Date, DateTime, Integer, Boolean
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+
+from sqlalchemy import Column, String, Enum, Date, DateTime, Integer, Boolean, inspect
+from sqlalchemy.orm import relationship, validates
+
 from Config.database import Base
-from sqlalchemy.orm import relationship
-from Utils.password_utils import hash_password, verify_password
 from Entity.ClaimEntity import ClaimEntity
 from Utils.Enums import UserRole, EntityStatus
+from Utils.password_utils import hash_password, verify_password
+
 
 class UserEntity(Base):
     __tablename__ = "users"
@@ -13,16 +15,18 @@ class UserEntity(Base):
     id = Column(Integer, primary_key=True, index=True)
     id_number = Column(String(50), unique=True, nullable=False, index=True)
     email = Column(String(100), unique=True)
-    village_of_origin = Column(String(100))
-    place_of_birth = Column(String(100))
-    password = Column(String(255))
-    first_name = Column(String(100))
-    last_name = Column(String(100))
-    user_role = Column(Enum(UserRole))
+    village_of_origin = Column(String(100), nullable=False)
+    place_of_birth = Column(String(100), nullable=False)
+    password = Column(String(255), nullable=False)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    other_names = Column(String(100), nullable=True)
+    user_role = Column(Enum(UserRole), nullable=False)
     phone_number = Column(String(20), nullable=True)
     address = Column(String(255), nullable=True)
     date_of_birth = Column(Date, nullable=False)
     is_logged_in = Column(Boolean, default=False, nullable=False)
+    date_last_logged_in = Column(DateTime, nullable=True)
     is_verified = Column(Boolean, default=False, nullable=False)
     date_created = Column(DateTime, default=datetime.utcnow, nullable=True)
     date_updated = Column(DateTime, onupdate=datetime.utcnow, nullable=True)
@@ -34,13 +38,27 @@ class UserEntity(Base):
     payments = relationship("PaymentEntity", back_populates="user")
     documents = relationship("DocumentEntity", back_populates="user")
     notifications = relationship("NotificationEntity", back_populates="user")
-
+    extracted_user = relationship("ExtractedUserEntity", back_populates="user", uselist=False)
 
     def set_password(self, password: str):
         # Hash and set the password
         self.password = hash_password(password)
 
-
     def check_password(self, password: str) -> bool:
         # Check if the provided password matches the hashed password
-        return verify_password(password,  self.password)
+        return verify_password(password, self.password)
+
+
+    @validates('*')
+    def validate_string_fields(self, key, value):
+        if key in inspect(self.__class__).column_attrs and isinstance(value, str) and key != 'password':
+            return value.strip()
+        return value
+
+    @validates('first_name', 'last_name', 'other_names', 'village_of_origin', 'place_of_birth', 'address')
+    def validate_string_fields(self, key, value):
+        return value.capitalize()
+
+    @validates('id_number')
+    def validate_string_fields(self, key, value):
+        return value.replace(" ", "")

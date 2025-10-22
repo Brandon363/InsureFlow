@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.orm import Session
 from Entity.UserEntity import UserEntity
 from Model.UserModel import UserResponse, UserCreateRequest, UserUpdateRequest, UserLoginRequest, UserPasswordUpdate
@@ -102,6 +104,7 @@ def login_user(db_session: Session, login_request: UserLoginRequest) -> UserResp
 
     # Update login status
     db_user.is_logged_in = True
+    db_user.date_last_logged_in = datetime.utcnow()
     db_session.commit()
     db_session.refresh(db_user)
 

@@ -67,11 +67,11 @@
                             <p-columnFilter type="text" field="last_name" display="menu" />
                         </div>
                     </th>
-                    <th style="min-width:12rem" pSortableColumn="email">
+                    <th style="min-width:12rem" pSortableColumn="overall_accuracy">
                         <div class="flex align-items-center justify-content-between">
-                            Email Address
-                            <p-sortIcon field="email"></p-sortIcon>
-                            <p-columnFilter type="text" field="email"
+                            Extraction Accuracy
+                            <p-sortIcon field="overall_accuracy"></p-sortIcon>
+                            <p-columnFilter type="number" field="overall_accuracy"
                                 display="menu"></p-columnFilter>
                         </div>
                     </th>
@@ -101,9 +101,10 @@
                     <td>{{ case.first_name }}</td>
                     <td>{{ case.last_name }}</td>
                     <td>
-                        <div class="flex align-items-center gap-2">
-                            <span>{{ case.email | nullDisplay}}</span>
-                        </div>
+                        <!-- <div class="flex align-items-center gap-2 w-full"> -->
+                            <!-- <span>{{ case.overall_accuracy | percent | nullDisplay}}</span> -->
+                            <p-progressbar [value]="case.extracted_user.overall_accuracy*100"  [style]="{ height: '10px' }"/>
+                        <!-- </div> -->
                     </td>
                     <td>
                         <p-tag [value]="getStatusSeverityAndWord(case.is_verified).status"
@@ -117,8 +118,8 @@
 
                     <td>
                         <div class="flex gap-2">
-                            <p-button icon="pi pi-pencil" severity="info" (click)="viewProductBufferLevel(case)"
-                                pTooltip="Edit Buffer level" variant="outlined"></p-button>
+                            <p-button icon="pi pi-eye" severity="info" (click)="viewUserDetails(case)"
+                                pTooltip="view client" variant="outlined"></p-button>
                         </div>
                     </td>
                 </tr>

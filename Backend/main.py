@@ -3,7 +3,7 @@ from Config.database import Base, engine
 from Config.middleware_and_cors import MyMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from Controller import agent_controller, user_controller, policy_controller, claim_controller, document_controller, \
-    payment_controller, notification_controller
+    payment_controller, notification_controller, ExtractedUserController
 from fastapi.responses import JSONResponse
 from Controller.start_up_functions_controller import lifespan
 
@@ -15,6 +15,7 @@ from Entity.DocumentEntity import DocumentEntity
 from Entity.NotificationEntity import NotificationEntity
 from Entity.PaymentEntity import PaymentEntity
 from Entity.PolicyEntity import PolicyEntity
+from Entity.ExtractedUserEntity import ExtractedUserEntity
 
 # create the tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -36,12 +37,23 @@ api_router.include_router(document_controller.router, tags=["Documents"])
 api_router.include_router(claim_controller.router, tags=["Claims"])
 api_router.include_router(policy_controller.router, tags=["Policies"])
 api_router.include_router(user_controller.router, tags=["Users"])
+api_router.include_router(ExtractedUserController.router, tags=["Extracted Users"])
 api_router.include_router(agent_controller.router, tags=["Agents"])
 
 @api_router.get("/")
 def read_root():
     return {"Server is running"}
 
+@app.post("/recreate-tables/")
+def recreate_tables_endpoint():
+    try:
+        # Drop all tables
+        Base.metadata.drop_all(engine)
+        # Create all tables
+        Base.metadata.create_all(engine)
+        return {"message": "Tables recreated successfully"}
+    except Exception as e:
+        return {"message": f"Error recreating tables: {str(e)}"}
 
 @api_router.delete("/delete-all-tables")
 def delete_all_tables():
