@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship, validates
 
 from Config.database import Base
 from Entity.ClaimEntity import ClaimEntity
-from Utils.Enums import UserRole, EntityStatus
+from Utils.Enums import UserRole, EntityStatus, VerificationStatus
 from Utils.password_utils import hash_password, verify_password
 
 
@@ -27,7 +27,8 @@ class UserEntity(Base):
     date_of_birth = Column(Date, nullable=False)
     is_logged_in = Column(Boolean, default=False, nullable=False)
     date_last_logged_in = Column(DateTime, nullable=True)
-    is_verified = Column(Boolean, default=False, nullable=False)
+    verification_notes = Column(String(2000), nullable=True)
+    verification_status = Column(Enum(VerificationStatus), nullable=False, default=VerificationStatus.UNVERIFIED)
     date_created = Column(DateTime, default=datetime.utcnow, nullable=True)
     date_updated = Column(DateTime, onupdate=datetime.utcnow, nullable=True)
     entity_status = Column(Enum(EntityStatus), nullable=False, default=EntityStatus.ACTIVE)
@@ -38,7 +39,7 @@ class UserEntity(Base):
     payments = relationship("PaymentEntity", back_populates="user")
     documents = relationship("DocumentEntity", back_populates="user")
     notifications = relationship("NotificationEntity", back_populates="user")
-    extracted_user = relationship("ExtractedUserEntity", back_populates="user", uselist=False)
+    extracted_users = relationship("ExtractedUserEntity", back_populates="user")
 
     def set_password(self, password: str):
         # Hash and set the password

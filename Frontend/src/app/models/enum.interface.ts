@@ -63,3 +63,10 @@ export enum DocumentType {
   SUPPORTING_DOCUMENT = "SUPPORTING_DOCUMENT",
   NATIONAL_ID = "NATIONAL_ID"
 }
+
+export enum VerificationStatus {
+  PENDING = "PENDING",
+  VERIFIED = "VERIFIED",
+  UNVERIFIED = "UNVERIFIED",
+  REJECTED = "REJECTED"
+}

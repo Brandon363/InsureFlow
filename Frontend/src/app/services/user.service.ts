@@ -97,7 +97,7 @@ export class UserService {
   }
 
 
-  getByUserId(id: string): Observable<UserResponse> {
+  getByUserId(id: number): Observable<UserResponse> {
     return this.httpclient.get(`${this.baseURL}/${this.subUrl}/get-active-user-by-id/${id}`).pipe(
       map((response: any) => {
         const UserResponse = this.mapToResponse(response);

@@ -1,49 +1,65 @@
 from contextlib import asynccontextmanager
+from datetime import date
+
 from sqlalchemy.orm import Session
 from Config.database import SessionLocal
+from Model.UserModel import UserCreateRequest
+
+from Service import UserService
+from Utils.Enums import UserRole
 
 
 @asynccontextmanager
 async def lifespan(app):
     db: Session = SessionLocal()
     try:
-        print("This is where all the start up functions go")
-        pass
-
-    #     create_tender_source_request = TenderSourceCreateRequest(
-    #         name='Tender Insight',
-    #         code='TENDER_INSIGHT',
-    #         base_url='www.insight.com',
-    #         is_active=True,  # or False, depending on your default
-    #         extraction_frequency=ExtractionFrequency.ON_DEMAND,  # or 'weekly', etc.
-    #         extraction_method=ExtractionMethod.API,
-    #         country='Zimbabwe'
-    #     )
-    #     etender_create_tender_source_request = TenderSourceCreateRequest(
-    #         name='Etenders',
-    #         code='ETENDERS',
-    #         base_url='https://www.etenders.gov.za/',
-    #         is_active=True,  # or False, depending on your default
-    #         extraction_frequency=ExtractionFrequency.ON_DEMAND,  # or 'weekly', etc.
-    #         extraction_method=ExtractionMethod.API,
-    #         country='South Africa'
-    #     )
-    #     create_response = create_tender_source(create_tender_source_request, db)
-    #     print(create_response.message)
-    #     create_response = create_tender_source(etender_create_tender_source_request, db)
-    #     print(create_response.message)
-    #
-    #     users: [UserCreateRequest] = [
-    #         UserCreateRequest( first_name="Brandon", last_name="Mutombwa", other_initials="T", email="brandon.mutombwa@dataalafrica.com", password="123", username="brandon", user_role=UserRole.ADMIN),
-    #         UserCreateRequest( first_name="Mary", last_name="Ann", other_initials="K", email="mary.ann@dataalafrica.com", password="123", username="maryann", user_role=UserRole.ADMIN),
-    #         UserCreateRequest( first_name="Godfrey", last_name="Mbizo", email="godfrey.mbizo@dataalafrica.com", password="123", username="godfrey", user_role=UserRole.BUSINESS_DEV),
-    #         UserCreateRequest( first_name="Trevor", last_name="Muchenje", email="trevor.muchenje@dataalafrica.com", password="123", username="trevor", user_role=UserRole.BUSINESS_DEV),
-    #         UserCreateRequest( first_name="Medium", last_name="Musuta", email="medium.musuta@dataalafrica.com", password="123", username="medium", user_role=UserRole.BUSINESS_DEV),
-    #     ]
-    #
-    #     for user in users:
-    #         create_response = user_controller.create_user(user=user, db=db)
-    #         print(create_response.message)
+        users: [UserCreateRequest] = [UserCreateRequest(
+            id_number="75-191961 R 00",
+            email="andrew@gmail.com",
+            first_name="ANDREW",
+            last_name="ROBERTS",
+            other_names="WILLIAM L",
+            user_role=UserRole.ADMIN,
+            date_of_birth=date(1959, 11, 17),
+            village_of_origin="",
+            place_of_birth="HARARE",
+            phone_number=None,
+            address=None,
+            password="passworddd"
+        ),
+            UserCreateRequest(
+                id_number="63-758552 Y 27",
+                email="mutumwa@gmail.com",  # Email not available on the ID card
+                first_name="MUTUMWA",
+                last_name="DZIVA",
+                other_names="MAWER",
+                user_role=UserRole.CUSTOMER,  # Assuming UserRole is an enum with CUSTOMER as a value
+                date_of_birth=date(1960, 11, 1),
+                village_of_origin="BINDUR",
+                place_of_birth="MAWERE",
+                phone_number=None,  # Phone number not available on the ID card
+                address=None,  # Address not available on the ID card
+                password="passworddd"  # Password would need to be set separately
+            ),
+            UserCreateRequest(
+                id_number="45-190221 E 45",
+                email="expetrollcapolator@gmail.com",  # email not available in the image
+                first_name="EXPETROLLCAPOLATOR",
+                last_name="CHIMUNDEGE",
+                other_names=None,
+                user_role=UserRole.CUSTOMER,  # user_role not available in the image
+                date_of_birth=date(1994, 4, 3),
+                village_of_origin="KAJOKOTO",
+                place_of_birth="MOUNT DARWIN",
+                phone_number=None,  # phone_number not available in the image
+                address=None,  # address not available in the image
+                password="passworddd"  # password not available in the image
+            )
+        ]
+        for user in users:
+            create_response = UserService.create_user(
+                create_request=user, db_session=db)
+            print(create_response.message)
 
         yield
     finally:

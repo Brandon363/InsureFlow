@@ -1,5 +1,6 @@
 from datetime import date, datetime
-from typing import Optional, List
+from typing import Optional, List, Any
+from fastapi import UploadFile, File
 
 from pydantic import BaseModel, ConfigDict
 
@@ -77,6 +78,10 @@ class ExtractedUserUpdateRequest(BaseModel):
     overall_accuracy: Optional[float] = None
     entity_status: Optional[EntityStatus] = None
 
+
+class UserExtractRequest(BaseModel):
+    image_file: UploadFile
+    user_id: int
 
 class ExtractedUserResponse(BaseResponse):
     extracted_user: Optional[ExtractedUserDTO] = None

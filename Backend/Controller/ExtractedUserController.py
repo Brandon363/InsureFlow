@@ -1,12 +1,12 @@
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import APIRouter
-from fastapi.params import Depends
+from fastapi.params import Depends, Form, File
 from requests import Session
 from fastapi import UploadFile
 
 from Config.database import get_db
-from Model.ExtractedUserModel import ExtractedUserResponse, ExtractedUserCreateRequest
+from Model.ExtractedUserModel import ExtractedUserResponse, ExtractedUserCreateRequest, UserExtractRequest
 from Service import ExtractedUserService
 
 router = APIRouter(
@@ -41,6 +41,13 @@ def delete_user (user_id: int, db: db_dependency) -> ExtractedUserResponse:
     return ExtractedUserService.delete_extracted_user(db_session=db,user_id=user_id)
 
 
-@router.post('/extract-user', response_model=ExtractedUserResponse)
-async def extract_user(image_file: UploadFile, user_id: int, db: db_dependency):
+@router.post('/extract-user/{user_id}', response_model=ExtractedUserResponse)
+async def extract_user(user_id: int, db: db_dependency,image_files: List[UploadFile] = File([])):
+    image_file = image_files[0] if image_files else None
     return await ExtractedUserService.extract_user(db_session=db, image_file=image_file, user_id=user_id)
+
+# @router.post('/extract-user', response_model=ExtractedUserResponse)
+# async def extract_user(request: UserExtractRequest, db:db_dependency):
+#     image_file = request.image_file
+#     user_id = request.user_id
+#     return await ExtractedUserService.extract_user(db_session=db, image_file=image_file, user_id=user_id)

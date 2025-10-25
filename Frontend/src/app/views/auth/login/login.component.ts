@@ -7,6 +7,7 @@ import { UserLoginRequest } from '../../../models/user.interface';
 import { SharedModules } from '../../shared/shared_modules';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UserRole } from '../../../models/enum.interface';
 
 @Component({
   selector: 'app-login',
@@ -77,7 +78,11 @@ export class LoginComponent implements OnDestroy, OnInit {
       }
 
       this.messageService.add({ severity: 'success', summary: 'Logged In', detail: `Welcome back ${response.user?.first_name}` });
-      this.router.navigate(['/home']);
+      if (response.user && response.user.user_role === UserRole.CUSTOMER) {
+        this.router.navigate(['/client-dashboard']);
+      } else {
+        this.router.navigate(['/admin-dashboard']);
+      }
     }, (error) => {
       this.loadingService.setLoadingState(false);
       this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: error.message });

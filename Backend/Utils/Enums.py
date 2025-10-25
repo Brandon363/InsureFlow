@@ -52,6 +52,7 @@ class NotificationType(str, Enum):
     CLAIM_UPDATE = 'CLAIM_UPDATE'
     POLICY_UPDATE = 'POLICY_UPDATE'
     ANNOUNCEMENT = 'ANNOUNCEMENT'
+    VERIFICATION_UPDATE = 'VERIFICATION_UPDATE'
 
 
 class NotificationStatus(str, Enum):
@@ -64,3 +65,9 @@ class DocumentType(str, Enum):
     CLAIM_DOCUMENT = "CLAIM_DOCUMENT"  # Claim-related documents
     SUPPORTING_DOCUMENT = "SUPPORTING_DOCUMENT"  # Personal documents like IDs, licenses, etc.
     NATIONAL_ID = "NATIONAL_ID"
+
+class VerificationStatus(str, Enum):
+    VERIFIED = "VERIFIED"
+    UNVERIFIED = "UNVERIFIED"
+    PENDING = "PENDING"
+    REJECTED = "REJECTED"

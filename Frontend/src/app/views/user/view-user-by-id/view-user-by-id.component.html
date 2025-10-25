@@ -1,8 +1,14 @@
 <div class="pt-3 mb- mx-5 md:flex justify-content-between align-items-center bg-transparent">
     <p-breadcrumb [model]="breadcomb_menu_items" [home]="home" styleClass="bg-transparent" />
     <div *ngIf="user">
-        <p-tag *ngIf="!user.is_verified" icon="pi pi-clock" severity="warn" value="Pending Verification" />
-        <p-tag *ngIf="user.is_verified" icon="pi pi-verified" severity="warn" value="Verified" />
+        <p-tag *ngIf="user.verification_status === verificationStatus.UNVERIFIED" icon="pi pi-exclamation-circle" severity="warn"
+            value="Unverified" />
+        <p-tag *ngIf="user.verification_status === verificationStatus.PENDING" icon="pi pi-clock" severity="info"
+            value="Pending Verification" />
+        <p-tag *ngIf="user.verification_status === verificationStatus.REJECTED" icon="pi pi-ban" severity="danger"
+            value="Rejected" />
+        <p-tag *ngIf="user.verification_status === verificationStatus.VERIFIED" icon="pi pi-verified" severity="success"
+            value="Verified" />
     </div>
 
 </div>
@@ -20,236 +26,373 @@
                     </div>
                 </div>
 
-                <div class="flex justify-content-between bg-blue-50 p-3 py-5 border-round-xl" *ngIf="extractedUser">
-                    <div>
-                        <div class="mb-2 text-500 text-sm">
-                            Overal Accuracy
+                <div>
+                    <div class="flex justify-content-between bg-blue-50 p-3 py-5 border-round-xl" *ngIf="extractedUser">
+                        <div>
+                            <div class="mb-2 text-500 text-sm">
+                                Overal Accuracy
+                            </div>
+                            <div class="font-bold text-3xl text-cyan-900">
+                                {{extractedUser.overall_accuracy | percent}}
+                            </div>
                         </div>
-                        <div class="font-bold text-3xl text-cyan-900">
-                            {{extractedUser.overall_accuracy | percent}}
+                        <div>
+                            <div class="mb-2 text-500 text-sm">
+                                Field Matches
+                            </div>
+                            <div class="font-bold text-3xl text-cyan-900 flex justify-content-end">
+                                {{correctMatches}}/{{comparisons.length}}
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <div class="mb-2 text-500 text-sm">
-                            Field Matches
+                    <div *ngIf="!extractedUser"
+                        class="bg-orange-50 p-3 border-1 border-orange-300 border-round-lg flex align-content-center justify-content-center">
+                        <div class="text-sm text-orange-600">
+                            <i class="pi pi-info-circle mr-2"></i> Client has not uploaded any ID document for
+                            verification
                         </div>
-                        <div class="font-bold text-3xl text-cyan-900 flex justify-content-end">
-                            {{correctMatches}}/{{comparisons.length}}
-                        </div>
+
                     </div>
                 </div>
-
-                <!-- First name -->
-                <div class="card surface-card p-3 surface-border border-1 border-round-xl">
-                    <div class="flex justify-content-between mb-3">
-                        <div class="text-900 font-bold mb-2">First Name
-                            <i *ngIf="getComparison(comparisons, 'First Name')?.matched" class="pi pi-check-circle ml-2"
-                                [style.color]="greenColor"></i>
-                            <i *ngIf="!getComparison(comparisons, 'First Name')?.matched"
-                                class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                <ng-container *ngIf="extractedUser">
+                    <!-- First name -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">First Name
+                                <i *ngIf="extractedUser && getComparison(comparisons, 'First Name')?.matched"
+                                    class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
+                                <i *ngIf="extractedUser && !getComparison(comparisons, 'First Name')?.matched"
+                                    class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                            </div>
+                            <div class="font-bold text-lg">
+                                <p-tag severity="info"
+                                    [value]="(getComparison(comparisons, 'First Name')?.confidence * 100 | number: '1.0-2') + '%'" />
+                            </div>
                         </div>
-                        <div class="font-bold text-lg">
-                            <p-tag severity="info"
-                                [value]="(getComparison(comparisons, 'First Name')?.confidence * 100 | number: '1.0-2') + '%'" />
+                        <div class="grid">
+                            <div class="flex flex-column gap-2 md:col-6 col-12">
+                                <label for="username" class="text-500 text-sm">System value</label>
+                                <input pInputText id="username" aria-describedby="username-help"
+                                    [(ngModel)]="user.first_name" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2 md:col-6 col-12">
+                                <label for="username" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="username" aria-describedby="username-help"
+                                    [(ngModel)]="extractedUser.first_name" [disabled]="true" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="grid">
-                        <div class="flex flex-column gap-2 md:col-6 col-12">
-                            <label for="username" class="text-500 text-sm">System value</label>
-                            <input pInputText id="username" aria-describedby="username-help"
-                                [(ngModel)]="user.first_name" [disabled]="true" />
-                        </div>
-                        <div class="flex flex-column gap-2 md:col-6 col-12">
-                            <label for="username" class="text-500 text-sm">Extracted value</label>
-                            <input pInputText id="username" aria-describedby="username-help"
-                                [(ngModel)]="extractedUser.first_name" [disabled]="true" />
-                        </div>
-                    </div>
-                    <div *ngIf="!getComparison(comparisons, 'First Name')?.matched"
-                        class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
-                        <div class="text-sm text-red-600">
-                            <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
-                            verification.
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Last Name -->
-                <div class="card surface-card p-3 surface-border border-1 border-round-xl">
-                    <div class="flex justify-content-between mb-3">
-                        <div class="text-900 font-bold mb-2">Last Name
-                            <i *ngIf="getComparison(comparisons, 'Last Name')?.matched" class="pi pi-check-circle ml-2"
-                                [style.color]="greenColor"></i>
-                            <i *ngIf="!getComparison(comparisons, 'Last Name')?.matched" class="pi pi-times-circle ml-2"
-                                [style.color]="redColor"></i>
-                        </div>
-                        <div class="font-bold text-lg">
-                            <p-tag severity="info"
-                                [value]="(getComparison(comparisons, 'Last Name')?.confidence * 100 | number: '1.0-2') + '%'" />
+                        <div *ngIf="!getComparison(comparisons, 'First Name')?.matched"
+                            class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
+                            <div class="text-sm text-red-600">
+                                <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
+                                verification.
+                            </div>
                         </div>
                     </div>
-                    <div class="grid ">
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="username" class="text-500 text-sm">System value</label>
-                            <input pInputText id="username" aria-describedby="username-help"
-                                [(ngModel)]="user.last_name" [disabled]="true" />
-                        </div>
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="username" class="text-500 text-sm">Extracted value</label>
-                            <input pInputText id="username" aria-describedby="username-help"
-                                [(ngModel)]="extractedUser.last_name" [disabled]="true" />
-                        </div>
-                    </div>
-                    <div *ngIf="!getComparison(comparisons, 'Last Name')?.matched"
-                        class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
-                        <div class="text-sm text-red-600">
-                            <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
-                            verification.
-                        </div>
-                    </div>
-                </div>
 
 
-                <!-- Id number -->
-                <div class="card surface-card p-3 surface-border border-1 border-round-xl">
-                    <div class="flex justify-content-between mb-3">
-                        <div class="text-900 font-bold mb-2">ID Number
-                            <i *ngIf="getComparison(comparisons, 'ID Number')?.matched" class="pi pi-check-circle ml-2"
-                                [style.color]="greenColor"></i>
-                            <i *ngIf="!getComparison(comparisons, 'ID Number')?.matched" class="pi pi-times-circle ml-2"
-                                [style.color]="redColor"></i>
+                    <!-- Last Name -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">Last Name
+                                <i *ngIf="getComparison(comparisons, 'Last Name')?.matched"
+                                    class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
+                                <i *ngIf="!getComparison(comparisons, 'Last Name')?.matched"
+                                    class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                            </div>
+                            <div class="font-bold text-lg">
+                                <p-tag severity="info"
+                                    [value]="(getComparison(comparisons, 'Last Name')?.confidence * 100 | number: '1.0-2') + '%'" />
+                            </div>
                         </div>
-                        <div class="font-bold text-lg">
-                            <p-tag severity="info"
-                                [value]="(getComparison(comparisons, 'ID Number')?.confidence * 100 | number: '1.0-2') + '%'" />
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="username" class="text-500 text-sm">System value</label>
+                                <input pInputText id="username" aria-describedby="username-help"
+                                    [(ngModel)]="user.last_name" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="username" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="username" aria-describedby="username-help"
+                                    [(ngModel)]="extractedUser.last_name" [disabled]="true" />
+                            </div>
+                        </div>
+                        <div *ngIf="!getComparison(comparisons, 'Last Name')?.matched"
+                            class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
+                            <div class="text-sm text-red-600">
+                                <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
+                                verification.
+                            </div>
                         </div>
                     </div>
-                    <div class="grid ">
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="id_number" class="text-500 text-sm">System value</label>
-                            <input pInputText id="id_number" aria-describedby="id_number-help"
-                                [(ngModel)]="user.id_number" [disabled]="true" />
-                        </div>
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="id_number" class="text-500 text-sm">Extracted value</label>
-                            <input pInputText id="id_number" aria-describedby="id_number-help"
-                                [(ngModel)]="extractedUser.id_number" [disabled]="true" />
-                        </div>
-                    </div>
-                    <div *ngIf="!getComparison(comparisons, 'ID Number')?.matched"
-                        class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
-                        <div class="text-sm text-red-600">
-                            <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
-                            verification.
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Date of Birth -->
-                <div class="card surface-card p-3 surface-border border-1 border-round-xl">
-                    <div class="flex justify-content-between mb-3">
-                        <div class="text-900 font-bold mb-2">Date of Birth
-                            <i *ngIf="getComparison(comparisons, 'Date of Birth')?.matched"
-                                class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
-                            <i *ngIf="!getComparison(comparisons, 'Date of Birth')?.matched"
-                                class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
-                        </div>
-                        <div class="font-bold text-lg">
-                            <p-tag severity="info"
-                                [value]="(getComparison(comparisons, 'Date of Birth')?.confidence * 100 | number: '1.0-2') + '%'" />
-                        </div>
-                    </div>
-                    <div class="grid ">
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="date_of_birth" class="text-500 text-sm">System value</label>
-                            <input pInputText id="date_of_birth" aria-describedby="date_of_birth-help"
-                                [(ngModel)]="user.date_of_birth" [disabled]="true" />
-                        </div>
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="date_of_birth" class="text-500 text-sm">Extracted value</label>
-                            <input pInputText id="date_of_birth" aria-describedby="date_of_birth-help"
-                                [(ngModel)]="extractedUser.date_of_birth" [disabled]="true" />
-                        </div>
-                    </div>
-                    <div *ngIf="!getComparison(comparisons, 'Date of Birth')?.matched"
-                        class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
-                        <div class="text-sm text-red-600">
-                            <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
-                            verification.
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Place of Birth -->
-                <div class="card surface-card p-3 surface-border border-1 border-round-xl">
-                    <div class="flex justify-content-between mb-3">
-                        <div class="text-900 font-bold mb-2">Place of Birth
-                            <i *ngIf="getComparison(comparisons, 'Place of Birth')?.matched"
-                                class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
-                            <i *ngIf="!getComparison(comparisons, 'Place of Birth')?.matched"
-                                class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                    <!-- Id number -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">ID Number
+                                <i *ngIf="getComparison(comparisons, 'ID Number')?.matched"
+                                    class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
+                                <i *ngIf="!getComparison(comparisons, 'ID Number')?.matched"
+                                    class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                            </div>
+                            <div class="font-bold text-lg">
+                                <p-tag severity="info"
+                                    [value]="(getComparison(comparisons, 'ID Number')?.confidence * 100 | number: '1.0-2') + '%'" />
+                            </div>
                         </div>
-                        <div class="font-bold text-lg">
-                            <p-tag severity="info"
-                                [value]="(getComparison(comparisons, 'Place of Birth')?.confidence * 100 | number: '1.0-2') + '%'" />
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="id_number" class="text-500 text-sm">System value</label>
+                                <input pInputText id="id_number" aria-describedby="id_number-help"
+                                    [(ngModel)]="user.id_number" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="id_number" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="id_number" aria-describedby="id_number-help"
+                                    [(ngModel)]="extractedUser.id_number" [disabled]="true" />
+                            </div>
+                        </div>
+                        <div *ngIf="!getComparison(comparisons, 'ID Number')?.matched"
+                            class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
+                            <div class="text-sm text-red-600">
+                                <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
+                                verification.
+                            </div>
                         </div>
                     </div>
-                    <div class="grid ">
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="place_of_birth" class="text-500 text-sm">System value</label>
-                            <input pInputText id="place_of_birth" aria-describedby="place_of_birth-help"
-                                [(ngModel)]="user.place_of_birth" [disabled]="true" />
-                        </div>
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="place_of_birth" class="text-500 text-sm">Extracted value</label>
-                            <input pInputText id="place_of_birth" aria-describedby="place_of_birth-help"
-                                [(ngModel)]="extractedUser.place_of_birth" [disabled]="true" />
-                        </div>
-                    </div>
-                    <div *ngIf="!getComparison(comparisons, 'Place of Birth')?.matched"
-                        class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
-                        <div class="text-sm text-red-600">
-                            <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
-                            verification.
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Village of Origin -->
-                <div class="card surface-card p-3 surface-border border-1 border-round-xl">
-                    <div class="flex justify-content-between mb-3">
-                        <div class="text-900 font-bold mb-2">Village of Origin
-                            <i *ngIf="getComparison(comparisons, 'Village of Origin')?.matched"
-                                class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
-                            <i *ngIf="!getComparison(comparisons, 'Village of Origin')?.matched"
-                                class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                    <!-- Date of Birth -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">Date of Birth
+                                <i *ngIf="getComparison(comparisons, 'Date of Birth')?.matched"
+                                    class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
+                                <i *ngIf="!getComparison(comparisons, 'Date of Birth')?.matched"
+                                    class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                            </div>
+                            <div class="font-bold text-lg">
+                                <p-tag severity="info"
+                                    [value]="(getComparison(comparisons, 'Date of Birth')?.confidence * 100 | number: '1.0-2') + '%'" />
+                            </div>
                         </div>
-                        <div class="font-bold text-lg">
-                            <p-tag severity="info"
-                                [value]="(getComparison(comparisons, 'Village of Origin')?.confidence * 100 | number: '1.0-2') + '%'" />
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="date_of_birth" class="text-500 text-sm">System value</label>
+                                <input pInputText id="date_of_birth" aria-describedby="date_of_birth-help"
+                                    [(ngModel)]="user.date_of_birth" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="date_of_birth" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="date_of_birth" aria-describedby="date_of_birth-help"
+                                    [(ngModel)]="extractedUser.date_of_birth" [disabled]="true" />
+                            </div>
+                        </div>
+                        <div *ngIf="!getComparison(comparisons, 'Date of Birth')?.matched"
+                            class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
+                            <div class="text-sm text-red-600">
+                                <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
+                                verification.
+                            </div>
                         </div>
                     </div>
-                    <div class="grid ">
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="village_of_origin" class="text-500 text-sm">System value</label>
-                            <input pInputText id="village_of_origin" aria-describedby="village_of_origin-help"
-                                [(ngModel)]="user.village_of_origin" [disabled]="true" />
+
+                    <!-- Place of Birth -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">Place of Birth
+                                <i *ngIf="getComparison(comparisons, 'Place of Birth')?.matched"
+                                    class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
+                                <i *ngIf="!getComparison(comparisons, 'Place of Birth')?.matched"
+                                    class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                            </div>
+                            <div class="font-bold text-lg">
+                                <p-tag severity="info"
+                                    [value]="(getComparison(comparisons, 'Place of Birth')?.confidence * 100 | number: '1.0-2') + '%'" />
+                            </div>
                         </div>
-                        <div class="flex flex-column gap-2  md:col-6 col-12">
-                            <label for="village_of_origin" class="text-500 text-sm">Extracted value</label>
-                            <input pInputText id="village_of_origin" aria-describedby="village_of_origin-help"
-                                [(ngModel)]="extractedUser.village_of_origin" [disabled]="true" />
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="place_of_birth" class="text-500 text-sm">System value</label>
+                                <input pInputText id="place_of_birth" aria-describedby="place_of_birth-help"
+                                    [(ngModel)]="user.place_of_birth" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="place_of_birth" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="place_of_birth" aria-describedby="place_of_birth-help"
+                                    [(ngModel)]="extractedUser.place_of_birth" [disabled]="true" />
+                            </div>
+                        </div>
+                        <div *ngIf="!getComparison(comparisons, 'Place of Birth')?.matched"
+                            class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
+                            <div class="text-sm text-red-600">
+                                <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
+                                verification.
+                            </div>
                         </div>
                     </div>
-                    <div *ngIf="!getComparison(comparisons, 'Village of Origin')?.matched"
-                        class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
-                        <div class="text-sm text-red-600">
-                            <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
-                            verification.
+
+                    <!-- Village of Origin -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">Village of Origin
+                                <i *ngIf="getComparison(comparisons, 'Village of Origin')?.matched"
+                                    class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
+                                <i *ngIf="!getComparison(comparisons, 'Village of Origin')?.matched"
+                                    class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                            </div>
+                            <div class="font-bold text-lg">
+                                <p-tag severity="info"
+                                    [value]="(getComparison(comparisons, 'Village of Origin')?.confidence * 100 | number: '1.0-2') + '%'" />
+                            </div>
+                        </div>
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="village_of_origin" class="text-500 text-sm">System value</label>
+                                <input pInputText id="village_of_origin" aria-describedby="village_of_origin-help"
+                                    [(ngModel)]="user.village_of_origin" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="village_of_origin" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="village_of_origin" aria-describedby="village_of_origin-help"
+                                    [(ngModel)]="extractedUser.village_of_origin" [disabled]="true" />
+                            </div>
+                        </div>
+                        <div *ngIf="!getComparison(comparisons, 'Village of Origin')?.matched"
+                            class="p-2 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center">
+                            <div class="text-sm text-red-600">
+                                <i class="pi pi-info-circle mr-2"></i> Mismatch detected. Please review carefully before
+                                verification.
+                            </div>
                         </div>
                     </div>
-                </div>
+                </ng-container>
+                <ng-container *ngIf="!extractedUser">
+                    <!-- First name -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">First Name
+                                <i *ngIf="extractedUser && getComparison(comparisons, 'First Name')?.matched"
+                                    class="pi pi-check-circle ml-2" [style.color]="greenColor"></i>
+                                <i *ngIf="extractedUser && !getComparison(comparisons, 'First Name')?.matched"
+                                    class="pi pi-times-circle ml-2" [style.color]="redColor"></i>
+                            </div>
+                            <div class="font-bold text-lg"></div>
+                        </div>
+                        <div class="grid">
+                            <div class="flex flex-column gap-2 md:col-6 col-12">
+                                <label for="username" class="text-500 text-sm">System value</label>
+                                <input pInputText id="username" aria-describedby="username-help"
+                                    [(ngModel)]="user.first_name" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2 md:col-6 col-12">
+                                <label for="username" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="username" aria-describedby="username-help" [disabled]="true" />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Last Name -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">Last Name
+                            </div>
+                            <div class="font-bold text-lg"></div>
+                        </div>
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="username" class="text-500 text-sm">System value</label>
+                                <input pInputText id="username" aria-describedby="username-help"
+                                    [(ngModel)]="user.last_name" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="username" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="username" aria-describedby="username-help" [disabled]="true" />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Id number -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">ID Number</div>
+                            <div class="font-bold text-lg"></div>
+                        </div>
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="id_number" class="text-500 text-sm">System value</label>
+                                <input pInputText id="id_number" aria-describedby="id_number-help"
+                                    [(ngModel)]="user.id_number" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="id_number" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="id_number" aria-describedby="id_number-help" [disabled]="true" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">Date of Birth</div>
+                            <div class="font-bold text-lg"></div>
+                        </div>
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="date_of_birth" class="text-500 text-sm">System value</label>
+                                <input pInputText id="date_of_birth" aria-describedby="date_of_birth-help"
+                                    [(ngModel)]="user.date_of_birth" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="date_of_birth" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="date_of_birth" aria-describedby="date_of_birth-help"
+                                    [disabled]="true" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Place of Birth -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">Place of Birth</div>
+                            <div class="font-bold text-lg"></div>
+                        </div>
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="place_of_birth" class="text-500 text-sm">System value</label>
+                                <input pInputText id="place_of_birth" aria-describedby="place_of_birth-help"
+                                    [(ngModel)]="user.place_of_birth" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="place_of_birth" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="place_of_birth" aria-describedby="place_of_birth-help"
+                                    [disabled]="true" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Village of Origin -->
+                    <div class="card surface-card p-3 surface-border border-1 border-round-xl">
+                        <div class="flex justify-content-between mb-3">
+                            <div class="text-900 font-bold mb-2">Village of Origin</div>
+                            <div class="font-bold text-lg"></div>
+                        </div>
+                        <div class="grid ">
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="village_of_origin" class="text-500 text-sm">System value</label>
+                                <input pInputText id="village_of_origin" aria-describedby="village_of_origin-help"
+                                    [(ngModel)]="user.village_of_origin" [disabled]="true" />
+                            </div>
+                            <div class="flex flex-column gap-2  md:col-6 col-12">
+                                <label for="village_of_origin" class="text-500 text-sm">Extracted value</label>
+                                <input pInputText id="village_of_origin" aria-describedby="village_of_origin-help"
+                                    [disabled]="true" />
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
             </div>
         </div>
 
@@ -276,15 +419,15 @@
                 <div class="font-bold text-500 mb-3">
                     Verification Notes and Comments
                 </div>
-                <textarea rows="5" cols="30" pTextarea [autoResize]="true" [fluid]="true"
+                <textarea rows="5" cols="30" pTextarea [autoResize]="true" [fluid]="true" [disabled]="!extractedUser"
                     placeholder="Enter your analysis and any other observations.."></textarea>
-                <p-button label="Verify Client" icon="pi pi-check-circle" styleClass="mt-2 text-white" [fluid]="true" />
+                <p-button label="Verify Client" icon="pi pi-check-circle" styleClass="mt-2 text-white" [fluid]="true" [disabled]="!extractedUser"/>
                 <p-button label="Reject" severity="danger" icon="pi pi-times-circle"
-                    styleClass="mt-2 border-1 surface-border py-2" [fluid]="true" />
+                    styleClass="mt-2 border-1 surface-border py-2" [fluid]="true" [disabled]="!extractedUser"/>
 
                 <p-divider />
-                <div class="text-500 text-sm mb-1">This decision will be logged and reviewed by supervisors.</div>
-                <div class="text-500 text-sm">Ensure all evidence has been thoroughly examined.</div>
+                <div class="text-500 text-sm mb-1 text-center">This decision will be logged.</div>
+                <div class="text-500 text-sm text-center">Ensure all evidence has been thoroughly examined.</div>
             </div>
 
             <div class="card surface-card p-4 px-5 shadow-3 border-round-xl">
@@ -304,10 +447,10 @@
                     <div class="flex justify-content-between">
                         <div class="text-500">Verification</div>
                         <div>
-                            <p-tag *ngIf="user.is_verified" icon="pi pi-check-circle" severity="secondary"
-                                value="Verified" />
-                            <p-tag *ngIf="!user.is_verified" icon="pi pi-times-circle" severity="secondary"
-                                value="Pending" />
+                            <p-tag *ngIf="user.verification_status === verificationStatus.VERIFIED"
+                                icon="pi pi-check-circle" severity="secondary" value="Verified" />
+                            <p-tag *ngIf="user.verification_status === verificationStatus.PENDING"
+                                icon="pi pi-times-circle" severity="secondary" value="Pending" />
                         </div>
                     </div>
                     <p-divider />

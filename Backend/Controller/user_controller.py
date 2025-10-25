@@ -62,6 +62,10 @@ def update_user (user_id: int, update_request: UserUpdateRequest, db: db_depende
 def update_password(user_id: int, password_update: UserPasswordUpdate, db: db_dependency):
     return UserService.update_user_password(db_session=db, user_id=user_id, password_update=password_update)
 
+@router.put('/verify-user/{user_id}', response_model=UserResponse)
+def update_password(user_id: int, db: db_dependency):
+    return UserService.verify_user(db_session=db, user_id=user_id)
+
 
 @router.delete('/delete-user/{user_id}', response_model=None)
 def delete_user (user_id: int, db: db_dependency) -> UserResponse:

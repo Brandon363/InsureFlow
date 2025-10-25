@@ -53,6 +53,14 @@ def get_all_active_claims(db_session: Session) -> ClaimResponse:
     return ClaimResponse(status_code=200, success=True, message="Claims successfully found", claims=db_claims)
 
 
+def get_all_active_user_claims(db_session: Session, user_id: int) -> ClaimResponse:
+    db_claims = claim_repository.find_all_active_user_claims(db_session=db_session, user_id=user_id)
+    if db_claims is None:
+        return ClaimResponse(status_code=404, success=False, message="Claims not found")
+
+    return ClaimResponse(status_code=200, success=True, message="Claims successfully found", claims=db_claims)
+
+
 def create_claim(db_session: Session, create_request: ClaimCreate) -> ClaimResponse:
     existing_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=create_request.user_id)
 

@@ -39,6 +39,10 @@ def get_active_claim_by_user_id(user_id: int, db: db_dependency):
 def get_all_active_claims(db: db_dependency):
     return ClaimService.get_all_active_claims(db_session=db)
 
+@router.get('/get-all-active-user-claims/{user_id}', response_model=ClaimResponse)
+def get_all_active_claims(db: db_dependency, user_id: int):
+    return ClaimService.get_all_active_user_claims(db_session=db, user_id=user_id)
+
 
 @router.post('/create-claim', response_model=ClaimResponse)
 def create_claim (create_request: ClaimCreate, db: db_dependency):

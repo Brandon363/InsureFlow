@@ -1,6 +1,6 @@
-import { EntityStatus } from "./enum.interface";
+import { EntityStatus, UserRole, VerificationStatus } from "./enum.interface";
 import { ExtractedUserDTO } from "./extracted_user.interface";
-import { BaseResponse, UserRole } from "./shared.interface";
+import { BaseResponse } from "./shared.interface";
 
 export interface UserDTO {
   id: number;
@@ -16,8 +16,9 @@ export interface UserDTO {
   phone_number?: string;
   address?: string;
   is_logged_in: boolean;
-  is_verified?: boolean;
-  extracted_user?: ExtractedUserDTO;
+  verification_notes?: string;
+  verification_status: VerificationStatus;
+  extracted_users?: ExtractedUserDTO[];
   date_last_logged_in?: Date;
   date_created: Date;
   date_updated?: Date;

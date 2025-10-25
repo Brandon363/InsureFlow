@@ -4,13 +4,14 @@ from sqlalchemy.orm import Session
 from Entity.UserEntity import UserEntity
 from Model.UserModel import UserResponse, UserCreateRequest, UserUpdateRequest, UserLoginRequest, UserPasswordUpdate
 from Repository import user_repository
-from Utils.Enums import EntityStatus
+from Utils.Enums import EntityStatus, VerificationStatus
 
 
 def get_active_user_by_id(db_session: Session, user_id: int) -> UserResponse:
     if user_id is None:
         return UserResponse(status_code=400, success=False, message="User ID cannot be null")
     db_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
+    # print(db_user.extracted_users)
     if db_user is None:
         return UserResponse(status_code=404, success=False, message=f"User with id {user_id} not found")
 
@@ -50,22 +51,17 @@ def get_all_active_users(db_session: Session) -> UserResponse:
 
 def create_user(db_session: Session, create_request: UserCreateRequest) -> UserResponse:
     # Check if ID number already exists
-    existing_user_by_id = user_repository.find_active_user_by_id_number(db_session=db_session, id_number=create_request.id_number)
+    existing_user_by_id = user_repository.find_active_user_by_id_number(
+        db_session=db_session, id_number=create_request.id_number.strip().replace(" ", "").upper())
 
     if existing_user_by_id:
         return UserResponse(status_code=400, success=False, message="ID number already exists")
-
 
     # Check if email already exists
     existing_user_by_email = user_repository.find_active_user_by_email(db_session=db_session, email=create_request.email)
 
     if existing_user_by_email:
         return UserResponse(status_code=400, success=False, message="Email already exists")
-
-    db_user_response = get_active_user_by_id_number(db_session=db_session, id_number=create_request.id_number)
-
-    if db_user_response.success:
-        return UserResponse(status_code=400, success=False, message="User id already exists")
 
     # Create user entity
     user_entity = UserEntity()
@@ -78,8 +74,6 @@ def create_user(db_session: Session, create_request: UserCreateRequest) -> UserR
     # Hash and set password
     user_entity.set_password(create_request.password)
 
-    # user_entity = UserEntity(**create_request.dict())
-    # user_entity.is_logged_in = False
     db_session.add(user_entity)
     db_session.commit()
     db_session.refresh(user_entity)
@@ -123,6 +117,34 @@ def logout_user(db_session: Session, user_id: int) -> UserResponse:
     db_session.refresh(db_user)
 
     return UserResponse(status_code=200, success=True, message="Logout successful", user=db_user)
+
+
+def verify_user(db_session: Session, user_id: int) -> UserResponse:
+    db_user: UserEntity | None = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
+
+    if not db_user:
+        return UserResponse(status_code=404, success=False, message="User not found")
+
+    # Update verification status
+    db_user.verification_status = VerificationStatus.VERIFIED
+    db_session.commit()
+    db_session.refresh(db_user)
+
+    return UserResponse(status_code=200, success=True, message="User successful verified", user=db_user)
+
+
+def make_user_verification_status_pending(db_session: Session, user_id: int) -> UserResponse:
+    db_user: UserEntity | None = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
+
+    if not db_user:
+        return UserResponse(status_code=404, success=False, message="User not found")
+
+    # Update verification status
+    db_user.verification_status = VerificationStatus.PENDING
+    db_session.commit()
+    db_session.refresh(db_user)
+
+    return UserResponse(status_code=200, success=True, message="User verification status successfully updated", user=db_user)
 
 
 def update_user_password(db_session: Session, user_id: int, password_update: UserPasswordUpdate) -> UserResponse:

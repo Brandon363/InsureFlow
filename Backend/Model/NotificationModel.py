@@ -1,8 +1,8 @@
-from datetime import date, datetime
-from typing import Optional, List
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel, ConfigDict
 
-from Model.ResponseModel import BaseResponse
 from Utils.Enums import NotificationType, EntityStatus, NotificationStatus
 
 
@@ -43,8 +43,8 @@ class NotificationUpdate(BaseModel):
     is_read: Optional[bool] = None
 
 
-class NotificationResponse(BaseResponse):
-    notification: Optional[NotificationDTO] = None
-    notifications: Optional[List[NotificationDTO]] = None
-
-    model_config = ConfigDict(from_attributes=True)
+# class NotificationResponse(BaseResponse):
+#     notification: Optional[NotificationDTO] = None
+#     notifications: Optional[List[NotificationDTO]] = None
+#
+#     model_config = ConfigDict(from_attributes=True)

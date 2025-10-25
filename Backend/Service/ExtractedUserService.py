@@ -1,14 +1,16 @@
+from datetime import datetime
 from pathlib import Path
 
 from sqlalchemy.orm import Session
-from fastapi import UploadFile
+from fastapi import UploadFile, File
 
 from Entity.ExtractedUserEntity import ExtractedUserEntity
 from Model.DocumentModel import DocumentResponse
 from Model.ExtractedUserModel import ExtractedUserResponse, ExtractedUserCreateRequest, ExtractedUserDTO
+from Model.NotificationModel import NotificationCreate
 from Repository import ExtractedUserRepository
-from Utils.Enums import EntityStatus, DocumentType
-from Service import DocumentService, UserService
+from Utils.Enums import EntityStatus, DocumentType, NotificationType
+from Service import DocumentService, UserService, NotificationService
 
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.documentintelligence import DocumentIntelligenceClient
@@ -68,8 +70,8 @@ def create_extracted_user(db_session: Session, create_request: ExtractedUserCrea
     existing_user_by_id = ExtractedUserRepository.find_active_extracted_user_by_user_id(db_session=db_session,
                                                                                         user_id=create_request.user_id)
 
-    if existing_user_by_id:
-        return ExtractedUserResponse(status_code=400, success=False, message="ID number already exists")
+    # if existing_user_by_id:
+    #     return ExtractedUserResponse(status_code=400, success=False, message="User already applied")
 
     # Create user entity
     user_entity = ExtractedUserEntity(**create_request.dict())
@@ -110,11 +112,18 @@ def delete_extracted_user(db_session: Session, user_id: int) -> ExtractedUserRes
                                  extracted_user=user_to_return)
 
 
+def parse_date(date_string):
+    try:
+        return datetime.strptime(date_string, "%d/%m/%Y").date()
+    except ValueError:
+        return None
+
+
 def safe_capitalize(value: str | None) -> str | None:
     return value.capitalize() if isinstance(value, str) and value else None
 
 
-async def extract_user(db_session: Session, image_file: UploadFile, user_id: int) -> ExtractedUserResponse:
+async def extract_user(db_session: Session, image_file: File, user_id: int) -> ExtractedUserResponse:
     # check if user exists
     user_response = UserService.get_active_user_by_id(db_session=db_session, user_id=user_id)
     if not user_response.success:
@@ -136,11 +145,16 @@ async def extract_user(db_session: Session, image_file: UploadFile, user_id: int
         image_data = f.read()
         base64_image = base64.b64encode(image_data).decode("utf-8")
 
+    # poller = document_intelligence_client.begin_analyze_document(
+    #     "prebuilt-idDocument",
+    #     body={"base64Source": base64_image},
+    #     features=[DocumentAnalysisFeature.QUERY_FIELDS],  # Specify which add-on capabilities to enable.
+    #     query_fields=["PlaceOfBirth", "VillageOfOrigin"]
+    # )
+
     poller = document_intelligence_client.begin_analyze_document(
-        "prebuilt-idDocument",
-        body={"base64Source": base64_image},
-        features=[DocumentAnalysisFeature.QUERY_FIELDS],  # Specify which add-on capabilities to enable.
-        query_fields=["PlaceOfBirth", "VillageOfOrigin"]
+        "Zimbabwe_National_ID_Extractor_v1",
+        body={"base64Source": base64_image}
     )
 
     id_documents = poller.result()
@@ -169,15 +183,17 @@ async def extract_user(db_session: Session, image_file: UploadFile, user_id: int
             user_extracted_data.last_name = safe_capitalize(last_name.value_string)
             user_extracted_data.last_name_confidence = last_name.confidence
 
-        document_number = id_document.fields.get("DocumentNumber")
+        document_number = id_document.fields.get("IdNumber")
         if document_number:
             user_extracted_data.id_number = document_number.value_string.replace(" ", "")
             user_extracted_data.id_number_confidence = document_number.confidence
 
         date_of_birth = id_document.fields.get("DateOfBirth")
         if date_of_birth:
-            user_extracted_data.date_of_birth = date_of_birth.value_date
-            user_extracted_data.date_of_birth_confidence = date_of_birth.confidence
+            date_object = parse_date(date_of_birth.value_string)
+            if date_object:
+                user_extracted_data.date_of_birth = date_object
+                user_extracted_data.date_of_birth_confidence = date_of_birth.confidence
 
         place_of_birth = id_document.fields.get("PlaceOfBirth")
         if place_of_birth:
@@ -188,7 +204,6 @@ async def extract_user(db_session: Session, image_file: UploadFile, user_id: int
         if village_of_origin:
             user_extracted_data.village_of_origin = safe_capitalize(village_of_origin.value_string)
             user_extracted_data.village_of_origin_confidence = village_of_origin.confidence
-
 
         total_confidence = 0
         count = 0
@@ -222,7 +237,25 @@ async def extract_user(db_session: Session, image_file: UploadFile, user_id: int
             return ExtractedUserResponse(status_code=create_response.status_code, success=False,
                                          message=create_response.message)
 
+        # change user verification status
+        change_verification_status_response = UserService.make_user_verification_status_pending(db_session=db_session, user_id=user_id)
+        if not change_verification_status_response.success:
+            print(change_verification_status_response.message)
+
+        create_notification_request: NotificationCreate = NotificationCreate(
+            user_id=user_id, notification_type=NotificationType.VERIFICATION_UPDATE
+            , title='Verification Submitted',
+            message='Your verification request has been submitted'
+        )
+
+        create_notification_response = NotificationService.create_notification(
+            create_request=create_notification_request, db_session=db_session)
+
+        if not create_notification_response.success:
+            print(create_notification_response.message)
+
         return ExtractedUserResponse(
             status_code=201,
             success=True, message="User successfully extracted",
-            extracted_user=create_response.extracted_user)
+            extracted_user=create_response.extracted_user,
+            notification=create_notification_response.notification if create_notification_response.success else None)

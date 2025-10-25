@@ -36,5 +36,5 @@ class ExtractedUserEntity(Base):
     date_updated = Column(DateTime, onupdate=datetime.utcnow, nullable=True)
     entity_status = Column(Enum(EntityStatus), nullable=False, default=EntityStatus.ACTIVE)
 
-    user = relationship("UserEntity", back_populates="extracted_user", uselist=False)
+    user = relationship("UserEntity", back_populates="extracted_users")
     # document = relationship("DocumentEntity", back_populates="extracted_user", uselist=False)

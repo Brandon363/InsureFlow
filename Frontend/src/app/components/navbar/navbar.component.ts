@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth.service';
 import { SharedService } from '../../services/shared.service';
 import { AppComponent } from '../../app.component';
 import { NotificationDTO } from '../../models/notification.interface';
+import { UserRole } from '../../models/enum.interface';
 
 @Component({
   selector: 'app-navbar',
@@ -50,58 +51,86 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const firstName = user.first_name ?? "-";
     const lastName = user.last_name ?? "-";
 
-    // this.workspaceService.getAllUserWorkspaces(user.id).subscribe()
-    // this.workspaceService.getWorkspacesWithUnreadCount(user.id).subscribe(count => {
-    //   this.workspacesWithUnread = count;
-    //   console.log(this.workspacesWithUnread)
-    // });
-
     this.notificationSubscription = this.notificationService.allActiveUserNotifications.subscribe((notifications) => {
       this.allActiveNotifications = notifications;
-      // this.allActiveUnreadNotifications = notifications.filter((notification) => !this.sharedService.isNotificationRead(notification, user.id));
 
-      this.items = [
-        {
-          label: "Home",
-          icon: 'pi pi-fw pi-home',
-          routerLink: "/home",
-        },
-        {
-          label: "Clients",
-          icon: 'pi pi-fw pi-users',
-          routerLink: "/clients",
-        },
-        {
-          label: "Claims",
-          icon: 'pi pi-fw pi-money-bill',
-          routerLink: "/claims",
-        },
-        {
-          label: "Documents",
-          icon: 'pi pi-fw pi-file-pdf',
-          routerLink: "/documents",
-          badge: this.workspacesWithUnread.toString(),
-        },
-        {
-          label: "Notifications",
-          icon: 'pi pi-fw pi-bell',
-          badge: this.allActiveUnreadNotifications.length.toString(),
-          routerLink: "/notifications",
-        },
-        {
-          label: 'Settings',
-          icon: 'pi pi-cog',
-          routerLink: '/settings'
-        },
-        {
-          label: 'Logout',
-          icon: 'pi pi-sign-out',
-          command: () => {
-            this.onLogout();
+      if (user.user_role === UserRole.CUSTOMER) {
+
+        this.items = [
+          {
+            label: "Home",
+            icon: 'pi pi-fw pi-home',
+            routerLink: "/client-dashboard",
+          },
+          {
+            label: "My Claims",
+            icon: 'pi pi-fw pi-money-bill',
+            routerLink: "/claims",
+          },
+          {
+            label: "Notifications",
+            icon: 'pi pi-fw pi-bell',
+            badge: this.allActiveUnreadNotifications.length.toString(),
+            routerLink: "/notifications",
+          },
+          {
+            label: 'My Account',
+            icon: 'pi pi-cog',
+            routerLink: '/settings'
+          },
+          {
+            label: 'Logout',
+            icon: 'pi pi-sign-out',
+            command: () => {
+              this.onLogout();
+            }
           }
-        }
-      ]
+        ]
+      } else {
+        this.items = [
+          {
+            label: "Home",
+            icon: 'pi pi-fw pi-home',
+            routerLink: "/admin-dashboard",
+          },
+          {
+            label: "Clients",
+            icon: 'pi pi-fw pi-users',
+            routerLink: "/clients",
+          },
+          {
+            label: "Claims",
+            icon: 'pi pi-fw pi-money-bill',
+            routerLink: "/claims",
+          },
+          {
+            label: "Documents",
+            icon: 'pi pi-fw pi-file-pdf',
+            routerLink: "/documents",
+            badge: this.workspacesWithUnread.toString(),
+          },
+          {
+            label: "Notifications",
+            icon: 'pi pi-fw pi-bell',
+            badge: this.allActiveUnreadNotifications.length.toString(),
+            routerLink: "/notifications",
+          },
+          {
+            label: 'Settings',
+            icon: 'pi pi-cog',
+            routerLink: '/settings'
+          },
+          {
+            label: 'Logout',
+            icon: 'pi pi-sign-out',
+            command: () => {
+              this.onLogout();
+            }
+          }
+        ];
+      }
     });
+
 
     this.avatarText = `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
     this.loadingSubscription = this.loadingService.isManipulatingData$.subscribe((isLoading) => {
@@ -111,7 +140,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
 
   }
-
 
 
   onLogout() {
@@ -134,30 +162,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   darkModeSwitch: boolean = true
-
-  // onButtonClick() {
-  //   if (this.darkModeSwitch === true) {
-  //     usePreset(Lara);
-  //     console.log("Lara")
-  //   }
-  //   else {
-  //     console.log("MyPreset")
-  //     updatePrimaryPalette({
-  //       50: '{indigo.50}',
-  //       100: '{indigo.100}',
-  //       200: '{indigo.200}',
-  //       300: '{indigo.300}',
-  //       400: '{indigo.400}',
-  //       500: '{indigo.500}',
-  //       600: '{indigo.600}',
-  //       700: '{indigo.700}',
-  //       800: '{indigo.800}',
-  //       900: '{indigo.900}',
-  //       950: '{indigo.950}'
-  //     });
-  //   }
-
-  // }
 
   toggleDarkMode() {
     this.app.darkMode.set(!this.app.darkMode());
@@ -199,8 +203,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (path === '/clients') {
       return url.startsWith('/clients') || url.startsWith('/user') || url.startsWith('/edit-user') || url.startsWith('/add-tender') || url.startsWith('/chat-with-tender');
     }
-    if (path === '/proposals') {
-      return url.startsWith('/proposals') || url.startsWith('/view-proposal') || url.startsWith('/create-proposal') || url.startsWith('/edit-proposal');
+    if (path === '/settings') {
+      return url.startsWith('/account') || url.startsWith('/verify') || url.startsWith('/create-proposal') || url.startsWith('/edit-proposal');
     }
 
     // Default match

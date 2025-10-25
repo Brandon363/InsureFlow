@@ -1,20 +1,18 @@
+import { NotificationDTO } from "./notification.interface";
+
 export interface BaseResponse {
   statusCode: number;
   success: boolean;
   message: string;
   errors?: ErrorDetail[] | null;
+  notification?: NotificationDTO | null;
+  notifications?: NotificationDTO[] | null;
 }
 
 export interface ErrorDetail {
   field: string;
   message: string;
 }
-
-
-export interface UserRole {
- 
-}
-
 
 
 export interface MenuDto {

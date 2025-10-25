@@ -25,3 +25,8 @@ def find_active_claim_by_user_id(db_session: Session, user_id: int):
 
 def find_all_active_claims(db_session: Session):
     return db_session.query(ClaimEntity).filter(ClaimEntity.entity_status == EntityStatus.ACTIVE).all()
+
+def find_all_active_user_claims(db_session: Session, user_id: int):
+    return db_session.query(ClaimEntity).filter(
+        ClaimEntity.user_id == user_id,
+        ClaimEntity.entity_status == EntityStatus.ACTIVE).all()

@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { UserCreateRequest, UserDTO, UserLoginRequest, UserResponse } from '../models/user.interface';
 import { NotificationService } from './notification.service';
-import { EntityStatus } from '../models/enum.interface';
+import { EntityStatus, VerificationStatus } from '../models/enum.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -53,14 +53,14 @@ export class AuthService {
         last_name: token_data.last_name || '',
         email: token_data.email,
         user_role: token_data.user_role,
-        entity_status: null as unknown as EntityStatus,
-        date_created: new Date(),
-        id_number: '',
-        date_of_birth: new Date,
-        village_of_origin: '',
-        place_of_birth: '',
-        is_logged_in: false,
-        is_verified: false
+        entity_status: token_data.entity_status,
+        date_created: token_data.date_created,
+        id_number: token_data.id_number || '',
+        date_of_birth: token_data.date_of_birth || '',
+        village_of_origin: token_data.village_of_origin || '',
+        place_of_birth: token_data.place_of_birth || '',
+        is_logged_in: token_data.is_logged_in || false,
+        verification_status: token_data.verification_status || VerificationStatus.UNVERIFIED,
       }
       return user;
     }
@@ -162,6 +162,24 @@ export class AuthService {
 
   getToken() {
     return sessionStorage.getItem('token')
+  }
+
+  refreshUserData() {
+    const user = this.getCurrentUser();
+
+    return this.httpClient.get<UserResponse>(`${this.baseURL}/${this.subUrl}/is-user-logged-in/` + user.id).pipe(
+      map((user: UserResponse) => {
+        if (!user.success || !user.user) {
+          this.logout()
+          return false;
+        }
+        user.user!.is_logged_in = true;
+        this.currentUser.next(user.user);
+        sessionStorage.setItem('currentUser', JSON.stringify(user.user));
+        return true;
+      }),
+      catchError(() => of(false))
+    );
   }
 
 }

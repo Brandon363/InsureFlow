@@ -8,6 +8,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { SharedModules } from '../../shared/shared_modules';
 import { ExtractedUserDTO } from '../../../models/extracted_user.interface';
 import { DocumentService } from '../../../services/document.service';
+import { VerificationStatus } from '../../../models/enum.interface';
 
 @Component({
   selector: 'app-view-user-by-id',
@@ -19,7 +20,7 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
 
   // @ViewChild('chatSingleComponent') chatSingleComponent!: ChatSingleComponent;
 
-  userId!: string;
+  userId!: number;
   user!: UserDTO;
   extractedUser!: ExtractedUserDTO;
   comparisons: { field: string, userValue: any, extractedValue: any, matched: boolean, confidence: any }[] = [];
@@ -32,6 +33,7 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
   retrieveSubscription!: Subscription;
   chatMessageSubscription!: Subscription;
   viewDocumentSubscription!: Subscription;
+  verificationStatus = VerificationStatus
 
 
   showChat: boolean = false;
@@ -59,7 +61,7 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
     this.loadingService.setLoadingState(true);
     const resultId = this.route.snapshot.paramMap.get('userId');
     if (resultId) {
-      this.userId = resultId;
+      this.userId = parseInt(resultId);
     }
 
     this.getResultsById();
@@ -74,12 +76,18 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
         if (response.success) {
           if (response.user) {
             this.user = response.user;
-            this.extractedUser = response.user.extracted_user!;
+            if (response.user.extracted_users && response.user.extracted_users.length > 0) {
+              // this.extractedUser = response.user.extracted_users![-1];
+              // get the last extracted user
+              this.extractedUser = response.user.extracted_users![response.user.extracted_users!.length - 1];
+              console.log(this.extractedUser);
+            }
             // console.log(this.user);
-            this.viewDocument(this.user.id);
-
-            this.comparisons = this.compareFields();
-            // console.log(this.comparisons);
+            if (this.extractedUser) {
+              this.viewDocument(this.user.id);
+              this.comparisons = this.compareFields();
+              // console.log(this.comparisons);
+            }
           }
         } else {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message });

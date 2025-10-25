@@ -1,4 +1,4 @@
-<div class="p-5 mx-3">
+<div class="pt-3 lg:p-5 mx-3">
     <div class="flex flex-column lg:flex-row justify-content-between align-items-start mb-2">
         <div>
             <div class="text-4xl font-bold">Client Manager</div>
@@ -10,35 +10,34 @@
             <p-button label="Download Null Buffers" icon="pi pi-download" variant="outlined" severity="warn"/>
             <p-button label="Bulk CSV Update" icon="pi pi-upload" severity="primary"  variant="outlined"
                 routerLink="/product-buffer-levels-bulk-upload" /> -->
-            <p-button label="Create client" icon="pi pi-user-plus" severity="primary"/>
+            <p-button label="Create client" icon="pi pi-user-plus" severity="primary" />
         </div>
     </div>
 
     <div class="grid">
-        <div class="col-12 md:col-6 lg:col-4" *ngFor="let item of cards">
-            <p-card class="mb-4 surface-card shadow-2 border-round-xl">
-                <div class="px-3 py-2">
-                    <div class="flex justify-content-between align-items-center">
-                        <div>
-                            <div class="font-bold text-500 text-lg mb-2">{{item.title}}</div>
-                            <h2 class="text-bold text-4xl my-2">{{item.value}}</h2>
-                            <p class="m-0 p-0 text-500 text-sm">{{item.description}}</p>
-                        </div>
-                        <i [class]="item.icon" class="text-4xl"
-                            [ngClass]="{'text-primary': true, 'text-red-500': item.title.includes('Flagged'), 'text-green-500': item.title.includes('Taxpayers')}"></i>
-                    </div>
+        <!-- <div class="" > -->
+        <p-card class="col-12 md:col-6 lg:col-3" *ngFor="let item of cards">
+            <!-- <div class="px-3 py-2"> -->
+            <div class="flex justify-content-between align-items-center">
+                <div>
+                    <div class="font-bold text-500 mb-2">{{item.title}}</div>
+                    <h2 class="text-bold text-4xl my-2">{{item.value}}</h2>
+                    <p class="m-0 p-0 text-500 text-sm">{{item.description}}</p>
                 </div>
-            </p-card>
-        </div>
+                <i [class]="item.icon" class="text-4xl"
+                    [ngClass]="{'text-primary': true, 'text-red-500': item.title.includes('Flagged'), 'text-green-500': item.title.includes('Taxpayers')}"></i>
+            </div>
+            <!-- </div> -->
+        </p-card>
     </div>
+    <!-- </div> -->
 
     <div class="card p-4 surface-card shadow-3 border-0 border-round-2xl mt-4">
         <p class="font-bold text-2xl mt-2">Clients</p>
 
-        <p-table #dt1 [value]="allProductBufferLevels" dataKey="id" [rows]="10"
-            [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading" [paginator]="true"
-            (onFilter)="updateCardNumbers(dt1)" [scrollable]="true" [globalFilterFields]="['first_name', 'last_name']"
-             [rowHover]="true">
+        <p-table #dt1 [value]="allProductBufferLevels" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+            [loading]="loading" [paginator]="true" (onFilter)="updateCardNumbers(dt1)" [scrollable]="true"
+            [globalFilterFields]="['first_name', 'last_name']" [rowHover]="true">
             <ng-template #caption>
                 <div class="flex flex-wrap align-items-center justify-content-between">
                     <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1)"
@@ -67,22 +66,21 @@
                             <p-columnFilter type="text" field="last_name" display="menu" />
                         </div>
                     </th>
-                    <th style="min-width:12rem" pSortableColumn="overall_accuracy">
+                    <th pSortableColumn="overall_accuracy">
                         <div class="flex align-items-center justify-content-between">
-                            Extraction Accuracy
+                            Accuracy
                             <p-sortIcon field="overall_accuracy"></p-sortIcon>
-                            <p-columnFilter type="number" field="overall_accuracy"
-                                display="menu"></p-columnFilter>
+                            <p-columnFilter type="number" field="overall_accuracy" display="menu"></p-columnFilter>
                         </div>
                     </th>
-                    <th style="min-width:12rem" pSortableColumn="is_verified">
+                    <th pSortableColumn="verification_status">
                         <div class="flex align-items-center justify-content-between">
-                            Verified
-                            <p-sortIcon field="is_verified"></p-sortIcon>
-                            <p-columnFilter type="text" field="is_verified" display="menu" />
+                            Status
+                            <p-sortIcon field="verification_status"></p-sortIcon>
+                            <!-- <p-columnFilter type="text" field="verification_status" display="menu" /> -->
                         </div>
                     </th>
-                    <th style="min-width:10rem" pSortableColumn="date_created">
+                    <th style="min-width:3rem" pSortableColumn="date_created">
                         <div class="flex align-items-center justify-content-between">
                             Date Joined
                             <p-sortIcon field="date_created"></p-sortIcon>
@@ -92,8 +90,8 @@
                             </p-columnFilter>
                         </div>
                     </th>
-             
-                    <th style="min-width:8rem">Actions</th>
+
+                    <th>Actions</th>
                 </tr>
             </ng-template>
             <ng-template #body let-case>
@@ -101,14 +99,16 @@
                     <td>{{ case.first_name }}</td>
                     <td>{{ case.last_name }}</td>
                     <td>
-                        <!-- <div class="flex align-items-center gap-2 w-full"> -->
-                            <!-- <span>{{ case.overall_accuracy | percent | nullDisplay}}</span> -->
-                            <p-progressbar [value]="case.extracted_user.overall_accuracy*100"  [style]="{ height: '10px' }"/>
-                        <!-- </div> -->
+                        <span *ngIf="case.extracted_users.length === 0">--</span>
+                        <div *ngIf="case.extracted_users.length > 0">
+                            <p-progressbar *ngIf="case.extracted_users[case.extracted_users.length-1].overall_accuracy"
+                                [value]="case.extracted_users[case.extracted_users.length-1].overall_accuracy * 100 | number:'1.0-0'"
+                                [style]="{ height: '15px' }" />
+                        </div>
                     </td>
                     <td>
-                        <p-tag [value]="getStatusSeverityAndWord(case.is_verified).status"
-                            [severity]="getStatusSeverityAndWord(case.is_verified).severity"></p-tag>
+                        <p-tag [value]="getStatusSeverityAndWord(case.verification_status).status"
+                            [severity]="getStatusSeverityAndWord(case.verification_status).severity"></p-tag>
                     </td>
                     <td>
                         <div class="flex align-items-center gap-2">

@@ -7,6 +7,7 @@ import { LoadingService } from '../../../services/loading.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Router } from '@angular/router';
+import { VerificationStatus } from '../../../models/enum.interface';
 
 @Component({
   selector: 'app-view-all-users',
@@ -85,27 +86,7 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
         return dateB - dateA;
       });
 
-
-      this.cards = [
-        {
-          title: "Total Clients",
-          value: this.allProductBufferLevels.length.toString(),
-          description: "Active clients in the system",
-          icon: "pi pi-users"
-        },
-        {
-          title: "Unverified Clients",
-          value: this.allProductBufferLevels.filter(c => c.is_verified === false).length.toString(),
-          description: "Unverified clients in the system",
-          icon: "pi pi-clock"
-        },
-        {
-          title: "Verified Clients",
-          value: this.allProductBufferLevels.filter(c => c.is_verified === true).length.toString(),
-          description: "Verified clients in the system",
-          icon: "pi pi-verified"
-        }
-      ]
+      this.updateCardNumbers(null);
       this.loadingService.setLoadingState(false);
       this.loading = false;
     })
@@ -167,12 +148,18 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
   }
 
 
-  getStatusSeverityAndWord(status: Boolean) {
+  getStatusSeverityAndWord(status: VerificationStatus) {
     switch (status) {
-      case false:
+      case status = VerificationStatus.REJECTED:
+        return { severity: 'danger' as const, status: 'Rejected' };
+
+      case status = VerificationStatus.UNVERIFIED:
         return { severity: 'danger' as const, status: 'Unverified' };
 
-      case true:
+      case status = VerificationStatus.PENDING:
+        return { severity: 'warn' as const, status: 'Pending' };
+
+      case status = VerificationStatus.VERIFIED:
         return { severity: 'success' as const, status: 'Verified' };
 
       default:
@@ -181,8 +168,7 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
   }
 
 
-  updateCardNumbers(dt: Table) {
-    const data = dt.filteredValue || this.allProductBufferLevels;
+  updateCardNumbers(dt: any) {
     this.cards = [
       {
         title: "Total Clients",
@@ -191,16 +177,22 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
         icon: "pi pi-users"
       },
       {
-        title: "Unverified Clients",
-        value: this.allProductBufferLevels.filter(c => c.is_verified === false).length.toString(),
+        title: "Verified Clients",
+        value: this.allProductBufferLevels.filter(c => c.verification_status === VerificationStatus.VERIFIED).length.toString(),
+        description: "Verified clients in the system",
+        icon: "pi pi-verified"
+      },
+      {
+        title: "Pending Verification",
+        value: this.allProductBufferLevels.filter(c => c.verification_status === VerificationStatus.PENDING).length.toString(),
         description: "Unverified clients in the system",
         icon: "pi pi-clock"
       },
       {
-        title: "Verified Clients",
-        value: this.allProductBufferLevels.filter(c => c.is_verified === true).length.toString(),
-        description: "Verified clients in the system",
-        icon: "pi pi-verified"
+        title: "Unverified Clients",
+        value: this.allProductBufferLevels.filter(c => c.verification_status === VerificationStatus.UNVERIFIED).length.toString(),
+        description: "Unverified clients in the system",
+        icon: "pi pi-clock"
       }
     ]
   }

@@ -12,7 +12,7 @@ class NotificationEntity(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     claim_id = Column(Integer, ForeignKey("claims.id"), nullable=True)
     notification_type = Column(Enum(NotificationType), nullable=False)
-    title = Column(String(100), nullable=False)
+    title = Column(String(800), nullable=False)
     message = Column(Text, nullable=False)
     status = Column(Enum(NotificationStatus), default=NotificationStatus.UNREAD, nullable=False)
     is_read = Column(Boolean, default=False, nullable=False)

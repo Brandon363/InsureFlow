@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional, List
 
+from Model.NotificationModel import NotificationDTO
+
 
 class ErrorDetail(BaseModel):
     field: str
@@ -12,3 +14,5 @@ class BaseResponse(BaseModel):
     success: bool
     message: str
     errors: Optional[List[ErrorDetail]] | dict = None
+    notification: Optional[NotificationDTO] = None
+    notifications: Optional[List[NotificationDTO]] = None
