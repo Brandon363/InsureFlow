@@ -74,6 +74,11 @@ export interface UserLoginRequest {
   password: string;
 }
 
+export interface UserVerifificationRequest {
+  user_id: number;
+  verification_notes?: string | null;
+}
+
 export interface UserPasswordUpdate {
   oldPassword: string;
   newPassword: string;

@@ -78,7 +78,7 @@ app.include_router(api_router)
 
 app.add_middleware(MyMiddleware)
 app.add_middleware(CORSMiddleware,
-                   allow_origins=["*"],
+                   allow_origins=["http://10.147.16.251:4200", "http://localhost:4200"],
                    allow_methods=["*"],
                    allow_headers=["*"],
                    allow_credentials=True)

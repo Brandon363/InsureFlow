@@ -12,6 +12,7 @@ import { UserDTO } from '../../../models/user.interface';
 import { AuthService } from '../../../services/auth.service';
 import { PrimeNG } from 'primeng/config';
 import { VerificationStatus } from '../../../models/enum.interface';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-user-verification-application',
@@ -41,7 +42,7 @@ export class UserVerificationApplicationComponent implements OnInit, OnDestroy {
     public authService: AuthService,
     private confirmationService: ConfirmationService,
     private router: Router,
-    private config: PrimeNG) { }
+    private notificationService: NotificationService) { }
 
   ngOnDestroy(): void {
     this.verifySubscription?.unsubscribe();
@@ -99,6 +100,9 @@ export class UserVerificationApplicationComponent implements OnInit, OnDestroy {
 
       } else {
         this.messageService.add({ severity: 'success', summary: 'Submitted', detail: `Account verification Submitted` })
+        if (response.notification) {
+          this.notificationService.updateUserNotificationData(response.notification!);
+        }
         this.authService.refreshUserData().subscribe(() => {
           this.router.navigate(['/client-dashboard']);
         });

@@ -2,10 +2,12 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 from Entity.UserEntity import UserEntity
-from Model.UserModel import UserResponse, UserCreateRequest, UserUpdateRequest, UserLoginRequest, UserPasswordUpdate
+from Model.NotificationModel import NotificationCreate
+from Model.UserModel import UserResponse, UserCreateRequest, UserUpdateRequest, UserLoginRequest, UserPasswordUpdate, \
+    UserVerifificationRequest
 from Repository import user_repository
-from Utils.Enums import EntityStatus, VerificationStatus
-
+from Utils.Enums import EntityStatus, VerificationStatus, NotificationType
+from Service.NotificationService import create_notification
 
 def get_active_user_by_id(db_session: Session, user_id: int) -> UserResponse:
     if user_id is None:
@@ -78,6 +80,20 @@ def create_user(db_session: Session, create_request: UserCreateRequest) -> UserR
     db_session.commit()
     db_session.refresh(user_entity)
 
+    # create a welcome notification
+    create_notification_request = NotificationCreate(
+        user_id=user_entity.id,
+        notification_type=NotificationType.USER_UPDATE,
+        title='Welcome to InsureFlow',
+        message='Your account has been successfully created'
+    )
+
+    create_notification_response = create_notification(
+        db_session=db_session, create_request=create_notification_request)
+
+    if not create_notification_response.success:
+        print(create_notification_response.message)
+
     return UserResponse(status_code=201, success=True, message="User created successfully", user=user_entity)
 
 
@@ -119,16 +135,54 @@ def logout_user(db_session: Session, user_id: int) -> UserResponse:
     return UserResponse(status_code=200, success=True, message="Logout successful", user=db_user)
 
 
-def verify_user(db_session: Session, user_id: int) -> UserResponse:
-    db_user: UserEntity | None = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
+def verify_user(db_session: Session, request: UserVerifificationRequest) -> UserResponse:
+    db_user: UserEntity | None = user_repository.find_active_user_by_id(db_session=db_session, user_id=request.user_id)
 
     if not db_user:
         return UserResponse(status_code=404, success=False, message="User not found")
 
     # Update verification status
     db_user.verification_status = VerificationStatus.VERIFIED
+    db_user.verification_notes = request.verification_notes
     db_session.commit()
     db_session.refresh(db_user)
+
+    create_notification_request = NotificationCreate(
+        user_id=request.user_id,
+        notification_type=NotificationType.USER_UPDATE,
+        title='Verification Successful',
+        message='Congratulations, your account has been verified'
+    )
+    create_notification_response = create_notification(create_request=create_notification_request, db_session=db_session)
+
+    if not create_notification_response.success:
+        print(create_notification_response.message)
+
+    return UserResponse(status_code=200, success=True, message="User successful verified", user=db_user)
+
+
+def reject_user_verification(db_session: Session, request: UserVerifificationRequest) -> UserResponse:
+    db_user: UserEntity | None = user_repository.find_active_user_by_id(db_session=db_session, user_id=request.user_id)
+
+    if not db_user:
+        return UserResponse(status_code=404, success=False, message="User not found")
+
+    # Update verification status
+    db_user.verification_status = VerificationStatus.REJECTED
+    db_user.verification_notes = request.verification_notes
+    db_session.commit()
+    db_session.refresh(db_user)
+
+    create_notification_request = NotificationCreate(
+        user_id=request.user_id,
+        notification_type=NotificationType.USER_UPDATE,
+        title='Verification Rejected',
+        message=f'Your account verification was rejected. Please review the comments and resubmit.'
+    )
+    create_notification_response = create_notification(create_request=create_notification_request, db_session=db_session)
+
+    if not create_notification_response.success:
+        print(create_notification_response.message)
 
     return UserResponse(status_code=200, success=True, message="User successful verified", user=db_user)
 

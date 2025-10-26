@@ -40,6 +40,11 @@ def get_all_active_notifications(db: db_dependency):
     return NotificationService.get_all_active_notifications(db_session=db)
 
 
+@router.get('/get-all-active-notifications-by-user-id/{user_id}', response_model=BaseResponse)
+def get_all_active_notifications(db: db_dependency, user_id: int):
+    return NotificationService.get_all_active_notifications_by_user_id(db_session=db, user_id=user_id)
+
+
 @router.post('/create-notification', response_model=BaseResponse)
 def create_notification(create_request: NotificationCreate, db: db_dependency):
     return NotificationService.create_notification(db_session=db, create_request=create_request)
@@ -49,6 +54,12 @@ def create_notification(create_request: NotificationCreate, db: db_dependency):
 def update_notification(update_request: NotificationUpdate, notification_id: int, db: db_dependency):
     update_request.id = notification_id
     return NotificationService.update_notification(db_session=db, notification_id=notification_id, update_request=update_request)
+
+
+
+@router.put('/mark-all-as-read/{user_id}', response_model=BaseResponse)
+def update_notification(user_id: int, db: db_dependency):
+    return NotificationService.mark_all_as_read(db_session=db, user_id=user_id)
 
 
 @router.delete('/delete-notification/{notification_id}', response_model=BaseResponse)

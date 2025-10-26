@@ -56,6 +56,14 @@ def get_all_active_notifications(db_session: Session) -> BaseResponse:
     return BaseResponse(status_code=200, success=True, message="Notifications successfully found", notifications=db_notifications)
 
 
+def get_all_active_notifications_by_user_id(db_session: Session, user_id:int) -> BaseResponse:
+    db_notifications = notification_repository.find_all_notifications_by_user_id(db_session=db_session, user_id=user_id)
+    if db_notifications is None:
+        return BaseResponse(status_code=404, success=False, message="Notifications not found")
+
+    return BaseResponse(status_code=200, success=True, message="Notifications successfully found", notifications=db_notifications)
+
+
 def create_notification(db_session: Session, create_request: NotificationCreate) -> BaseResponse:
     existing_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=create_request.user_id)
 
@@ -112,3 +120,33 @@ def delete_notification(db_session: Session, notification_id: int) -> BaseRespon
     db_session.commit()
 
     return BaseResponse(status_code=201, message="Notification successfully deleted", success=True, notification=existing_notification)
+
+
+
+def mark_as_read(db_session: Session, notification_id: int) -> BaseResponse:
+    db_notification: NotificationDTO | None = notification_repository.find_active_notification_by_id(db_session=db_session, notification_id=notification_id)
+
+    if not db_notification:
+        return BaseResponse(status_code=404, success=False, message="Notification not found")
+
+    db_notification.is_read = True
+    db_notification.read_at = datetime.utcnow()
+    db_session.commit()
+    db_session.refresh(db_notification)
+
+    return BaseResponse(status_code=200, success=True, message="Notification marked as read successfully", notification=db_notification)
+
+
+def mark_all_as_read(db_session: Session, user_id: int) -> BaseResponse:
+    db_notifications: list[NotificationDTO] | None = notification_repository.find_unread_notifications_by_user_id(user_id=user_id, db_session=db_session)
+    if not db_notifications:
+        return BaseResponse(status_code=404, success=False, message="Notifications not found")
+
+    for db_notification in db_notifications:
+        db_notification.is_read = True
+        db_notification.read_at = datetime.utcnow()
+        db_session.commit()
+        db_session.refresh(db_notification)
+
+    return BaseResponse(status_code=200, success=True, message="Notifications marked as read successfully", notifications=db_notifications)
+

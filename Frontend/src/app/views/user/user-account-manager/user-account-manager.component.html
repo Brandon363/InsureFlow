@@ -41,13 +41,15 @@
         <div *ngIf="user.verification_status === verificationStatus.PENDING"
             class="bg-blue-50 p-3 border-1 border-blue-300 border-round-lg flex align-content-center justify-content-center mb-4">
             <div class="text-sm text-blue-600">
+                <!-- convert from uct -->
                 <i class="pi pi-info-circle mr-2"></i> Your verification is under review. Submitted on
-                {{extractedUser.date_created | date: 'medium' | nullDisplay}}. We'll
+                {{ convertDateToLocal(user.date_created) | nullDisplay}}. We'll
                 notify you once the review is complete.
             </div>
         </div>
 
-        <div *ngIf="user.verification_status === verificationStatus.REJECTED"
+        <div *ngIf="user.verification_status === verificationStatus.REJECTED">
+        <div
             class="bg-red-50 p-3 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center mb-4">
             <div class="text-sm text-red-600">
                 <i class="pi pi-info-circle mr-2"></i> Your verification was rejected. Please review your submitted
@@ -55,107 +57,113 @@
             </div>
         </div>
 
-        <div *ngIf="user.verification_status === verificationStatus.UNVERIFIED"
-            class="bg-orange-50 p-3 border-1 border-orange-300 border-round-lg flex align-content-center justify-content-center mb-4">
-            <div class="text-sm text-orange-600">
-                <i class="pi pi-info-circle mr-2"></i> Kindly <a routerLink="/verify-account"
-                    class="text-primary cursor-pointer">verify</a> your account to access all features.
-            </div>
+        <div class="mt-2">
+            <div class="font-semibold text-600">Rejection Reason:</div>
+            <div class="text-500 mt-2">{{user.verification_notes || 'No reason provided.'}}</div>
         </div>
+    </div>
 
-        <div *ngIf="user.verification_status === verificationStatus.VERIFIED"
-            class="bg-green-50 p-3 border-1 border-green-300 border-round-lg flex align-content-center justify-content-center mb-4">
-            <div class="text-sm text-green-600">
-                <i class="pi pi-check-circle mr-2"></i> Your account is verified. You have full access to all features.
+    <div *ngIf="user.verification_status === verificationStatus.UNVERIFIED"
+        class="bg-orange-50 p-3 border-1 border-orange-300 border-round-lg flex align-content-center justify-content-center mb-4">
+        <div class="text-sm text-orange-600">
+            <i class="pi pi-info-circle mr-2"></i> Kindly <a routerLink="/verify-account"
+                class="text-primary cursor-pointer">verify</a> your account to access all features.
+        </div>
+    </div>
+
+    <div *ngIf="user.verification_status === verificationStatus.VERIFIED"
+        class="bg-green-50 p-3 border-1 border-green-300 border-round-lg flex align-content-center justify-content-center mb-4">
+        <div class="text-sm text-green-600">
+            <i class="pi pi-check-circle mr-2"></i> Your account is verified. You have full access to all features.
+        </div>
+    </div>
+</div>
+<div class="grid mt-4">
+    <div class="lg:col-8 col-12">
+        <div class="card surface-card shadow-3 border-0 border-round-2xl p-6">
+            <div class="flex justify-content-between align-items-center">
+                <div class="flex align-items-center gap-3">
+                    <p-avatar icon="pi pi-user" size="large"
+                        [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }" />
+                    <div>
+                        <div class="text-600 font-semibold mb-2">Profile Information</div>
+                        <div class="text-500 mt-1 text-sm md:text-base">Your registered account details</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="grid mt-5">
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-user mr-2"></i>First Name</div>
+                    <div class="text-900 font-semibold">{{user.first_name}}</div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-user mr-2"></i>Last Name</div>
+                    <div class="text-900 font-semibold">{{user.last_name}}</div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-user mr-2"></i>Other Names</div>
+                    <div class="text-900 font-semibold">{{user.other_names | nullDisplay}}</div>
+                </div>
+                <p-divider class=""></p-divider>
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-envelope mr-2"></i>Email</div>
+                    <div class="text-900 font-semibold">{{user.email | nullDisplay}}</div>
+                </div>
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-phone mr-2"></i>Phone Number</div>
+                    <div class="text-900 font-semibold">{{user.phone_number | nullDisplay}}</div>
+                </div>
+                <!-- id number -->
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-id-card mr-2"></i>ID Number</div>
+                    <div class="text-900 font-semibold">{{user.id_number | nullDisplay}}</div>
+                </div>
+
+                <p-divider></p-divider>
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-map-marker mr-2"></i>Address</div>
+                    <div class="text-900 font-semibold">{{user.address | nullDisplay}}</div>
+                </div>
+                <!-- date of birth -->
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-calendar mr-2"></i>Date of Birth</div>
+                    <div class="text-900 font-semibold">{{user.date_of_birth | date: 'mediumDate' | nullDisplay}}
+                    </div>
+                </div>
+                <!-- place of birth -->
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-globe mr-2"></i>Place of Birth</div>
+                    <div class="text-900 font-semibold">{{user.place_of_birth | nullDisplay}}</div>
+                </div>
+                <p-divider></p-divider>
+                <!-- village of origin -->
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-home mr-2"></i>Village of Origin</div>
+                    <div class="text-900 font-semibold">{{user.village_of_origin | nullDisplay}}</div>
+                </div>
+                <!-- date joined -->
+                <div class="col-12 md:col-6 lg:col-4 mb-3">
+                    <div class="text-500 font-medium mb-2"><i class="pi pi-calendar mr-2"></i>Date Joined</div>
+                    <div class="text-900 font-semibold">{{user.date_created | date: 'medium' | nullDisplay}}</div>
+                </div>
+
             </div>
         </div>
     </div>
-    <div class="grid mt-4">
-        <div class="lg:col-8 col-12">
-            <div class="card surface-card shadow-3 border-0 border-round-2xl p-6">
-                <div class="flex justify-content-between align-items-center">
-                    <div class="flex align-items-center gap-3">
-                        <p-avatar icon="pi pi-user" size="large"
-                            [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }" />
-                        <div>
-                            <div class="text-600 font-semibold mb-2">Profile Information</div>
-                            <div class="text-500 mt-1 text-sm md:text-base">Your registered account details</div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="grid mt-5">
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-user mr-2"></i>First Name</div>
-                        <div class="text-900 font-semibold">{{user.first_name}}</div>
-                    </div>
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-user mr-2"></i>Last Name</div>
-                        <div class="text-900 font-semibold">{{user.last_name}}</div>
-                    </div>
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-user mr-2"></i>Other Names</div>
-                        <div class="text-900 font-semibold">{{user.other_names | nullDisplay}}</div>
-                    </div>
-                    <p-divider class=""></p-divider>
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-envelope mr-2"></i>Email</div>
-                        <div class="text-900 font-semibold">{{user.email | nullDisplay}}</div>
-                    </div>
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-phone mr-2"></i>Phone Number</div>
-                        <div class="text-900 font-semibold">{{user.phone_number | nullDisplay}}</div>
-                    </div>
-                    <!-- id number -->
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-id-card mr-2"></i>ID Number</div>
-                        <div class="text-900 font-semibold">{{user.id_number | nullDisplay}}</div>
-                    </div>
-
-                    <p-divider ></p-divider>
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-map-marker mr-2"></i>Address</div>
-                        <div class="text-900 font-semibold">{{user.address | nullDisplay}}</div>
-                    </div>
-                    <!-- date of birth -->
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-calendar mr-2"></i>Date of Birth</div>
-                        <div class="text-900 font-semibold">{{user.date_of_birth | date: 'mediumDate' | nullDisplay}}
-                        </div>
-                    </div>
-                    <!-- place of birth -->
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-globe mr-2"></i>Place of Birth</div>
-                        <div class="text-900 font-semibold">{{user.place_of_birth | nullDisplay}}</div>
-                    </div>
-                    <p-divider ></p-divider>
-                    <!-- village of origin -->
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-home mr-2"></i>Village of Origin</div>
-                        <div class="text-900 font-semibold">{{user.village_of_origin | nullDisplay}}</div>
-                    </div>
-                    <!-- date joined -->
-                    <div class="col-12 md:col-6 lg:col-4 mb-3">
-                        <div class="text-500 font-medium mb-2"><i class="pi pi-calendar mr-2"></i>Date Joined</div>
-                        <div class="text-900 font-semibold">{{user.date_created | date: 'medium' | nullDisplay}}</div>
-                    </div>
-
+    <div class="lg:col-4 col-12">
+        <div class="card surface-card p-4 px-5 shadow-3 border-round-xl flex flex-column gap-5">
+            <div class="font-bold text-lg text-700">
+                Uploaded ID Document
+            </div>
+            <div class="text-cyan-700">
+                <div *ngIf="pdfUrl">
+                    <img [src]="pdfUrl" alt="No Preview Available" class="w-full h-auto" />
                 </div>
             </div>
         </div>
-        <div class="lg:col-4 col-12">
-            <div class="card surface-card p-4 px-5 shadow-3 border-round-xl flex flex-column gap-5">
-                <div class="font-bold text-lg text-700">
-                    Uploaded ID Document
-                </div>
-                <div class="text-cyan-700">
-                    <div *ngIf="pdfUrl">
-                        <img [src]="pdfUrl" alt="No Preview Available" class="w-full h-auto" />
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+</div>
 </div>

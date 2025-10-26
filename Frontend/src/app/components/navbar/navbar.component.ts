@@ -50,9 +50,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const user = this.authService.getCurrentUser();
     const firstName = user.first_name ?? "-";
     const lastName = user.last_name ?? "-";
-
+    this.notificationSubscription = this.notificationService.getAllNotificationsByUserId(user.id).subscribe();
     this.notificationSubscription = this.notificationService.allActiveUserNotifications.subscribe((notifications) => {
       this.allActiveNotifications = notifications;
+      this.allActiveUnreadNotifications = this.allActiveNotifications.filter(notification => !notification.is_read);
+      // console.log("Unread notifications in navbar:", this.allActiveUnreadNotifications);
 
       if (user.user_role === UserRole.CUSTOMER) {
 
@@ -178,24 +180,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-
-  // toggleDarkMode() {
-  // toggleDarkMode() {
-  //   this.darkMode = !this.darkMode;
-  //   localStorage.setItem('darkMode', String(this.darkMode));
-
-  //   const element = document.querySelector('html');
-
-  //   if (this.darkMode) {
-  //     element?.classList.add('dark-theme');
-  //     // usePreset(Lara);
-  //     this.themeIcon = 'pi pi-sun';
-  //   } else {
-  //     element?.classList.remove('dark-theme');
-  //     // usePreset(MyPreset);
-  //     this.themeIcon = 'pi pi-moon';
-  //   }
-  // }
 
   isActiveMenu(path: string): boolean {
     const url = this.router.url;

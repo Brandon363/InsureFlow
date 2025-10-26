@@ -243,7 +243,7 @@ async def extract_user(db_session: Session, image_file: File, user_id: int) -> E
             print(change_verification_status_response.message)
 
         create_notification_request: NotificationCreate = NotificationCreate(
-            user_id=user_id, notification_type=NotificationType.VERIFICATION_UPDATE
+            user_id=user_id, notification_type=NotificationType.USER_UPDATE
             , title='Verification Submitted',
             message='Your verification request has been submitted'
         )

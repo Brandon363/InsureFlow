@@ -109,6 +109,11 @@ class UserLoginRequest(BaseModel):
     password: str
 
 
+class UserVerifificationRequest(BaseModel):
+    user_id: int
+    verification_notes: str
+
+
 class UserPasswordUpdate(BaseModel):
     old_password: str
     new_password: str

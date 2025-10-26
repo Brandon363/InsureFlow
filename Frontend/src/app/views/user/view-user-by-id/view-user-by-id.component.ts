@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UserDTO } from '../../../models/user.interface';
+import { UserDTO, UserVerifificationRequest } from '../../../models/user.interface';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { LoadingService } from '../../../services/loading.service';
@@ -34,6 +34,7 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
   chatMessageSubscription!: Subscription;
   viewDocumentSubscription!: Subscription;
   verificationStatus = VerificationStatus
+  verificationNotes: string = '';
 
 
   showChat: boolean = false;
@@ -146,6 +147,60 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
         this.loadingService.setLoadingState(false);
         console.error(error);
       }
+    });
+  }
+
+  onVerifyUser() {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to VERIFY this user?`,
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-circle',
+      rejectButtonStyleClass: 'p-button-info',
+      accept: () => {
+        this.loadingService.setLoadingState(true);
+        const verificationRequest: UserVerifificationRequest = {
+          user_id: this.user.id,
+          verification_notes: this.verificationNotes || null,
+        }
+        this.userService.verifyUser(verificationRequest).subscribe((response) => {
+          this.loadingService.setLoadingState(false);
+          if (response.success) {
+            this.messageService.add({ severity: 'success', summary: 'User Verified', detail: `User has been verified successfully.` });
+            this.getResultsById();
+          } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message });
+          }
+        });
+      },
+      reject: () => {
+      }
+    });
+  }
+
+
+  onRejectUser() {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to REJECT this user?`,  // Replace with your confirmation message
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.loadingService.setLoadingState(true);
+        const verificationRequest: UserVerifificationRequest = {
+          user_id: this.user.id,
+          verification_notes: this.verificationNotes || null,
+        }
+        this.userService.rejectUserVerification(verificationRequest).subscribe((response) => {
+          this.loadingService.setLoadingState(false); 
+          if (response.success) {
+            this.messageService.add({ severity: 'success', summary: 'User Rejected', detail: `User has been rejected successfully.` });
+            this.getResultsById();
+          } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message });
+          } 
+        });
+      },
+      reject: () => {}
     });
   }
 

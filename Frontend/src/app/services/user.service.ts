@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { UserDTO, UserResponse } from '../models/user.interface';
+import { UserDTO, UserResponse, UserVerifificationRequest } from '../models/user.interface';
 import { BehaviorSubject, map, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
@@ -28,6 +28,8 @@ export class UserService {
       errors: data.errors || null,
       user: data.user || null,
       users: data.users || null,
+      notifications: data.notifications || null,
+      notification: data.notification || null,
     };
   }
 
@@ -64,6 +66,42 @@ export class UserService {
 
   editUser(id: number, updateRequest: UserDTO): Observable<UserResponse> {
     return this.httpclient.put(`${this.baseURL}/${this.subUrl}/update-user/${id}`, updateRequest).pipe(
+      map((response: any) => {
+        const UserResponse = this.mapToResponse(response);
+        if (UserResponse.success && UserResponse.user) {
+          const current = this.allActiveConfigs.getValue();
+          const updated = current.map((p: any) =>
+            p.id === UserResponse.user?.id ? UserResponse.user : p
+          );
+          this.allActiveConfigs.next(updated);
+        }
+
+        return UserResponse;
+      })
+    );
+  }
+
+
+  verifyUser(request: UserVerifificationRequest): Observable<UserResponse> {
+    return this.httpclient.put(`${this.baseURL}/${this.subUrl}/verify-user`, request).pipe(
+      map((response: any) => {
+        const UserResponse = this.mapToResponse(response);
+        if (UserResponse.success && UserResponse.user) {
+          const current = this.allActiveConfigs.getValue();
+          const updated = current.map((p: any) =>
+            p.id === UserResponse.user?.id ? UserResponse.user : p
+          );
+          this.allActiveConfigs.next(updated);
+        }
+
+        return UserResponse;
+      })
+    );
+  }
+
+
+  rejectUserVerification(request: UserVerifificationRequest): Observable<UserResponse> {
+    return this.httpclient.put(`${this.baseURL}/${this.subUrl}/reject-user-verification`, request).pipe(
       map((response: any) => {
         const UserResponse = this.mapToResponse(response);
         if (UserResponse.success && UserResponse.user) {

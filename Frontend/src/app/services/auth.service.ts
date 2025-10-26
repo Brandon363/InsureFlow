@@ -34,6 +34,8 @@ export class AuthService {
       errors: data.errors || null,
       user: data.user || null,
       users: data.users || null,
+      notifications: data.notifications || null,
+      notification: data.notification || null,
     };
   }
 
@@ -77,9 +79,7 @@ export class AuthService {
 
 
   login(data: UserLoginRequest): Observable<UserResponse> {
-    return this.httpClient.post(`${this.baseURL}/${this.subUrl}/login`, data, {
-      withCredentials: true,
-    }).pipe(
+    return this.httpClient.post(`${this.baseURL}/${this.subUrl}/login`, data).pipe(
       map((response: any) => {
         const loginResponse: UserResponse = this.map_to_response(response);
 

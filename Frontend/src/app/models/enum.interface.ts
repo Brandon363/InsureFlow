@@ -46,10 +46,11 @@ export enum UserRole {
 }
 
 export enum NotificationType {
-  PAYMENT_DUE = "PAYMENT_DUE",
+  PAYMENT_UPDATE = "PAYMENT_UPDATE",
   CLAIM_UPDATE = "CLAIM_UPDATE",
   POLICY_UPDATE = "POLICY_UPDATE",
-  ANNOUNCEMENT = "ANNOUNCEMENT"
+  ANNOUNCEMENT = "ANNOUNCEMENT",
+  USER_UPDATE = "USER_UPDATE"
 }
 
 export enum NotificationStatus {

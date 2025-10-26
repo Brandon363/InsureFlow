@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { UserDTO } from '../../../models/user.interface';
 import { UserService } from '../../../services/user.service';
 import { LoadingService } from '../../../services/loading.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService, SelectItem } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Router } from '@angular/router';
 import { VerificationStatus } from '../../../models/enum.interface';
@@ -27,7 +27,19 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
   syncSubscription!: Subscription;
 
 
-  allProductBufferLevels: UserDTO[] = [];
+  sortOrder!: number;
+  sortField!: string;
+  tenderStatusSelectedValue: any;
+
+
+  sortOptions!: SelectItem[];
+  sortKey: string | null = null;
+
+
+  verificationStatus = VerificationStatus;
+
+  allUsers: UserDTO[] = [];
+  filteredUsers: UserDTO[] = [];
 
   statusSelected: string = '';
   selectedProductBufferLevel: UserDTO | undefined;
@@ -36,6 +48,9 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
   showAddConfigDialog: boolean = false;
   showEditProductBufferLevelDialog: boolean = false;
 
+  greenColor: string = 'rgb(7, 170, 7)';
+  redColor: string = 'rgb(170, 7, 7)';
+
   reviewStatuses = [
     { label: 'Pending Review', value: null },
     { label: 'Confirmed Fraud', value: 1 },
@@ -43,7 +58,7 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
   ];
 
   constructor(
-    private productBufferLevelService: UserService,
+    private userService: UserService,
     private loadingService: LoadingService,
     private messageService: MessageService,
     private router: Router,
@@ -76,15 +91,16 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
   getAllTestConfigs() {
     this.loadingService.setLoadingState(true);
     this.loading = true;
-    this.getAllSubscription = this.productBufferLevelService.getAllActiveUsers().subscribe()
-    this.retrieveSubscription = this.productBufferLevelService.retrieveUserData().subscribe((response) => {
+    this.getAllSubscription = this.userService.getAllActiveUsers().subscribe()
+    this.retrieveSubscription = this.userService.retrieveUserData().subscribe((response) => {
       console.log(response);
-      this.allProductBufferLevels = response;
-      this.allProductBufferLevels = response.sort((a, b) => {
+      this.allUsers = response;
+      this.allUsers = response.sort((a, b) => {
         const dateA = a.date_updated ? new Date(a.date_updated).getTime() : 0;
         const dateB = b.date_updated ? new Date(b.date_updated).getTime() : 0;
         return dateB - dateA;
       });
+      this.filteredUsers = [...this.allUsers];
 
       this.updateCardNumbers(null);
       this.loadingService.setLoadingState(false);
@@ -93,18 +109,59 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
   }
 
 
-  // viewProductBufferLevel(productBufferLevel: UserDTO) {
-  //   if (productBufferLevel) {
-  //     this.selectedProductBufferLevel = productBufferLevel;
-  //     this.showEditProductBufferLevelDialog = true;
-  //   }
-  // }
+  onSortChange(event: any) {
+    if (event) {
+      let value = event.value;
 
+      if (value.indexOf('!') === 0) {
+        this.sortOrder = -1;
+        this.sortField = value.substring(1, value.length);
+      } else {
+        this.sortOrder = 1;
+        this.sortField = value;
+      }
+    }
+  }
+
+
+  searchTenders(query: string): void {
+    const trimmedQuery = query.trim().toLowerCase();
+
+    if (!trimmedQuery) {
+      this.filteredUsers = [...this.allUsers];
+      this.updateCardNumbers(null)
+      return;
+    }
+
+    this.filteredUsers = this.allUsers.filter(user => {
+      // console.log(tender)
+      return [
+        user.first_name,
+        user.last_name,
+        user.id_number,
+      ].some(field => field?.toLowerCase().includes(trimmedQuery));
+    });
+    this.updateCardNumbers(null)
+
+  }
+
+  isPublishedToday(publishDate: Date | undefined): boolean {
+    const today = new Date();
+    if (!publishDate) {
+      return false;
+    }
+    const publishDateDate = new Date(publishDate);
+    return (
+      publishDateDate.getDate() === today.getDate() &&
+      publishDateDate.getMonth() === today.getMonth() &&
+      publishDateDate.getFullYear() === today.getFullYear()
+    );
+  }
 
   onDeleteProductBufferLevel(productBufferLevel: UserDTO) {
     if (productBufferLevel.id) {
       this.loadingService.setLoadingState(true);
-      this.deleteSubscription = this.productBufferLevelService.deleteUserById(productBufferLevel.id).subscribe((response) => {
+      this.deleteSubscription = this.userService.deleteUserById(productBufferLevel.id).subscribe((response) => {
         this.loadingService.setLoadingState(false);
         if (response.success) {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: `${response.message}` })
@@ -121,7 +178,7 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
       message: 'Do you want to delete this client?',
-      header: 'Delete Buffer Level',
+      header: 'Delete Client',
       icon: 'pi pi-info-circle',
       rejectLabel: 'Cancel',
       rejectButtonProps: {
@@ -154,10 +211,10 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
         return { severity: 'danger' as const, status: 'Rejected' };
 
       case status = VerificationStatus.UNVERIFIED:
-        return { severity: 'danger' as const, status: 'Unverified' };
+        return { severity: 'warn' as const, status: 'Unverified' };
 
       case status = VerificationStatus.PENDING:
-        return { severity: 'warn' as const, status: 'Pending' };
+        return { severity: 'secondary' as const, status: 'Pending' };
 
       case status = VerificationStatus.VERIFIED:
         return { severity: 'success' as const, status: 'Verified' };
@@ -172,27 +229,27 @@ export class ViewAllUsersComponent implements OnInit, OnDestroy {
     this.cards = [
       {
         title: "Total Clients",
-        value: this.allProductBufferLevels.length.toString(),
+        value: this.allUsers.length.toString(),
         description: "Active clients in the system",
         icon: "pi pi-users"
       },
       {
         title: "Verified Clients",
-        value: this.allProductBufferLevels.filter(c => c.verification_status === VerificationStatus.VERIFIED).length.toString(),
+        value: this.allUsers.filter(c => c.verification_status === VerificationStatus.VERIFIED).length.toString(),
         description: "Verified clients in the system",
         icon: "pi pi-verified"
       },
       {
         title: "Pending Verification",
-        value: this.allProductBufferLevels.filter(c => c.verification_status === VerificationStatus.PENDING).length.toString(),
+        value: this.allUsers.filter(c => c.verification_status === VerificationStatus.PENDING).length.toString(),
         description: "Unverified clients in the system",
         icon: "pi pi-clock"
       },
       {
         title: "Unverified Clients",
-        value: this.allProductBufferLevels.filter(c => c.verification_status === VerificationStatus.UNVERIFIED).length.toString(),
+        value: this.allUsers.filter(c => c.verification_status === VerificationStatus.UNVERIFIED).length.toString(),
         description: "Unverified clients in the system",
-        icon: "pi pi-clock"
+        icon: "pi pi-times-circle"
       }
     ]
   }

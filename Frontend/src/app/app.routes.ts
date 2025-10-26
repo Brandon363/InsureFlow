@@ -9,6 +9,8 @@ import { AdminDashboardComponent } from './views/dashboard/admin-dashboard/admin
 import { ClientDashboardComponent } from './views/dashboard/client-dashboard/client-dashboard.component';
 import { UserVerificationApplicationComponent } from './views/user/user-verification-application/user-verification-application.component';
 import { UserAccountManagerComponent } from './views/user/user-account-manager/user-account-manager.component';
+import { ViewAllNotificationsComponent } from './views/notification/view-all-notifications/view-all-notifications.component';
+import { CameraComponent } from './views/camera/camera.component';
 
 export const routes: Routes = [
     {
@@ -18,6 +20,7 @@ export const routes: Routes = [
     },
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterUserComponent },
+    { path: 'camera', component: CameraComponent },
     {
         path: '', component: LayoutComponent, children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -28,6 +31,7 @@ export const routes: Routes = [
             { path: 'user/:userId', component: ViewUserByIdComponent },
             { path: 'verify-account', component: UserVerificationApplicationComponent },
             { path: 'account', component: UserAccountManagerComponent },
+            { path: 'notifications', component: ViewAllNotificationsComponent },
         ]
     }
 ];

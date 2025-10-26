@@ -1,11 +1,12 @@
-<div class="pt-3 mb- mx-5 md:flex justify-content-between align-items-center bg-transparent">
+<div class="pt-3 lg:mx-5 mx-3 mb-3 lg:mb-0  gap-3
+flex lg:flex-row flex-column lg:justify-content-between lg:align-items-center bg-transparent">
     <p-breadcrumb [model]="breadcomb_menu_items" [home]="home" styleClass="bg-transparent" />
     <div *ngIf="user">
-        <p-tag *ngIf="user.verification_status === verificationStatus.UNVERIFIED" icon="pi pi-exclamation-circle" severity="warn"
-            value="Unverified" />
+        <p-tag *ngIf="user.verification_status === verificationStatus.UNVERIFIED" icon="pi pi-exclamation-circle"
+            severity="warn" value="Unverified" />
         <p-tag *ngIf="user.verification_status === verificationStatus.PENDING" icon="pi pi-clock" severity="info"
             value="Pending Verification" />
-        <p-tag *ngIf="user.verification_status === verificationStatus.REJECTED" icon="pi pi-ban" severity="danger"
+        <p-tag *ngIf="user.verification_status === verificationStatus.REJECTED" icon="pi pi-times-circle" severity="danger"
             value="Rejected" />
         <p-tag *ngIf="user.verification_status === verificationStatus.VERIFIED" icon="pi pi-verified" severity="success"
             value="Verified" />
@@ -419,11 +420,16 @@
                 <div class="font-bold text-500 mb-3">
                     Verification Notes and Comments
                 </div>
-                <textarea rows="5" cols="30" pTextarea [autoResize]="true" [fluid]="true" [disabled]="!extractedUser"
-                    placeholder="Enter your analysis and any other observations.."></textarea>
-                <p-button label="Verify Client" icon="pi pi-check-circle" styleClass="mt-2 text-white" [fluid]="true" [disabled]="!extractedUser"/>
-                <p-button label="Reject" severity="danger" icon="pi pi-times-circle"
-                    styleClass="mt-2 border-1 surface-border py-2" [fluid]="true" [disabled]="!extractedUser"/>
+                <textarea rows="5" cols="30" pTextarea [autoResize]="true" [fluid]="true"
+                    [disabled]="!extractedUser || user.verification_status !== verificationStatus.PENDING"
+                    placeholder="Enter your analysis and any other observations.."
+                    [(ngModel)]="verificationNotes"></textarea>
+                <p-button label="Verify Client" icon="pi pi-check-circle" styleClass="mt-2 text-white" [fluid]="true"
+                    (onClick)="onVerifyUser()"
+                    [disabled]="!extractedUser || user.verification_status !== verificationStatus.PENDING || verificationNotes == ''" />
+                <p-button label="Reject" severity="danger" icon="pi pi-times-circle" (onClick)="onRejectUser()"
+                    styleClass="mt-2 border-1 surface-border py-2" [fluid]="true"
+                    [disabled]="!extractedUser || user.verification_status !== verificationStatus.PENDING || verificationNotes == ''" />
 
                 <p-divider />
                 <div class="text-500 text-sm mb-1 text-center">This decision will be logged.</div>

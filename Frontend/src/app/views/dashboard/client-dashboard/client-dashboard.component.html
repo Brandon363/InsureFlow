@@ -23,6 +23,16 @@
 
     </div>
 
+    <div *ngIf="user.verification_status === verificationStatus.REJECTED"
+        class="bg-red-50 p-3 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center mb-4">
+        <div class="text-sm text-red-600">
+            <i class="pi pi-info-circle mr-2"></i> Your verification was rejected. Please <a routerLink="/account" 
+            class="text-primary cursor-pointer">review</a> your submitted
+            information and try again.
+        </div>
+
+    </div>
+
     <div class="grid">
         <!-- <div class="" > -->
         <p-card class="col-12 md:col-6 lg:col-3" *ngFor="let item of cards">
@@ -42,9 +52,9 @@
     <!-- </div> -->
 
     <div class="card p-4 surface-card shadow-3 border-0 border-round-2xl mt-4">
-        <p class="font-bold text-2xl mt-2">Clients</p>
+        <p class="font-bold text-2xl mt-2">Active Claims</p>
 
-        <p-table #dt1 [value]="allProductBufferLevels" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+        <p-table #dt1 [value]="allClaims" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
             [loading]="loading" [paginator]="true" (onFilter)="updateCardNumbers(dt1)" [scrollable]="true"
             [globalFilterFields]="['first_name', 'last_name']" [rowHover]="true">
             <ng-template #caption>

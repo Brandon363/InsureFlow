@@ -17,8 +17,8 @@
     <div *ngIf="user.verification_status === verificationStatus.UNVERIFIED"
         class="bg-orange-50 p-3 border-1 border-orange-300 border-round-lg flex align-content-center justify-content-center mb-4">
         <div class="text-sm text-orange-600">
-            <i class="pi pi-info-circle mr-2"></i> Kindly <a routerLink="/verify-account" 
-            class="text-primary cursor-pointer">verify</a> your account to access all features.
+            <i class="pi pi-info-circle mr-2"></i> Kindly <a routerLink="/verify-account"
+                class="text-primary cursor-pointer">verify</a> your account to access all features.
         </div>
 
     </div>
@@ -108,11 +108,13 @@
                     <td>{{ case.first_name }}</td>
                     <td>{{ case.last_name }}</td>
                     <td>
-                        <!-- <div class="flex align-items-center gap-2 w-full"> -->
-                        <span *ngIf="!case.overall_accuracy">--</span>
-                        <p-progressbar *ngIf="case.overall_accuracy" [value]="case.extracted_user.overall_accuracy*100"
-                            [style]="{ height: '10px' }" />
-                        <!-- </div> -->
+                        <span *ngIf="case.extracted_users?.length === 0">--</span>
+                        <ng-container
+                            *ngIf="case.extracted_users[case.extracted_users.length-1].overall_accuracy !== undefined">
+                            <p-progressbar
+                                [value]="case.extracted_users[case.extracted_users.length-1].overall_accuracy * 100| number:'1.0-0'"
+                                [style]="{ height: '14px' }" />
+                        </ng-container>
                     </td>
                     <td>
                         <p-tag [value]="getStatusSeverityAndWord(case.verification_status).status"

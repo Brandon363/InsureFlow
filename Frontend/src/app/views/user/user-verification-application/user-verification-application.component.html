@@ -34,13 +34,7 @@
 
     </p-fileUpload>
 
-    <!-- submit button -->
-    <div class="flex justify-content-end mt-4">
-        <p-button label="Submit for Verification" icon="pi pi-save" severity="primary" (onClick)="submitVerification()"
-            [disabled]="uploadedFiles.length === 0"></p-button>
-    </div>
-
-
+    
 
     <div class="font-semibold text-500 mt-5">Verification requirements</div>
     <div class="text-500 mt-2">
@@ -51,6 +45,13 @@
         </ul>
 
     </div>
+    <!-- submit button -->
+    <div class="flex justify-content-end mt-4">
+        <p-button label="Submit for Verification" icon="pi pi-save" severity="primary" (onClick)="submitVerification()"
+            [disabled]="uploadedFiles.length === 0"></p-button>
+    </div>
+
+
 </div>
 
 <!-- <p-toast />

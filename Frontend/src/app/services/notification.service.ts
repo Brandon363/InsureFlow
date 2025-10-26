@@ -47,9 +47,7 @@ export class NotificationService {
       // Create the EventSource outside Angular zone to prevent unnecessary change detection
       this.zone.runOutsideAngular(() => {
         const url = `${this.baseURL}/sse` + '/notifications/stream';
-        this.eventSource = new EventSource(url, {
-          withCredentials: true
-        });
+        this.eventSource = new EventSource(url);
 
         // Handle incoming messages
         this.eventSource.onmessage = (event) => {
@@ -111,9 +109,7 @@ export class NotificationService {
 
   // ✅ Get all notifications for current user
   getAllNotificationsByUserId(user_id: number): Observable<NotificationResponse> {
-    return this.http.get(`${this.baseURL}/${this.subUrl}/get-all-notifications-by-user-id/` + user_id, {
-      withCredentials: true
-    }).pipe(
+    return this.http.get(`${this.baseURL}/${this.subUrl}/get-all-active-notifications-by-user-id/` + user_id).pipe(
       map((response: any) => {
         const notifcationResponse: NotificationResponse = this.mapToNotificationResponse(response)
         if (notifcationResponse.notifications) {
@@ -126,27 +122,21 @@ export class NotificationService {
 
   // ✅ Mark a single notification as read
   markAsRead(notificationId: number): Observable<NotificationResponse> {
-    return this.http.put(`${this.baseURL}/${this.subUrl}/mark-as-read/${notificationId}`, {}, {
-      withCredentials: true
-    }).pipe(
+    return this.http.put(`${this.baseURL}/${this.subUrl}/mark-as-read/${notificationId}`, {}).pipe(
       map(response => this.mapToNotificationResponse(response))
     );
   }
 
   // ✅ Mark a single notification as unread
   markAsUnRead(notificationId: number): Observable<NotificationResponse> {
-    return this.http.put(`${this.baseURL}/${this.subUrl}/mark-as-unread/${notificationId}`, {}, {
-      withCredentials: true
-    }).pipe(
+    return this.http.put(`${this.baseURL}/${this.subUrl}/mark-as-unread/${notificationId}`, {}).pipe(
       map(response => this.mapToNotificationResponse(response))
     );
   }
 
   // ✅ Mark all notifications as read
-  markAllAsRead(mark_bulk_as_read_request: MarkBulkAsReadRequest): Observable<NotificationResponse> {
-    return this.http.put(`${this.baseURL}/${this.subUrl}/mark-all-as-read`, mark_bulk_as_read_request, {
-      withCredentials: true
-    }).pipe(
+  markAllAsRead(user_id: number): Observable<NotificationResponse> {
+    return this.http.put(`${this.baseURL}/${this.subUrl}/mark-all-as-read/` + user_id, {}).pipe(
       map((response: any) => {
         const notifcationResponse: NotificationResponse = this.mapToNotificationResponse(response)
 
@@ -175,9 +165,7 @@ export class NotificationService {
 
   // ✅ Delete a notification
   deleteNotification(notificationId: number): Observable<NotificationResponse> {
-    return this.http.delete(`${this.baseURL}/${this.subUrl}/delete-notification/${notificationId}`, {
-      withCredentials: true
-    }).pipe(
+    return this.http.delete(`${this.baseURL}/${this.subUrl}/delete-notification/${notificationId}`).pipe(
       map(response => this.mapToNotificationResponse(response))
     );
   }

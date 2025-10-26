@@ -48,11 +48,11 @@ class UserRole(str, Enum):
 
 
 class NotificationType(str, Enum):
-    PAYMENT_DUE = 'PAYMENT_DUE'
+    PAYMENT_UPDATE = 'PAYMENT_UPDATE'
     CLAIM_UPDATE = 'CLAIM_UPDATE'
     POLICY_UPDATE = 'POLICY_UPDATE'
     ANNOUNCEMENT = 'ANNOUNCEMENT'
-    VERIFICATION_UPDATE = 'VERIFICATION_UPDATE'
+    USER_UPDATE = 'USER_UPDATE'
 
 
 class NotificationStatus(str, Enum):

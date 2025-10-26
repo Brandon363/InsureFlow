@@ -24,5 +24,11 @@ def find_unread_notifications_by_user_id(db_session: Session, user_id: int):
         NotificationEntity.entity_status == EntityStatus.ACTIVE).all()
 
 
+def find_all_notifications_by_user_id(db_session: Session, user_id: int):
+    return db_session.query(NotificationEntity).filter(
+        NotificationEntity.user_id == user_id,
+        NotificationEntity.entity_status == EntityStatus.ACTIVE).all()
+
+
 def find_all_active_notifications(db_session: Session):
     return db_session.query(NotificationEntity).filter(NotificationEntity.entity_status == EntityStatus.ACTIVE).all()

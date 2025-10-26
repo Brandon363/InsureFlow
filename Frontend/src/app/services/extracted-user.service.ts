@@ -28,6 +28,8 @@ private baseURL = environment.baseUrl;
       errors: data.errors || null,
       extracted_user: data.extracted_user || null,
       extracted_users: data.extracted_users || null,
+      notifications: data.notifications || null,
+      notification: data.notification || null,
     };
   }
 

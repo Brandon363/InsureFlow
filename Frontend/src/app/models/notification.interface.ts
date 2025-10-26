@@ -6,6 +6,7 @@ export interface NotificationDTO {
   id: number;
   user_id: number;
   claim_id?: number;
+  policy_id?: number;
   notification_type: NotificationType;
   title: string;
   message: string;

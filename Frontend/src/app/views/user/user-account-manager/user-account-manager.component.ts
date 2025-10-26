@@ -10,6 +10,7 @@ import { UserService } from '../../../services/user.service';
 import { VerificationStatus } from '../../../models/enum.interface';
 import { ExtractedUserDTO } from '../../../models/extracted_user.interface';
 import { DocumentService } from '../../../services/document.service';
+import moment from 'moment';
 
 @Component({
   selector: 'app-user-account-manager',
@@ -45,7 +46,8 @@ export class UserAccountManagerComponent implements OnInit, OnDestroy {
     private router: Router,
     private userService: UserService,
     private authService: AuthService,
-    private documentService: DocumentService
+    private documentService: DocumentService,
+    
   ) { }
 
 
@@ -86,6 +88,10 @@ export class UserAccountManagerComponent implements OnInit, OnDestroy {
         console.error(error);
       }
     });
+  }
+
+  convertDateToLocal(dateString: Date): string {
+    return moment.utc(dateString).local().format('LLLL');
   }
 
 }

@@ -4,11 +4,13 @@ import { Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Subscription } from 'rxjs';
-import { VerificationStatus } from '../../../models/enum.interface';
-import { UserDTO } from '../../../models/user.interface';
+import { ClaimStatus, VerificationStatus } from '../../../models/enum.interface';
 import { LoadingService } from '../../../services/loading.service';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
+import { ClaimService } from '../../../services/claim.service';
+import { ClaimDTO } from '../../../models/claim.interface';
+import { UserDTO } from '../../../models/user.interface';
 
 @Component({
   selector: 'app-client-dashboard',
@@ -30,14 +32,14 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
   user: UserDTO = {} as UserDTO;
 
 
-  allProductBufferLevels: UserDTO[] = [];
+  allClaims: ClaimDTO[] = [];
 
   statusSelected: string = '';
-  selectedProductBufferLevel: UserDTO | undefined;
+  selectedUser: ClaimDTO | undefined;
 
 
-  showAddConfigDialog: boolean = false;
-  showEditProductBufferLevelDialog: boolean = false;
+  showAddUserDialog: boolean = false;
+  showEditUserDialog: boolean = false;
 
   reviewStatuses = [
     { label: 'Pending Review', value: null },
@@ -46,7 +48,7 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
   ];
 
   constructor(
-    private productBufferLevelService: UserService,
+    private claimService: ClaimService,
     private loadingService: LoadingService,
     private messageService: MessageService,
     private router: Router,
@@ -73,21 +75,21 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.user = this.authService.getCurrentUser();
-    this.getAllTestConfigs();
+    this.getAllClaims();
   }
 
   addTestConfig() {
-    this.showAddConfigDialog = true;
+    this.showAddUserDialog = true;
   }
 
-  getAllTestConfigs() {
+  getAllClaims() {
     this.loadingService.setLoadingState(true);
     this.loading = true;
-    this.getAllSubscription = this.productBufferLevelService.getAllActiveUsers().subscribe()
-    this.retrieveSubscription = this.productBufferLevelService.retrieveUserData().subscribe((response) => {
+    this.getAllSubscription = this.claimService.getAllActiveUserClaims(this.user.id).subscribe()
+    this.retrieveSubscription = this.claimService.retrieveClaimData().subscribe((response) => {
       console.log(response);
-      this.allProductBufferLevels = response;
-      this.allProductBufferLevels = response.sort((a, b) => {
+      this.allClaims = response;
+      this.allClaims = response.sort((a, b) => {
         const dateA = a.date_updated ? new Date(a.date_updated).getTime() : 0;
         const dateB = b.date_updated ? new Date(b.date_updated).getTime() : 0;
         return dateB - dateA;
@@ -100,18 +102,10 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
   }
 
 
-  // viewProductBufferLevel(productBufferLevel: UserDTO) {
-  //   if (productBufferLevel) {
-  //     this.selectedProductBufferLevel = productBufferLevel;
-  //     this.showEditProductBufferLevelDialog = true;
-  //   }
-  // }
-
-
-  onDeleteProductBufferLevel(productBufferLevel: UserDTO) {
+  onDeleteClaim(productBufferLevel: ClaimDTO) {
     if (productBufferLevel.id) {
       this.loadingService.setLoadingState(true);
-      this.deleteSubscription = this.productBufferLevelService.deleteUserById(productBufferLevel.id).subscribe((response) => {
+      this.deleteSubscription = this.claimService.deleteClaimById(productBufferLevel.id).subscribe((response) => {
         this.loadingService.setLoadingState(false);
         if (response.success) {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: `${response.message}` })
@@ -124,11 +118,11 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
   }
 
 
-  confirmDelete(event: Event, productBufferLevel: UserDTO) {
+  confirmDelete(event: Event, productBufferLevel: ClaimDTO) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Do you want to delete this client?',
-      header: 'Delete Buffer Level',
+      message: 'Do you want to delete this claim?',
+      header: 'Delete Claim',
       icon: 'pi pi-info-circle',
       rejectLabel: 'Cancel',
       rejectButtonProps: {
@@ -142,7 +136,7 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
       },
 
       accept: () => {
-        this.onDeleteProductBufferLevel(productBufferLevel);
+        this.onDeleteClaim(productBufferLevel);
       },
       reject: () => {
       },
@@ -155,19 +149,22 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
   }
 
 
-  getStatusSeverityAndWord(status: VerificationStatus) {
+  getStatusSeverityAndWord(status: ClaimStatus) {
     switch (status) {
-      case status = VerificationStatus.REJECTED:
+      case status = ClaimStatus.REJECTED:
         return { severity: 'danger' as const, status: 'Rejected' };
 
-      case status = VerificationStatus.UNVERIFIED:
-        return { severity: 'danger' as const, status: 'Unverified' };
+      case status = ClaimStatus.SUBMITTED:
+        return { severity: 'info' as const, status: 'Submitted' };
 
-      case status = VerificationStatus.PENDING:
-        return { severity: 'warn' as const, status: 'Pending' };
+      case status = ClaimStatus.IN_REVIEW:
+        return { severity: 'secondary' as const, status: 'Pending' };
 
-      case status = VerificationStatus.VERIFIED:
+      case status = ClaimStatus.APPROVED:
         return { severity: 'success' as const, status: 'Verified' };
+
+      case status = ClaimStatus.PAID:
+        return { severity: 'success' as const, status: 'Paid' };
 
       default:
         return { severity: 'info' as const, status: 'Unknown' };
@@ -179,34 +176,34 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
     this.cards = [
       {
         title: "Total Clients",
-        value: this.allProductBufferLevels.length.toString(),
+        value: this.allClaims.length.toString(),
         description: "Active clients in the system",
-        icon: "pi pi-users"
+        icon: "pi pi-money-bill"
       },
       {
-        title: "Verified Clients",
-        value: this.allProductBufferLevels.filter(c => c.verification_status === VerificationStatus.VERIFIED).length.toString(),
+        title: "Approved Claims",
+        value: this.allClaims.filter(c => c.status === ClaimStatus.APPROVED).length.toString(),
         description: "Verified clients in the system",
         icon: "pi pi-verified"
       },
       {
-        title: "Pending Verification",
-        value: this.allProductBufferLevels.filter(c => c.verification_status === VerificationStatus.PENDING).length.toString(),
-        description: "Unverified clients in the system",
+        title: "In Review Claims",
+        value: this.allClaims.filter(c => c.status === ClaimStatus.IN_REVIEW).length.toString(),
+        description: "In review claims in the system",
         icon: "pi pi-clock"
       },
       {
-        title: "Unverified Clients",
-        value: this.allProductBufferLevels.filter(c => c.verification_status === VerificationStatus.UNVERIFIED).length.toString(),
-        description: "Unverified clients in the system",
-        icon: "pi pi-clock"
+        title: "Rejected Claims",
+        value: this.allClaims.filter(c => c.status === ClaimStatus.REJECTED).length.toString(),
+        description: "Rejected claims in the system",
+        icon: "pi pi-times-circle"
       }
     ]
   }
 
 
-  viewUserDetails(user: UserDTO) {
-    this.router.navigate(['/user/', user.id]);
+  viewUserDetails(user: ClaimDTO) {
+    this.router.navigate(['/claim/', user.id]);
   }
 
 }
