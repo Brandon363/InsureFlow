@@ -33,7 +33,7 @@ async def lifespan(app):
                 first_name="MUTUMWA",
                 last_name="DZIVA",
                 other_names="MAWER",
-                user_role=UserRole.CUSTOMER,  # Assuming UserRole is an enum with CUSTOMER as a value
+                user_role=UserRole.CUSTOMER,
                 date_of_birth=date(1960, 11, 1),
                 village_of_origin="BINDUR",
                 place_of_birth="MAWERE",

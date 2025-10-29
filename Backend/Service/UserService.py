@@ -4,10 +4,14 @@ from sqlalchemy.orm import Session
 from Entity.UserEntity import UserEntity
 from Model.NotificationModel import NotificationCreate
 from Model.UserModel import UserResponse, UserCreateRequest, UserUpdateRequest, UserLoginRequest, UserPasswordUpdate, \
-    UserVerifificationRequest
+    UserVerificationRequest
+from Model.VerificationTrackingModel import VerificationTrackingCreateRequest
 from Repository import user_repository
-from Utils.Enums import EntityStatus, VerificationStatus, NotificationType
+from Repository.user_repository import find_active_user_by_id
+from Utils.Enums import EntityStatus, VerificationStatus, NotificationType, VerificationTrackingStage, TrackingStatus
 from Service.NotificationService import create_notification
+from Service.VerificationTrackingService import create_verification_tracking
+
 
 def get_active_user_by_id(db_session: Session, user_id: int) -> UserResponse:
     if user_id is None:
@@ -60,7 +64,8 @@ def create_user(db_session: Session, create_request: UserCreateRequest) -> UserR
         return UserResponse(status_code=400, success=False, message="ID number already exists")
 
     # Check if email already exists
-    existing_user_by_email = user_repository.find_active_user_by_email(db_session=db_session, email=create_request.email)
+    existing_user_by_email = user_repository.find_active_user_by_email(db_session=db_session,
+                                                                       email=create_request.email)
 
     if existing_user_by_email:
         return UserResponse(status_code=400, success=False, message="Email already exists")
@@ -85,7 +90,7 @@ def create_user(db_session: Session, create_request: UserCreateRequest) -> UserR
         user_id=user_entity.id,
         notification_type=NotificationType.USER_UPDATE,
         title='Welcome to InsureFlow',
-        message='Your account has been successfully created'
+        message='Your account has been successfully created, click here to view and configure it'
     )
 
     create_notification_response = create_notification(
@@ -106,7 +111,8 @@ def login_user(db_session: Session, login_request: UserLoginRequest) -> UserResp
 
     # Handle case where user has no password (shouldn't happen but safe check)
     if not db_user.check_password(login_request.password):
-        return UserResponse(status_code=401, success=False, message="Account setup incomplete. Please contact administrator.")
+        return UserResponse(status_code=401, success=False,
+                            message="Account setup incomplete. Please contact administrator.")
 
     # Verify password
     if not db_user.check_password(login_request.password):
@@ -135,7 +141,7 @@ def logout_user(db_session: Session, user_id: int) -> UserResponse:
     return UserResponse(status_code=200, success=True, message="Logout successful", user=db_user)
 
 
-def verify_user(db_session: Session, request: UserVerifificationRequest) -> UserResponse:
+def verify_user(db_session: Session, request: UserVerificationRequest) -> UserResponse:
     db_user: UserEntity | None = user_repository.find_active_user_by_id(db_session=db_session, user_id=request.user_id)
 
     if not db_user:
@@ -147,13 +153,28 @@ def verify_user(db_session: Session, request: UserVerifificationRequest) -> User
     db_session.commit()
     db_session.refresh(db_user)
 
+    create_tracker_response = create_verification_tracking(
+        db_session=db_session,
+        create_request=VerificationTrackingCreateRequest(
+            stage=VerificationTrackingStage.APPROVED,
+            status=TrackingStatus.COMPLETED,
+            action_performed_by_id=request.verifier_id,
+            notes=request.verification_notes,
+            user_id=request.user_id
+        ))
+
+    if not create_tracker_response.success:
+        print(create_tracker_response.message)
+
     create_notification_request = NotificationCreate(
         user_id=request.user_id,
         notification_type=NotificationType.USER_UPDATE,
+        path_id=str(request.user_id),
         title='Verification Successful',
         message='Congratulations, your account has been verified'
     )
-    create_notification_response = create_notification(create_request=create_notification_request, db_session=db_session)
+    create_notification_response = create_notification(create_request=create_notification_request,
+                                                       db_session=db_session)
 
     if not create_notification_response.success:
         print(create_notification_response.message)
@@ -161,7 +182,7 @@ def verify_user(db_session: Session, request: UserVerifificationRequest) -> User
     return UserResponse(status_code=200, success=True, message="User successful verified", user=db_user)
 
 
-def reject_user_verification(db_session: Session, request: UserVerifificationRequest) -> UserResponse:
+def reject_user_verification(db_session: Session, request: UserVerificationRequest) -> UserResponse:
     db_user: UserEntity | None = user_repository.find_active_user_by_id(db_session=db_session, user_id=request.user_id)
 
     if not db_user:
@@ -173,13 +194,27 @@ def reject_user_verification(db_session: Session, request: UserVerifificationReq
     db_session.commit()
     db_session.refresh(db_user)
 
+    create_tracker_response = create_verification_tracking(
+        db_session=db_session,
+        create_request=VerificationTrackingCreateRequest(
+            stage=VerificationTrackingStage.DECLINED,
+            status=TrackingStatus.COMPLETED,
+            action_performed_by_id=request.verifier_id,
+            notes=request.verification_notes,
+            user_id=request.user_id
+        ))
+
+    if not create_tracker_response.success:
+        print(create_tracker_response.message)
+
     create_notification_request = NotificationCreate(
         user_id=request.user_id,
         notification_type=NotificationType.USER_UPDATE,
         title='Verification Rejected',
         message=f'Your account verification was rejected. Please review the comments and resubmit.'
     )
-    create_notification_response = create_notification(create_request=create_notification_request, db_session=db_session)
+    create_notification_response = create_notification(create_request=create_notification_request,
+                                                       db_session=db_session)
 
     if not create_notification_response.success:
         print(create_notification_response.message)
@@ -198,7 +233,52 @@ def make_user_verification_status_pending(db_session: Session, user_id: int) -> 
     db_session.commit()
     db_session.refresh(db_user)
 
-    return UserResponse(status_code=200, success=True, message="User verification status successfully updated", user=db_user)
+    return UserResponse(status_code=200, success=True, message="User verification status successfully updated",
+                        user=db_user)
+
+
+def resubmit_verification(db_session: Session, user_id: int) -> UserResponse:
+    db_user_response = get_active_user_by_id(db_session=db_session, user_id=user_id)
+    if not db_user_response.success:
+        return db_user_response
+
+    if db_user_response.user.verification_status != VerificationStatus.REJECTED:
+        return UserResponse(status_code=400, success=False,
+                            message="Your account is not in a rejected verification state. If you have any issues, please contact support.")
+
+    change_status_response = make_user_verification_status_pending(db_session=db_session, user_id=user_id)
+    if not change_status_response.success:
+        return UserResponse(status_code=change_status_response.status_code, success=False,
+                            message=change_status_response.message)
+
+    notification_create_request = NotificationCreate(
+        user_id=user_id,
+        notification_type=NotificationType.USER_UPDATE,
+        title="Account Resubmitted for Review",
+        message="Your account has been resubmitted for review. We will notify you once the review process is complete."
+    )
+    create_notification_response = create_notification(create_request=notification_create_request,
+                                                       db_session=db_session)
+
+    if not create_notification_response.success:
+        print(create_notification_response.message)
+
+    create_tracker_response = create_verification_tracking(
+        db_session=db_session,
+        create_request=VerificationTrackingCreateRequest(
+            stage=VerificationTrackingStage.RESUBMITTED,
+            status=TrackingStatus.PENDING,
+            action_performed_by_id=user_id,
+            user_id=user_id
+        ))
+
+    if not create_tracker_response.success:
+        print(create_tracker_response.message)
+
+
+    return UserResponse(status_code=change_status_response.status_code, message="Successfully submitted for review",
+                        user=change_status_response.user, success=True,
+                        notification=create_notification_response.notification if create_notification_response.notification else None)
 
 
 def update_user_password(db_session: Session, user_id: int, password_update: UserPasswordUpdate) -> UserResponse:
@@ -218,7 +298,7 @@ def update_user_password(db_session: Session, user_id: int, password_update: Use
     return UserResponse(status_code=200, success=True, message="Password updated successfully", user=db_user)
 
 
-def update_user(db_session: Session, user_id:int, update_request: UserUpdateRequest) -> UserResponse:
+def update_user(db_session: Session, user_id: int, update_request: UserUpdateRequest) -> UserResponse:
     db_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
 
     if not db_user:
@@ -226,17 +306,21 @@ def update_user(db_session: Session, user_id:int, update_request: UserUpdateRequ
 
     # Check if ID number is being changed and conflicts with another user
     if update_request.id_number and update_request.id_number != db_user.id_number:
-        user_with_same_id =user_repository.find_active_user_by_id_number(db_session=db_session, id_number=update_request.id_number)
+        user_with_same_id = user_repository.find_active_user_by_id_number(db_session=db_session,
+                                                                          id_number=update_request.id_number)
 
         if user_with_same_id:
-            return UserResponse(status_code=400, success=False, message=f"ID number '{update_request.id_number}' already exists")
+            return UserResponse(status_code=400, success=False,
+                                message=f"ID number '{update_request.id_number}' already exists")
 
     # Check if email is being changed and conflicts with another user
     if update_request.email and update_request.email != db_user.email:
-        user_with_same_email = user_repository.find_active_user_by_email(db_session=db_session, email=update_request.email)
+        user_with_same_email = user_repository.find_active_user_by_email(db_session=db_session,
+                                                                         email=update_request.email)
 
         if user_with_same_email:
-            return UserResponse(status_code=400, success=False, message=f"Email '{update_request.email}' already exists")
+            return UserResponse(status_code=400, success=False,
+                                message=f"Email '{update_request.email}' already exists")
 
     if db_user and db_user.id != update_request.id:
         return UserResponse(status_code=400, success=False, message="User id already exists")
@@ -267,7 +351,7 @@ def delete_user(db_session: Session, user_id: int) -> UserResponse:
     return UserResponse(status_code=201, success=True, message="User successfully deleted", user=existing_user)
 
 
-def is_user_logged_in(db_session: Session, user_id: int) ->UserResponse:
+def is_user_logged_in(db_session: Session, user_id: int) -> UserResponse:
     db_user = user_repository.find_active_user_by_id(db_session=db_session, user_id=user_id)
     if not db_user:
         return UserResponse(status_code=404, success=False, message=f"User with id {user_id} not found")

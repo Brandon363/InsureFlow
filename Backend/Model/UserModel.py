@@ -73,7 +73,7 @@ class UserUpdateRequest(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     other_names: Optional[str] = None
-    user_role: Optional[UserRole] = None
+    # user_role: Optional[UserRole] = None
     phone_number: Optional[str] = None
     address: Optional[str] = None
     date_of_birth: Optional[date] = None
@@ -109,8 +109,9 @@ class UserLoginRequest(BaseModel):
     password: str
 
 
-class UserVerifificationRequest(BaseModel):
+class UserVerificationRequest(BaseModel):
     user_id: int
+    verifier_id: int
     verification_notes: str
 
 

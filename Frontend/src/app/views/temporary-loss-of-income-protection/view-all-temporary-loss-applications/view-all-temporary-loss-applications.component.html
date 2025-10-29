@@ -1,0 +1,148 @@
+<div class="pt-3 lg:p-5 mx-3">
+    <div class="flex flex-column lg:flex-row justify-content-between align-items-start mb-2">
+        <div>
+            <div class="text-4xl font-bold">Temporary Loss Security Application</div>
+            <div class="text-500 mt-3 mb-5">Manage client temporary loss applications</div>
+        </div>
+
+        <div class="flex gap-3 justify-content-end md:justify-content-between align-items-center mb-2">
+            <!-- <p-button label="Download Empty Template" icon="pi pi-download" variant="outlined" severity="primary"/>
+            <p-button label="Download Null Buffers" icon="pi pi-download" variant="outlined" severity="warn"/>
+            <p-button label="Bulk CSV Update" icon="pi pi-upload" severity="primary"  variant="outlined"
+                routerLink="/product-buffer-levels-bulk-upload" /> -->
+            <p-button label="Create client" icon="pi pi-user-plus" severity="primary" />
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- <div class="" > -->
+        <p-card class="col-12 md:col-6 lg:col-3" *ngFor="let item of cards">
+            <!-- <div class="px-3 py-2"> -->
+            <div class="flex justify-content-between align-items-center">
+                <div>
+                    <div class="font-bold text-500 mb-2">{{item.title}}</div>
+                    <h2 class="text-bold text-4xl my-2">{{item.value}}</h2>
+                    <p class="m-0 p-0 text-500 text-sm">{{item.description}}</p>
+                </div>
+                <i [class]="item.icon" class="text-4xl"
+                    [ngClass]="{'text-primary': true, 'text-red-500': item.title.includes('Flagged'), 'text-green-500': item.title.includes('Taxpayers')}"></i>
+            </div>
+            <!-- </div> -->
+        </p-card>
+    </div>
+    <!-- </div> -->
+
+    <div class="card p-4 surface-card shadow-3 border-0 border-round-2xl mt-4">
+        <p class="font-bold text-2xl mt-2">Applications</p>
+
+        <p-table #dt1 [value]="allProductBufferLevels" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+            [loading]="loading" [paginator]="true" (onFilter)="updateCardNumbers(dt1)" [scrollable]="true"
+            [globalFilterFields]="['full_name', 'id_number']" [rowHover]="true">
+            <ng-template #caption>
+                <div class="flex flex-wrap align-items-center justify-content-between">
+                    <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1)"
+                        class="mr-2" />
+                    <p-iconfield iconPosition="left" class="ml-auto">
+                        <p-inputicon>
+                            <i class="pi pi-search"></i>
+                        </p-inputicon>
+                        <input pInputText type="text" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                            placeholder="Search keyword" class="w-full sm:w-16rem" />
+                    </p-iconfield>
+                </div>
+            </ng-template>
+            <ng-template #header>
+                <tr>
+                    <!-- <th></th> -->
+                    <th style="min-width:10rem" pSortableColumn="id_number">
+                        <div class="flex align-items-center justify-content-between">
+                            ID Number
+                            <p-sortIcon field="id_number"></p-sortIcon>
+                        </div>
+                    </th>
+                    <th style="min-width:10rem" pSortableColumn="full_name">
+                        <div class="flex align-items-center justify-content-between">
+                            Full name
+                            <p-sortIcon field="full_name"></p-sortIcon>
+                            <p-columnFilter type="text" field="full_name" display="menu" />
+                        </div>
+                    </th>
+                    <th pSortableColumn="overall_accuracy">
+                        <div class="flex align-items-center justify-content-between">
+                            Accuracy
+                            <p-sortIcon field="overall_accuracy"></p-sortIcon>
+                            <p-columnFilter type="number" field="overall_accuracy" display="menu"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th pSortableColumn="status">
+                        <div class="flex align-items-center justify-content-between">
+                            Status
+                            <p-sortIcon field="status"></p-sortIcon>
+                            <!-- <p-columnFilter type="text" field="verification_status" display="menu" /> -->
+                        </div>
+                    </th>
+                    <th style="min-width:3rem" pSortableColumn="date_created">
+                        <div class="flex align-items-center justify-content-between">
+                            Date Applied
+                            <p-sortIcon field="date_created"></p-sortIcon>
+                            <p-columnFilter field="date_created" matchMode="equals" display="menu">
+                                <ng-template #filter let-value let-filter="filterCallback">
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-case>
+                <tr [pSelectableRow]="case">
+                    <!-- <td><p-avatar [label]="case.first_name[0] + case.last_name[0]" class="text-base text-700" shape="circle" /></td> -->
+                    <td>{{ case.id_number }}</td>
+                    <td>{{ case.full_name }}</td>
+                    <td>
+                        <span *ngIf="case.extracted_applications?.length === 0">--</span>
+                        <div *ngIf="case.extracted_applications?.length>0">
+                            <ng-container
+                                *ngIf="case.extracted_applications[case.extracted_applications.length-1].overall_accuracy !== undefined">
+                                <p-progressbar
+                                    [value]="case.extracted_applications[case.extracted_applications.length-1].overall_accuracy * 100| number:'1.0-0'"
+                                    [style]="{ height: '14px' }" />
+                            </ng-container>
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag [value]="getStatusSeverityAndWord(case.status).status"
+                            [severity]="getStatusSeverityAndWord(case.status).severity"></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex align-items-center gap-2">
+                            <span>{{ case.date_created | date | nullDisplay}}</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="flex gap-2">
+                            <p-button icon="pi pi-eye" severity="info" (click)="viewUserDetails(case)"
+                                pTooltip="view client" variant="outlined"></p-button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="8" class="text-center py-4">No records found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+
+
+<!-- <p-dialog header="Edit Buffer Level" [modal]="true" [(visible)]="showEditProductBufferLevelDialog"
+    *ngIf="showEditProductBufferLevelDialog" [style]="{ width: '50rem' }"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
+    <app-add-product-buffer-level [selectedProductBufferLevel]="selectedProductBufferLevel"
+        (onEditSuccess)="showEditProductBufferLevelDialog = false"></app-add-product-buffer-level>
+</p-dialog> -->

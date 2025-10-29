@@ -34,6 +34,7 @@ export class LoginComponent implements OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.loading = false;
+    sessionStorage.clear();
     this.loadingSubscription = this.loadingService.isManipulatingData$.subscribe((isLoading) => {
       Promise.resolve(null).then(() => {
         this.loading = isLoading;

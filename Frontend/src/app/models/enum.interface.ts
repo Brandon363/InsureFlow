@@ -71,3 +71,37 @@ export enum VerificationStatus {
   UNVERIFIED = "UNVERIFIED",
   REJECTED = "REJECTED"
 }
+
+export enum ApplicationStatus {
+  PENDING = "Pending",
+  APPROVED = "Approved",
+  DECLINED = "Declined",
+  IN_PROGRESS = "In Progress",
+}
+
+export enum TrackingStatus {
+  CURRENT = "Current",
+  COMPLETED = "Completed",
+  PENDING = "Pending",
+}
+
+export enum ApplicationStage {
+  SUBMITTED = "Submitted",
+  DOCUMENTS_VERIFIED = "Documents Verified",
+  UNDER_REVIEW = "Under Review",
+  APPROVED = "Approved",
+  DECLINED = "Declined",
+  IN_PROGRESS = "In Progress",
+  COMPLETED = "Completed",
+}
+
+export enum VerificationTrackingStage {
+  SUBMITTED = "Submitted",
+  RESUBMITTED = "Resubmitted",
+  DOCUMENTS_VERIFIED = "Documents Verified",
+  UNDER_REVIEW = "Under Review",
+  APPROVED = "Approved",
+  DECLINED = "Declined",
+  IN_PROGRESS = "In Progress",
+  COMPLETED = "Completed",
+}

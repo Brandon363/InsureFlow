@@ -67,7 +67,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
           {
             label: "My Claims",
             icon: 'pi pi-fw pi-money-bill',
-            routerLink: "/claims",
+            routerLink: "/claims/"+ user.id,
           },
           {
             label: "Notifications",
@@ -106,9 +106,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
             routerLink: "/claims",
           },
           {
-            label: "Documents",
+            label: "Temporary Loss Applications",
             icon: 'pi pi-fw pi-file-pdf',
-            routerLink: "/documents",
+            routerLink: "/temporary-loss-applications",
             badge: this.workspacesWithUnread.toString(),
           },
           {

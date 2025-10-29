@@ -85,7 +85,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.getAllSubscription = this.productBufferLevelService.getAllActiveUsers().subscribe()
     this.retrieveSubscription = this.productBufferLevelService.retrieveUserData().subscribe((response) => {
-      console.log(response);
+      // console.log(response);
       this.allProductBufferLevels = response;
       this.allProductBufferLevels = response.sort((a, b) => {
         const dateA = a.date_updated ? new Date(a.date_updated).getTime() : 0;
@@ -128,7 +128,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
       message: 'Do you want to delete this client?',
-      header: 'Delete Buffer Level',
+      header: 'Delete Client',
       icon: 'pi pi-info-circle',
       rejectLabel: 'Cancel',
       rejectButtonProps: {

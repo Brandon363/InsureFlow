@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class ClaimService {
-private baseURL = environment.baseUrl;
+  private baseURL = environment.baseUrl;
   private subUrl = 'claim';
   private allActiveClaims = new BehaviorSubject<ClaimDTO[]>([]);
 
@@ -33,7 +33,7 @@ private baseURL = environment.baseUrl;
     };
   }
 
-  
+
   updateClaimData(configs: ClaimDTO[] | ClaimDTO) {
     if (Array.isArray(configs)) {
       this.allActiveClaims.next(configs);
@@ -49,7 +49,7 @@ private baseURL = environment.baseUrl;
     return this.allActiveClaims.asObservable();
   }
 
- 
+
   getAllActiveClaims(): Observable<ClaimResponse> {
     return this.httpclient.get(`${this.baseURL}/${this.subUrl}/get-all-active-claims`).pipe(
       map((response: any) => {
@@ -62,8 +62,8 @@ private baseURL = environment.baseUrl;
       })
     )
   }
- 
-  
+
+
   getAllActiveUserClaims(user_id: number): Observable<ClaimResponse> {
     return this.httpclient.get(`${this.baseURL}/${this.subUrl}/get-all-active-user-claims/` + user_id).pipe(
       map((response: any) => {

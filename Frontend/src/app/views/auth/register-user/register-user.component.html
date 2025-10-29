@@ -42,7 +42,7 @@
                         <label for="phone_number" class="block text-800 mb-2">Phone Number</label>
                         <!-- <p-inputmask mask="(263) 999-999-9999" formControlName="phone_number" id="phone_number"
                             placeholder="(263) 999-999-9999" class="w-full" /> -->
-                        <input formControlName="phone_number" id="phone_number" type="number" pInputText
+                        <input formControlName="phone_number" id="phone_number" type="text" pInputText [pKeyFilter]="phoneNumberPattern"
                             class="w-full mb-3">
                     </div>
 
@@ -80,7 +80,7 @@
                             class="w-full mb-3">
                     </div>
 
-                    <div class="text-red-600 text-sm"
+                    <div class="text-red-600 text-sm px-2"
                         *ngIf="registerForm.get('confirm_password')?.hasError('NoPassswordMatch')">
                         Passwords do not match
                     </div>

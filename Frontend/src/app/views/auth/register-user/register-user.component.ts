@@ -21,6 +21,7 @@ export class RegisterUserComponent implements OnDestroy, OnInit {
   notificationSubscription!: Subscription;
   // email: string = '';
   loading: boolean = false;
+  phoneNumberPattern: RegExp = /^[0-9+]+$/;
   // password: string = '';
 
   registerForm: FormGroup = new FormGroup({});

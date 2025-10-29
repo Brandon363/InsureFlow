@@ -6,8 +6,8 @@ flex lg:flex-row flex-column lg:justify-content-between lg:align-items-center bg
             severity="warn" value="Unverified" />
         <p-tag *ngIf="user.verification_status === verificationStatus.PENDING" icon="pi pi-clock" severity="info"
             value="Pending Verification" />
-        <p-tag *ngIf="user.verification_status === verificationStatus.REJECTED" icon="pi pi-times-circle" severity="danger"
-            value="Rejected" />
+        <p-tag *ngIf="user.verification_status === verificationStatus.REJECTED" icon="pi pi-times-circle"
+            severity="danger" value="Rejected" />
         <p-tag *ngIf="user.verification_status === verificationStatus.VERIFIED" icon="pi pi-verified" severity="success"
             value="Verified" />
     </div>
@@ -404,16 +404,20 @@ flex lg:flex-row flex-column lg:justify-content-between lg:align-items-center bg
                 <div class="font-bold text-2xl text-900">
                     Uploaded ID Document
                 </div>
-                <div class="text-cyan-700 sticky top-0">
+                <div class="text-cyan-700">
                     <div *ngIf="pdfUrl">
-                        <!-- <iframe [src]="pdfUrl" width="100%" height="600px" style="border: none;">
-                        </iframe> -->
                         <img [src]="pdfUrl" alt="No Preview Available" class="w-full h-auto" />
+                    </div>
+                    <div *ngIf="!pdfUrl">
+                        <div>
+                            <i class="pi pi-info-circle mr-2"></i>No document preview available.
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card surface-card p-4 px-5 shadow-3 border-round-xl">
+            <div class="card surface-card p-4 px-5 shadow-3 border-round-xl"
+                *ngIf="user.verification_status === verificationStatus.PENDING">
                 <div class="font-bold text-2xl text-900 mb-4">
                     Verification Decision
                 </div>
@@ -435,6 +439,16 @@ flex lg:flex-row flex-column lg:justify-content-between lg:align-items-center bg
                 <div class="text-500 text-sm mb-1 text-center">This decision will be logged.</div>
                 <div class="text-500 text-sm text-center">Ensure all evidence has been thoroughly examined.</div>
             </div>
+
+            <div class="card surface-card p-4 px-5 shadow-3 border-round-xl"
+                *ngIf="user.verification_status === verificationStatus.REJECTED || user.verification_status === verificationStatus.VERIFIED">
+                <div class="font-bold text-2xl text-900 mb-2">
+                    Verification Notes
+                </div>
+                <div class="text-500 mt-2">{{user.verification_notes || 'No reason provided.'}}</div>
+
+            </div>
+
 
             <div class="card surface-card p-4 px-5 shadow-3 border-round-xl">
                 <div class="font-bold text-2xl text-900 mb-4">
@@ -478,6 +492,13 @@ flex lg:flex-row flex-column lg:justify-content-between lg:align-items-center bg
 
                     </div>
                 </div>
+            </div>
+
+            <div class="card surface-card p-4 px-5 shadow-3 border-round-xl w-full">
+                <div class=" text-2xl text-900 mb-4">
+                    Account verification Timeline
+                </div>
+                <app-verification-tracking [user]="user"></app-verification-tracking>
             </div>
 
             <!-- <div>

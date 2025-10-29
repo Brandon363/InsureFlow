@@ -59,8 +59,8 @@ export interface UserUpdateRequest {
   email?: string;
   first_name?: string;
   last_name?: string;
-  user_role?: UserRole;
-  other_names?: UserRole;
+  // user_role?: UserRole;
+  other_names?: string;
   phone_number?: string;
   address?: string;
   date_of_birth?: Date;
@@ -76,6 +76,7 @@ export interface UserLoginRequest {
 
 export interface UserVerifificationRequest {
   user_id: number;
+  verifier_id: number;
   verification_notes?: string | null;
 }
 

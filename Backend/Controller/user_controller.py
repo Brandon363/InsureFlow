@@ -4,7 +4,7 @@ from fastapi.params import Depends
 from requests import Session
 from Config.database import get_db
 from Model.UserModel import UserResponse, UserCreateRequest, UserUpdateRequest, UserLoginRequest, UserPasswordUpdate, \
-    UserVerifificationRequest
+    UserVerificationRequest
 from Service import UserService
 
 router = APIRouter(
@@ -65,12 +65,17 @@ def update_password(user_id: int, password_update: UserPasswordUpdate, db: db_de
 
 
 @router.put('/verify-user', response_model=UserResponse)
-def update_password(request: UserVerifificationRequest, db: db_dependency):
+def verify_user(request: UserVerificationRequest, db: db_dependency):
     return UserService.verify_user(db_session=db, request=request)
 
 @router.put('/reject-user-verification', response_model=UserResponse)
-def update_password(request: UserVerifificationRequest, db: db_dependency):
+def reject_user_verification(request: UserVerificationRequest, db: db_dependency):
     return UserService.reject_user_verification(db_session=db, request=request)
+
+
+@router.put('/resubmit-user-verification/{user_id}', response_model=UserResponse)
+def resubmit_verification(user_id: int, db: db_dependency):
+    return UserService.resubmit_verification(db_session=db, user_id=user_id)
 
 
 @router.delete('/delete-user/{user_id}', response_model=None)

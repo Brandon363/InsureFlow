@@ -8,9 +8,11 @@ from Entity.ExtractedUserEntity import ExtractedUserEntity
 from Model.DocumentModel import DocumentResponse
 from Model.ExtractedUserModel import ExtractedUserResponse, ExtractedUserCreateRequest, ExtractedUserDTO
 from Model.NotificationModel import NotificationCreate
+from Model.VerificationTrackingModel import VerificationTrackingCreateRequest
 from Repository import ExtractedUserRepository
-from Utils.Enums import EntityStatus, DocumentType, NotificationType
-from Service import DocumentService, UserService, NotificationService
+from Utils.Enums import EntityStatus, DocumentType, NotificationType, VerificationStatus, VerificationTrackingStage, \
+    TrackingStatus
+from Service import DocumentService, UserService, NotificationService, VerificationTrackingService
 
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.documentintelligence import DocumentIntelligenceClient
@@ -83,20 +85,6 @@ def create_extracted_user(db_session: Session, create_request: ExtractedUserCrea
                                  extracted_user=user_entity)
 
 
-# def delete_extracted_user(db_session: Session, user_id: int) -> ExtractedUserResponse:
-#     existing_user = ExtractedUserRepository.find_active_extracted_user_by_id(db_session=db_session,
-#                                                                              extracted_user_id=user_id)
-#
-#     if existing_user is None:
-#         return ExtractedUserResponse(status_code=404, success=False, message="Extracted user does not exist")
-#
-#     existing_user.entity_status = EntityStatus.DELETED
-#     db_session.delete(existing_user)
-#     db_session.commit()
-#
-#     return ExtractedUserResponse(status_code=201, success=True, message="User successfully deleted",
-#                                  extracted_user=existing_user)
-
 def delete_extracted_user(db_session: Session, user_id: int) -> ExtractedUserResponse:
     existing_user = ExtractedUserRepository.find_active_extracted_user_by_id(db_session=db_session,
                                                                              extracted_user_id=user_id)
@@ -127,7 +115,8 @@ async def extract_user(db_session: Session, image_file: File, user_id: int) -> E
     # check if user exists
     user_response = UserService.get_active_user_by_id(db_session=db_session, user_id=user_id)
     if not user_response.success:
-        return ExtractedUserResponse(success=False, status_code=user_response.status_code, message=user_response.message)
+        return ExtractedUserResponse(success=False, status_code=user_response.status_code,
+                                     message=user_response.message)
 
     # save image to local directory
     upload_response: DocumentResponse = await DocumentService.upload_document(
@@ -238,18 +227,32 @@ async def extract_user(db_session: Session, image_file: File, user_id: int) -> E
                                          message=create_response.message)
 
         # change user verification status
-        change_verification_status_response = UserService.make_user_verification_status_pending(db_session=db_session, user_id=user_id)
+        change_verification_status_response = UserService.make_user_verification_status_pending(db_session=db_session,
+                                                                                                user_id=user_id)
         if not change_verification_status_response.success:
             print(change_verification_status_response.message)
 
-        create_notification_request: NotificationCreate = NotificationCreate(
-            user_id=user_id, notification_type=NotificationType.USER_UPDATE
-            , title='Verification Submitted',
-            message='Your verification request has been submitted'
+        create_tracker_response = VerificationTrackingService.create_verification_tracking(
+            db_session=db_session,
+            create_request=VerificationTrackingCreateRequest(
+                user_id=user_id,
+                status=TrackingStatus.PENDING,
+                stage=VerificationTrackingStage.SUBMITTED,
+                notes="Your profile has been submitted for verification"
+            )
         )
 
+        if not create_tracker_response.success:
+            print(create_tracker_response.message)
+
         create_notification_response = NotificationService.create_notification(
-            create_request=create_notification_request, db_session=db_session)
+            create_request=NotificationCreate(
+                user_id=user_id,
+                notification_type=NotificationType.USER_UPDATE,
+                title='Verification Submitted',
+                message='Your profile has been submitted for verification'
+            ),
+            db_session=db_session)
 
         if not create_notification_response.success:
             print(create_notification_response.message)

@@ -11,6 +11,11 @@ import { UserVerificationApplicationComponent } from './views/user/user-verifica
 import { UserAccountManagerComponent } from './views/user/user-account-manager/user-account-manager.component';
 import { ViewAllNotificationsComponent } from './views/notification/view-all-notifications/view-all-notifications.component';
 import { CameraComponent } from './views/camera/camera.component';
+import { EditUserComponent } from './views/user/edit-user/edit-user.component';
+import { ViewAllClaimsComponent } from './views/claim/view-all-claims/view-all-claims.component';
+import { ViewClaimsByUserIdComponent } from './views/claim/view-claims-by-user-id/view-claims-by-user-id.component';
+import { ViewClaimByIdComponent } from './views/claim/view-claim-by-id/view-claim-by-id.component';
+import { ViewAllTemporaryLossApplicationsComponent } from './views/temporary-loss-of-income-protection/view-all-temporary-loss-applications/view-all-temporary-loss-applications.component';
 
 export const routes: Routes = [
     {
@@ -31,7 +36,12 @@ export const routes: Routes = [
             { path: 'user/:userId', component: ViewUserByIdComponent },
             { path: 'verify-account', component: UserVerificationApplicationComponent },
             { path: 'account', component: UserAccountManagerComponent },
+            { path: 'edit-user/:userId', component: EditUserComponent },
             { path: 'notifications', component: ViewAllNotificationsComponent },
+            { path: 'claims', component: ViewAllClaimsComponent },
+            { path: 'claims/:userId', component: ViewClaimsByUserIdComponent },
+            { path: 'claim/:userId', component: ViewClaimByIdComponent },
+            { path: 'temporary-loss-applications', component: ViewAllTemporaryLossApplicationsComponent },
         ]
     }
 ];

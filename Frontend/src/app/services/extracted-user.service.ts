@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class ExtractedUserService {
-private baseURL = environment.baseUrl;
+  private baseURL = environment.baseUrl;
   private subUrl = 'extracted_user';
   private allActiveConfigs = new BehaviorSubject<ExtractedUserDTO[]>([]);
 
@@ -33,7 +33,7 @@ private baseURL = environment.baseUrl;
     };
   }
 
-  
+
   updateUserData(configs: ExtractedUserDTO[] | ExtractedUserDTO) {
     if (Array.isArray(configs)) {
       this.allActiveConfigs.next(configs);
@@ -52,12 +52,12 @@ private baseURL = environment.baseUrl;
 
   extractUser(formData: any, user_id: number): Observable<ExtractedUserResponse> {
 
-  return this.httpclient.post(`${this.baseURL}/${this.subUrl}/extract-user/${user_id}`, formData).pipe(
-    map((response: any) => {
-      // console.log(response);
-      const extractedUserResponse = this.mapToResponse(response);
-      return extractedUserResponse;
-    })
-  );
-}
+    return this.httpclient.post(`${this.baseURL}/${this.subUrl}/extract-user/${user_id}`, formData).pipe(
+      map((response: any) => {
+        // console.log(response);
+        const extractedUserResponse = this.mapToResponse(response);
+        return extractedUserResponse;
+      })
+    );
+  }
 }

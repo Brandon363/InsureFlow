@@ -9,10 +9,12 @@ import { SharedModules } from '../../shared/shared_modules';
 import { ExtractedUserDTO } from '../../../models/extracted_user.interface';
 import { DocumentService } from '../../../services/document.service';
 import { VerificationStatus } from '../../../models/enum.interface';
+import { VerificationTrackingComponent } from "../verification-tracking/verification-tracking.component";
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-view-user-by-id',
-  imports: [SharedModules],
+  imports: [SharedModules, VerificationTrackingComponent],
   templateUrl: './view-user-by-id.component.html',
   styleUrl: './view-user-by-id.component.scss'
 })
@@ -22,6 +24,7 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
 
   userId!: number;
   user!: UserDTO;
+  loggedInUser!: UserDTO;
   extractedUser!: ExtractedUserDTO;
   comparisons: { field: string, userValue: any, extractedValue: any, matched: boolean, confidence: any }[] = [];
   correctMatches: number = 0;
@@ -45,6 +48,7 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private loadingService: LoadingService,
     private userService: UserService,
+    private authService: AuthService,
     private messageService: MessageService,
     private documentService: DocumentService,
     private confirmationService: ConfirmationService
@@ -59,6 +63,7 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    this.loggedInUser = this.authService.getCurrentUser();
     this.loadingService.setLoadingState(true);
     const resultId = this.route.snapshot.paramMap.get('userId');
     if (resultId) {
@@ -78,16 +83,11 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
           if (response.user) {
             this.user = response.user;
             if (response.user.extracted_users && response.user.extracted_users.length > 0) {
-              // this.extractedUser = response.user.extracted_users![-1];
-              // get the last extracted user
               this.extractedUser = response.user.extracted_users![response.user.extracted_users!.length - 1];
-              console.log(this.extractedUser);
-            }
-            // console.log(this.user);
-            if (this.extractedUser) {
-              this.viewDocument(this.user.id);
+              // console.log(this.extractedUser);
               this.comparisons = this.compareFields();
-              // console.log(this.comparisons);
+              this.viewDocument(this.user.id);
+
             }
           }
         } else {
@@ -160,6 +160,7 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
         this.loadingService.setLoadingState(true);
         const verificationRequest: UserVerifificationRequest = {
           user_id: this.user.id,
+          verifier_id: this.loggedInUser.id,
           verification_notes: this.verificationNotes || null,
         }
         this.userService.verifyUser(verificationRequest).subscribe((response) => {
@@ -188,6 +189,7 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
         this.loadingService.setLoadingState(true);
         const verificationRequest: UserVerifificationRequest = {
           user_id: this.user.id,
+          verifier_id: this.loggedInUser.id,
           verification_notes: this.verificationNotes || null,
         }
         this.userService.rejectUserVerification(verificationRequest).subscribe((response) => {

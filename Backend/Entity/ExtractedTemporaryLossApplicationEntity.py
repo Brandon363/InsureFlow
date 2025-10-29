@@ -1,0 +1,66 @@
+from sqlalchemy import Column, String, Enum as SQLEnum, Date, DateTime, Integer, Float, ForeignKey
+from sqlalchemy.orm import relationship
+from Config.database import Base
+from Utils.Enums import EntityStatus, ApplicationStatus
+from datetime import datetime
+
+
+class ExtractedTemporaryLossApplicationEntity(Base):
+    __tablename__ = "extracted_temporary_loss_applications"
+
+    id = Column(Integer, primary_key=True)
+    application_id = Column(Integer, ForeignKey("temporary_loss_applications.id"))
+    full_name = Column(String(100))
+    full_name_confidence = Column(Float)
+    id_number = Column(String(50))
+    id_number_confidence = Column(Float)
+    date_of_birth = Column(Date)
+    date_of_birth_confidence = Column(Float)
+    contact_number = Column(String(20))
+    contact_number_confidence = Column(Float)
+    email = Column(String(100))
+    email_confidence = Column(Float)
+    address = Column(String(255))
+    address_confidence = Column(Float)
+    nok_full_name = Column(String(100))
+    nok_full_name_confidence = Column(Float)
+    nok_contact_number = Column(String(20))
+    nok_contact_number_confidence = Column(Float)
+    bank_name = Column(String(50))
+    bank_name_confidence = Column(Float)
+    account_number = Column(String(50))
+    account_number_confidence = Column(Float)
+    branch_code = Column(String(10))
+    branch_code_confidence = Column(Float)
+    existing_insurance_with_other_company = Column(String(100))
+    existing_insurance_with_other_company_confidence = Column(Float)
+    existing_chronic_condition = Column(String(100))
+    existing_chronic_condition_confidence = Column(Float)
+    overall_accuracy = Column(Float)
+    status = Column(SQLEnum(ApplicationStatus), nullable=False, default=ApplicationStatus.PENDING)
+    agent_full_name = Column(String(100))
+    agent_full_name_confidence = Column(Float)
+    agent_number = Column(String(50))
+    agent_number_confidence = Column(Float)
+    title = Column(String(20))
+    title_confidence = Column(Float)
+    gender = Column(String(10))
+    gender_confidence = Column(Float)
+    b_date_of_birth = Column(Date)
+    b_date_of_birth_confidence = Column(Float)
+    claim_ailment = Column(String(100))
+    claim_ailment_confidence = Column(Float)
+    claim_amount = Column(String(50))
+    claim_amount_confidence = Column(Float)
+    declined_coverage = Column(String(10))
+    declined_coverage_confidence = Column(Float)
+    declined_cover_reason = Column(String(100))
+    declined_cover_reason_confidence = Column(Float)
+
+    date_created = Column(DateTime, default=datetime.utcnow, nullable=False)
+    date_updated = Column(DateTime, onupdate=datetime.utcnow, nullable=True)
+    entity_status = Column(SQLEnum(EntityStatus), nullable=False, default=EntityStatus.ACTIVE)
+
+    # application_tracking_stages = relationship("ApplicationTrackingEntity", back_populates="extracted_application")
+    extracted_dependents = relationship("ExtractedDependentEntity", back_populates="extracted_application")
+    application = relationship("TemporaryLossApplicationEntity", back_populates="extracted_applications")

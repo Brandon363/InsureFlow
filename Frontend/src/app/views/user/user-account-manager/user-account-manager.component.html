@@ -43,7 +43,7 @@
             <div class="text-sm text-blue-600">
                 <!-- convert from uct -->
                 <i class="pi pi-info-circle mr-2"></i> Your verification is under review. Submitted on
-                {{ convertDateToLocal(user.date_created) | nullDisplay}}. We'll
+                {{ convertDateToLocal(user.date_updated) | nullDisplay}}. We'll
                 notify you once the review is complete.
             </div>
         </div>
@@ -53,7 +53,7 @@
             class="bg-red-50 p-3 border-1 border-red-300 border-round-lg flex align-content-center justify-content-center mb-4">
             <div class="text-sm text-red-600">
                 <i class="pi pi-info-circle mr-2"></i> Your verification was rejected. Please review your submitted
-                information and try again.
+                information and <a (click)="resubmitForVerification()" class="text-primary cursor-pointer underline">try again</a>.
             </div>
         </div>
 
@@ -81,7 +81,7 @@
 <div class="grid mt-4">
     <div class="lg:col-8 col-12">
         <div class="card surface-card shadow-3 border-0 border-round-2xl p-6">
-            <div class="flex justify-content-between align-items-center">
+            <div class="flex justify-content-between align-items-start">
                 <div class="flex align-items-center gap-3">
                     <p-avatar icon="pi pi-user" size="large"
                         [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }" />
@@ -89,6 +89,10 @@
                         <div class="text-600 font-semibold mb-2">Profile Information</div>
                         <div class="text-500 mt-1 text-sm md:text-base">Your registered account details</div>
                     </div>
+                </div>
+                <div pTooltip="Edit Profile" tooltipPosition="bottom">
+                    <p-button icon="pi pi-pencil" severity="secondary" outlined="true"
+                        (click)="navigateToEdit()"  />
                 </div>
             </div>
 
@@ -161,8 +165,19 @@
                 <div *ngIf="pdfUrl">
                     <img [src]="pdfUrl" alt="No Preview Available" class="w-full h-auto" />
                 </div>
+                <div *ngIf="!pdfUrl">
+                    <div>
+                        <i class="pi pi-info-circle mr-2"></i>No document preview available.
+                    </div>
+                    </div>
             </div>
         </div>
+        <div class="card surface-card p-4 px-5 shadow-3 border-round-xl w-full">
+                <div class=" text-2xl text-900 mb-4">
+                    Account verification Timeline
+                </div>
+                <app-verification-tracking [user]="user"></app-verification-tracking>
+            </div>
     </div>
 
 </div>

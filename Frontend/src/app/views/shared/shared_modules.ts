@@ -101,6 +101,7 @@ import { RippleModule } from 'primeng/ripple';
 import { StyleClassModule } from 'primeng/styleclass';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { KeyFilterModule } from 'primeng/keyfilter';
 
 import { EditorModule } from 'primeng/editor';
 
@@ -243,6 +244,7 @@ export const SharedModules = [
     TabsModule,
     OverlayBadgeModule,
     ToggleSwitchModule,
+    KeyFilterModule,
     WebcamModule,
 
 

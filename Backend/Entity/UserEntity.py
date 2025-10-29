@@ -41,6 +41,23 @@ class UserEntity(Base):
     notifications = relationship("NotificationEntity", back_populates="user")
     extracted_users = relationship("ExtractedUserEntity", back_populates="user")
 
+    # application_tracking_actions = relationship("ApplicationTrackingEntity", back_populates="user")
+
+    tracked_application_tracking = relationship("ApplicationTrackingEntity",
+                                                foreign_keys="[ApplicationTrackingEntity.user_id]",
+                                                back_populates="user")
+    performed_application_tracking = relationship("ApplicationTrackingEntity",
+                                                  foreign_keys="[ApplicationTrackingEntity.action_performed_by_id]",
+                                                  back_populates="action_performed_by")
+
+    tracked_verification_tracking = relationship("VerificationTrackingEntity",
+                                                foreign_keys="[VerificationTrackingEntity.user_id]",
+                                                back_populates="user")
+    performed_verification_tracking = relationship("VerificationTrackingEntity",
+                                                  foreign_keys="[VerificationTrackingEntity.action_performed_by_id]",
+                                                  back_populates="action_performed_by")
+
+
     def set_password(self, password: str):
         # Hash and set the password
         self.password = hash_password(password)

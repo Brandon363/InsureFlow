@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { UserDTO, UserResponse, UserVerifificationRequest } from '../models/user.interface';
+import { UserDTO, UserResponse, UserUpdateRequest, UserVerifificationRequest } from '../models/user.interface';
 import { BehaviorSubject, map, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { VerificationTrackingService } from './verification-tracking.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class UserService {
   public selectedConfig!: UserDTO;
 
   constructor(
-    private httpclient: HttpClient
+    private httpclient: HttpClient,
+    private verificationTrackingService: VerificationTrackingService
   ) { }
 
 
@@ -64,7 +66,7 @@ export class UserService {
   }
 
 
-  editUser(id: number, updateRequest: UserDTO): Observable<UserResponse> {
+  editUser(id: number, updateRequest: UserUpdateRequest): Observable<UserResponse> {
     return this.httpclient.put(`${this.baseURL}/${this.subUrl}/update-user/${id}`, updateRequest).pipe(
       map((response: any) => {
         const UserResponse = this.mapToResponse(response);
@@ -92,6 +94,8 @@ export class UserService {
             p.id === UserResponse.user?.id ? UserResponse.user : p
           );
           this.allActiveConfigs.next(updated);
+
+          // this.verificationTrackingService.updateVerificationData();
         }
 
         return UserResponse;
@@ -102,6 +106,25 @@ export class UserService {
 
   rejectUserVerification(request: UserVerifificationRequest): Observable<UserResponse> {
     return this.httpclient.put(`${this.baseURL}/${this.subUrl}/reject-user-verification`, request).pipe(
+      map((response: any) => {
+        const UserResponse = this.mapToResponse(response);
+        if (UserResponse.success && UserResponse.user) {
+          const current = this.allActiveConfigs.getValue();
+          const updated = current.map((p: any) =>
+            p.id === UserResponse.user?.id ? UserResponse.user : p
+          );
+          this.allActiveConfigs.next(updated);
+        }
+
+        return UserResponse;
+      })
+    );
+  }
+
+
+
+  resubmitVerification(userId: number): Observable<UserResponse> {
+    return this.httpclient.put(`${this.baseURL}/${this.subUrl}/resubmit-user-verification/${userId}`, {}).pipe(
       map((response: any) => {
         const UserResponse = this.mapToResponse(response);
         if (UserResponse.success && UserResponse.user) {
