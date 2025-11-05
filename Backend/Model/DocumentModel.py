@@ -11,6 +11,7 @@ class DocumentDTO(BaseModel):
     user_id: int
     claim_id: Optional[int] = None
     policy_id: Optional[int] = None
+    temporary_loss_application_id: Optional[int] = None
     type: DocumentType
     name: str
     url: str
@@ -27,6 +28,7 @@ class DocumentCreate(BaseModel):
     user_id: int = Field(..., gt=0, description="Must be a valid user ID")
     claim_id: Optional[int] = Field(None, gt=0, description="Must be a valid claim ID if provided")
     policy_id: Optional[int] = Field(None, gt=0, description="Must be a valid policy ID if provided")
+    temporary_loss_application_id: Optional[int] = Field(None, gt=0, description="Must be a valid policy ID if provided")
     type: DocumentType
     name: str = Field(..., min_length=1, max_length=100)
     url: str = Field(..., min_length=1, max_length=255)
@@ -40,6 +42,7 @@ class DocumentUpdate(BaseModel):
     user_id: Optional[int] = None
     claim_id: Optional[int] = None
     policy_id: Optional[int] = None
+    temporary_loss_application_id: Optional[int] = None
     type: Optional[DocumentType] = None
     name: Optional[str] = None
     url: Optional[str] = None

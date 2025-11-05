@@ -12,6 +12,7 @@ class DocumentEntity(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     claim_id = Column(Integer, ForeignKey("claims.id"), nullable=True)
     policy_id = Column(Integer, ForeignKey("policies.id"), nullable=True)
+    temporary_loss_application_id = Column(Integer, ForeignKey("temporary_loss_applications.id"), nullable=True)
     # extracted_user_id = Column(Integer, ForeignKey("extracted_users.id"), nullable=True)
     type = Column(String(50))
     name = Column(String(100))
@@ -26,4 +27,5 @@ class DocumentEntity(Base):
     user = relationship("UserEntity", back_populates="documents")
     claim = relationship("ClaimEntity", back_populates="documents")
     policy = relationship("PolicyEntity", back_populates="documents")
+    temporary_loss_application = relationship("TemporaryLossApplicationEntity", back_populates="documents")
     # extracted_user = relationship("ExtractedUserEntity", back_populates="document")

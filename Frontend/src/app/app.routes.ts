@@ -16,6 +16,10 @@ import { ViewAllClaimsComponent } from './views/claim/view-all-claims/view-all-c
 import { ViewClaimsByUserIdComponent } from './views/claim/view-claims-by-user-id/view-claims-by-user-id.component';
 import { ViewClaimByIdComponent } from './views/claim/view-claim-by-id/view-claim-by-id.component';
 import { ViewAllTemporaryLossApplicationsComponent } from './views/temporary-loss-of-income-protection/view-all-temporary-loss-applications/view-all-temporary-loss-applications.component';
+import { ViewTemporaryLossApplicationByIdComponent } from './views/temporary-loss-of-income-protection/view-temporary-loss-application-by-id/view-temporary-loss-application-by-id.component';
+import { ExtractTemporaryLossApplicationComponent } from './views/temporary-loss-of-income-protection/extract-temporary-loss-application/extract-temporary-loss-application.component';
+import { CameraUserIdComponent } from './views/user/camera-user-id/camera-user-id.component';
+import { FreeTextTestComponent } from './views/free-text-test/free-text-test.component';
 
 export const routes: Routes = [
     {
@@ -25,7 +29,6 @@ export const routes: Routes = [
     },
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterUserComponent },
-    { path: 'camera', component: CameraComponent },
     {
         path: '', component: LayoutComponent, children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -42,6 +45,11 @@ export const routes: Routes = [
             { path: 'claims/:userId', component: ViewClaimsByUserIdComponent },
             { path: 'claim/:userId', component: ViewClaimByIdComponent },
             { path: 'temporary-loss-applications', component: ViewAllTemporaryLossApplicationsComponent },
+            { path: 'temporary-loss-application/:temporaryLossApplicationId', component: ViewTemporaryLossApplicationByIdComponent },
+            { path: 'extract-temporary-loss-application', component: ExtractTemporaryLossApplicationComponent },
+            { path: 'capture-temporary-loss-application', component: CameraComponent },
+            { path: 'capture-user-document', component: CameraUserIdComponent },
+            { path: 'free-text-test', component: FreeTextTestComponent },
         ]
     }
 ];

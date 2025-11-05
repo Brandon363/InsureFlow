@@ -1,8 +1,11 @@
 from sqlalchemy.orm import Session
 from Entity.TemporaryLossApplicationEntity import TemporaryLossApplicationEntity
+from Model.ApplicationTrackingModel import ApplicationTrackingUpdateRequest, ApplicationTrackingCreateRequest
 from Model.TemporaryLossApplicationModel import TemporaryLossApplicationResponse, TemporaryLossApplicationCreateRequest, TemporaryLossApplicationUpdateRequest
 from Repository import TemporaryLossApplicationRepository
-from Utils.Enums import EntityStatus
+from Utils.Enums import EntityStatus, ApplicationStage, TrackingStatus
+from Service.DependentService import update_multiple_dependents
+from Service.ApplicationTrackingService import create_application_tracking
 
 def get_temporary_loss_application_by_id(db_session: Session, application_id: int) -> TemporaryLossApplicationResponse:
     if application_id is None:
@@ -55,7 +58,8 @@ def update_temporary_loss_application(db_session: Session, application_id: int, 
     if not db_application:
         return TemporaryLossApplicationResponse(status_code=404, success=False, message=f"Application with id {application_id} not found")
 
-    update_dict = update_request.dict(exclude_unset=True)
+    # update_dict = update_request.dict(exclude_unset=True)
+    update_dict = update_request.dict(exclude={"dependents"}, exclude_unset=True)
 
     for key, value in update_dict.items():
         if value is not None and hasattr(db_application, key):
@@ -76,3 +80,60 @@ def delete_temporary_loss_application(db_session: Session, application_id: int) 
     db_session.commit()
 
     return TemporaryLossApplicationResponse(status_code=201, success=True, message="Application successfully deleted", temporary_loss_application=existing_application)
+
+
+def update_temporary_loss_application_and_dependents(
+    db_session: Session, application_id: int, update_request: TemporaryLossApplicationUpdateRequest):
+
+    update_application_response = update_temporary_loss_application(
+        db_session=db_session, application_id=application_id, update_request=update_request
+    )
+
+    if not update_application_response.success:
+        return TemporaryLossApplicationResponse(
+            status_code=update_application_response.status_code, success=False,
+            message=update_application_response.message)
+
+    dependent_update_requests = update_request.dependents
+    update_dependents_response = update_multiple_dependents(
+        db_session=db_session, update_requests=dependent_update_requests
+    )
+
+    if not update_dependents_response.success:
+        return TemporaryLossApplicationResponse(
+            status_code=update_dependents_response.status_code,
+            success=False,
+            message=update_dependents_response.message)
+
+    return TemporaryLossApplicationResponse(status_code=200, success=True,
+                                            message="Application successfully updated",
+                                            temporary_loss_application=update_application_response.temporary_loss_application)
+
+
+def verifyDocuments(db_session: Session, application_id: int, verifier_id: int):
+    application_response = get_temporary_loss_application_by_id(db_session=db_session, application_id=application_id)
+
+    if not application_response.success:
+        return TemporaryLossApplicationResponse(
+            status_code=application_response.status_code,
+            success=False,
+            message=application_response.message)
+
+    tracking_request = ApplicationTrackingCreateRequest(
+        application_id=application_id,
+        stage=ApplicationStage.DOCUMENTS_VERIFIED,
+        status=TrackingStatus.PENDING,
+        action_performed_by_id=verifier_id
+        )
+    create_response = create_application_tracking(db_session=db_session, create_request=tracking_request)
+    if not create_response.success:
+        return TemporaryLossApplicationResponse(
+            status_code=create_response.status_code,
+            success=False,
+            message=create_response.message)
+    application_response.temporary_loss_application.application_tracking_stages.append(
+        create_response.application_tracking
+    )
+    return TemporaryLossApplicationResponse(
+        status_code=201, success=True, message="Documents Verified",
+        temporary_loss_application= application_response.temporary_loss_application)

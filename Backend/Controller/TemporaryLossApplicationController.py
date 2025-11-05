@@ -38,6 +38,17 @@ def update_temporary_loss_application(application_id: int, update_request: Tempo
     return TemporaryLossApplicationService.update_temporary_loss_application(db_session=db, application_id=application_id, update_request=update_request)
 
 
+@router.put('/update-temporary-loss-application-and-dependents/{application_id}', response_model=TemporaryLossApplicationResponse)
+def update_temporary_loss_application_and_dependents(application_id: int, update_request: TemporaryLossApplicationUpdateRequest, db: db_dependency):
+    return TemporaryLossApplicationService.update_temporary_loss_application_and_dependents(db_session=db, application_id=application_id, update_request=update_request)
+
+
+@router.put('/verify-documents/{application_id}/{verifier_id}', response_model=TemporaryLossApplicationResponse)
+def update_temporary_loss_application_and_dependents(verifier_id: int, application_id: int, db: db_dependency):
+    return TemporaryLossApplicationService.verifyDocuments(db_session=db, application_id=application_id, verifier_id=verifier_id)
+
+
+
 @router.delete('/delete-temporary-loss-application/{application_id}', response_model=TemporaryLossApplicationResponse)
 def delete_temporary_loss_application(application_id: int, db: db_dependency):
     return TemporaryLossApplicationService.delete_temporary_loss_application(db_session=db, application_id=application_id)

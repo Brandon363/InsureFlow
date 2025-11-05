@@ -68,7 +68,6 @@ export class UserVerificationApplicationComponent implements OnInit, OnDestroy {
   uploadedFiles: any[] = [];
 
   onUpload(event: FileUploadHandlerEvent) {
-    // console.log(this.uploadedFiles);
     this.uploadedFiles = [];
     for (let file of event.files) {
       this.uploadedFiles.push(file);

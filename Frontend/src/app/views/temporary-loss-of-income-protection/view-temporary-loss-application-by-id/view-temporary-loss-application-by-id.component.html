@@ -1,1 +1,465 @@
-<p>view-temporary-loss-application-by-id works!</p>
+<div class="pt-3 lg:mx-2 mx-2 mb-3 lg:mb-0  gap-3
+flex lg:flex-row flex-column lg:justify-content-between lg:align-items-center bg-transparent">
+    <p-breadcrumb [model]="breadcomb_menu_items" [home]="home" styleClass="bg-transparent" />
+    <!-- <div *ngIf="user">
+        <p-tag *ngIf="user.verification_status === verificationStatus.UNVERIFIED" icon="pi pi-exclamation-circle"
+            severity="warn" value="Unverified" />
+        <p-tag *ngIf="user.verification_status === verificationStatus.PENDING" icon="pi pi-clock" severity="info"
+            value="Pending Verification" />
+        <p-tag *ngIf="user.verification_status === verificationStatus.REJECTED" icon="pi pi-times-circle"
+            severity="danger" value="Rejected" />
+        <p-tag *ngIf="user.verification_status === verificationStatus.VERIFIED" icon="pi pi-verified" severity="success"
+            value="Verified" />
+    </div> -->
+    <div class="flex gap-3">
+        <p-button label="Verify" icon="pi pi-verified" severity="info" [outlined]="true" (click)="onClickVerify()"
+            *ngIf="showVerifyButton()" />
+        <p-button label="Save" icon="pi pi-save" severity="primary" (click)="onClickSubmit()" />
+
+    </div>
+</div>
+
+<div class="lg:p-1 lg:py-3 p-2">
+    <div class="grid" *ngIf="temporaryLossApplication">
+
+        <div class="lg:col-5 col-12">
+            <div class=" card surface-card py-5 px-5 shadow-3 border-round-xl flex flex-column gap-5">
+                <div class="text-cyan-700">
+                    <div *ngIf="pdfUrl">
+                        <iframe [src]="pdfUrl" width="100%" height="600px" style="border: none;">
+                        </iframe>
+                    </div>
+                    <div class="text-cyan-700" *ngIf="loadingDocument">
+                        <div>
+                            <div>
+                                <i class="pi pi-info-circle mr-2"></i>Loading Document...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card surface-card p-4 px-5 shadow-3 border-round-xl w-full mt-4">
+                <div class=" text-2xl text-900 mb-4">
+                    Application Timeline
+                </div>
+                <app-application-tracking
+                    [temporaryLossApplication]="temporaryLossApplication"></app-application-tracking>
+            </div>
+        </div>
+        <form class="lg:col-7 col-12" [formGroup]="editTemporaryLossForm">
+            <div class=" card surface-card py-5 px-5 shadow-3 border-round-xl">
+                <div *ngIf="page == 0" class=" flex flex-column gap-4">
+                    <div class="text-lg font-bold text-800 text-center">Temporary Loss Of Income Protection Proposal
+                        Form
+                    </div>
+                    <div class="surface-100 p-3 border-round-lg text-800 font-bold">
+                        AGENT DETAILS
+                    </div>
+                    <div class="flex gap-2 flex-column ">
+                        <div class="flex justify-content-between w-full align-items-center">
+                            <label for="agent_full_name" class="text-sm">FULL NAME AND SURNAME</label>
+                            <label for="agent_full_name"><p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.agent_full_name_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.agent_full_name_confidence).severity"
+                                    [rounded]="true" />
+                            </label>
+                        </div>
+                        <input agent_full_name type="text" pInputText formControlName="agent_full_name"
+                            class="w-full" />
+                    </div>
+                    <div class="flex gap-2 flex-column">
+                        <div class="flex justify-content-between w-full align-items-center">
+                            <label for="agent_number" class="text-sm">AGENT NUMBER</label>
+                            <label for="agent_full_name"><p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.agent_number_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.agent_number_confidence).severity"
+                                    [rounded]="true" />
+                            </label>
+                        </div>
+                        <input agent_number type="text" pInputText formControlName="agent_number" class="w-full" />
+                    </div>
+                    <div class="surface-100 p-3 border-round-lg text-800 font-bold">
+                        INSURED DETAILS
+                    </div>
+                    <div class="flex gap-2 flex-column">
+                        <div class="flex justify-content-between w-full align-items-center">
+                            <label for="full_name" class="text-sm">FULL NAME AND SURNAME</label>
+                            <label for="agent_full_name"><p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.full_name_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.full_name_confidence).severity"
+                                    [rounded]="true" />
+                            </label>
+                        </div>
+                        <input full_name type="text" pInputText formControlName="full_name" class="w-full" />
+                    </div>
+                    <div class="grid">
+                        <div class="flex gap-2 flex-column lg:col-6 col-12">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="title" class="text-sm lg:w-9">TITLE</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.title_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.title_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input title type="text" pInputText formControlName="title" class="w-full" />
+                        </div>
+                        <div class="flex gap-2 flex-column lg:col-6 col-12">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="gender" class="text-sm">GENDER</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.gender_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.gender_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input gender type="text" pInputText formControlName="gender" class="w-full" />
+                        </div>
+                        <div class="flex gap-2 flex-column lg:col-6 col-12 mt-2">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="id_number" class="text-sm lg:w-9">ID NUMBER</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.id_number_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.id_number_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input id_number type="text" pInputText formControlName="id_number" class="w-full" />
+                        </div>
+                        <div class="flex gap-2 flex-column lg:col-6 col-12 mt-2">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="date_of_birth" class="text-sm">DATE OF BIRTH</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.date_of_birth_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.date_of_birth_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input date_of_birth type="text" pInputText formControlName="date_of_birth"
+                                class="w-full" />
+                        </div>
+                        <div class="flex gap-2 flex-column lg:col-6 col-12 mt-2">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="contact_number" class="text-sm lg:w-9">CONTACT NUMBER</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.contact_number_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.contact_number_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input contact_number type="text" pInputText formControlName="contact_number"
+                                class="w-full" />
+                        </div>
+                        <div class="flex gap-2 flex-column lg:col-6 col-12 mt-2">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="email" class="text-sm">EMAIL ADDRESS</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.email_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.email_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input email type="text" pInputText formControlName="email" class="w-full" />
+                        </div>
+                    </div>
+                    <div class="flex gap-2 flex-column">
+                        <div class="flex justify-content-between w-full align-items-center">
+                            <label for="address" class="text-sm">RESIDENTIAL ADDRESS</label>
+                            <p-tag class="text-xs"
+                                [value]="getValueAndSeverityFromConfidence(extractedApplication.address_confidence).value"
+                                [severity]="getValueAndSeverityFromConfidence(extractedApplication.address_confidence).severity"
+                                [rounded]="true" />
+                        </div>
+                        <input address type="text" pInputText formControlName="address" class="w-full" />
+                    </div>
+                    <div class="font-bold underline text-800">NEXT OF KIN</div>
+
+                    <div class="flex gap-2 flex-column">
+                        <div class="flex justify-content-between w-full align-items-center">
+                            <label for="nok_full_name" class="text-sm">FULL NAME AND SURNAME</label>
+                            <p-tag class="text-xs"
+                                [value]="getValueAndSeverityFromConfidence(extractedApplication.nok_full_name_confidence).value"
+                                [severity]="getValueAndSeverityFromConfidence(extractedApplication.nok_full_name_confidence).severity"
+                                [rounded]="true" />
+                        </div>
+                        <input nok_full_name type="text" pInputText formControlName="nok_full_name" class="w-full" />
+                    </div>
+                    <div class="flex gap-2 flex-column">
+                        <div class="flex justify-content-between w-full align-items-center">
+                            <label for="nok_contact_number" class="text-sm">CONTACT NUMBER</label>
+                            <p-tag class="text-xs"
+                                [value]="getValueAndSeverityFromConfidence(extractedApplication.nok_contact_number_confidence).value"
+                                [severity]="getValueAndSeverityFromConfidence(extractedApplication.nok_contact_number_confidence).severity"
+                                [rounded]="true" />
+                        </div>
+                        <input nok_contact_number type="text" pInputText formControlName="nok_contact_number"
+                            class="w-full" />
+                    </div>
+                    <div class="surface-100 p-3 border-round-lg text-800 font-bold">
+                        BANK DETAILS
+                    </div>
+                    <div class="grid">
+                        <div class="flex gap-2 flex-column lg:col-6 col-12 mt-2">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="bank_name" class="text-sm lg:w-9">BANK NAME</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.bank_name_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.bank_name_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input bank_name type="text" pInputText formControlName="bank_name" class="w-full" />
+                        </div>
+                        <div class="flex gap-2 flex-column lg:col-6 col-12 mt-2">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="b_date_of_birth" class="text-sm">DATE OF BIRTH</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.b_date_of_birth_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.b_date_of_birth_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input b_date_of_birth type="text" pInputText formControlName="b_date_of_birth"
+                                class="w-full" />
+                        </div>
+                        <div class="flex gap-2 flex-column lg:col-6 col-12 mt-2">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="account_number" class="text-sm lg:w-9">ACCOUNT NUMBER</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.account_number_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.account_number_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input account_number type="text" pInputText formControlName="account_number"
+                                class="w-full" />
+                        </div>
+                        <div class="flex gap-2 flex-column lg:col-6 col-12 mt-2">
+                            <div class="flex justify-content-between w-full align-items-center">
+                                <label for="branch_code" class="text-sm">BRANCH CODE</label>
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(extractedApplication.branch_code_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(extractedApplication.branch_code_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                            <input branch_code type="text" pInputText formControlName="branch_code" class="w-full" />
+                        </div>
+
+                    </div>
+                </div>
+
+                <div *ngIf="page == 1" class="flex flex-column gap-3">
+                    <div class="surface-100 p-3 border-round-lg text-800 font-bold">
+                        SECTION B: HOSPITAL CASH PLAN SECTION
+                    </div>
+                    <div class="font-bold underline text-800 mb-3">DETAILS OF DEPENDENTS</div>
+
+
+                    <ng-container *ngIf="!hasDependents; else hasDependents">
+                    </ng-container>
+
+
+                    <div>DOES THE PROPOSER HAVE AN EXISTING INSURANCE COVERAGE WITH ANY OTHER COMPANY, GIVE
+                        DETAILS: </div>
+                    <div class="flex justify-content-end w-full align-items-center">
+                        <p-tag class="text-xs"
+                            [value]="getValueAndSeverityFromConfidence(extractedApplication.existing_insurance_with_other_company_confidence).value"
+                            [severity]="getValueAndSeverityFromConfidence(extractedApplication.existing_insurance_with_other_company_confidence).severity"
+                            [rounded]="true" />
+                    </div>
+                    <div class="flex gap-2 flex-column">
+                        <textarea rows="3" pTextarea class="w-full"
+                            formControlName="existing_insurance_with_other_company"></textarea>
+                    </div>
+                    <div>DOES THE PROPOSER HAVE AN EXISTING CHRONIC OR RECURRING MEDICAL CONDITION E.G DIABETES, BLOOD
+                        PRESSURE, ETC, IF SO PLEASE GIVE DETAILS: </div>
+                    <div class="flex justify-content-end w-full align-items-center">
+                        <p-tag class="text-xs"
+                            [value]="getValueAndSeverityFromConfidence(extractedApplication.existing_chronic_condition_confidence).value"
+                            [severity]="getValueAndSeverityFromConfidence(extractedApplication.existing_chronic_condition_confidence).severity"
+                            [rounded]="true" />
+                    </div>
+                    <div class="flex gap-2 flex-column">
+                        <textarea rows="3" pTextarea class="w-full"
+                            formControlName="existing_chronic_condition"></textarea>
+                    </div>
+                    <div class="font-bold underline text-800">DETAILS OF CLAIMS</div>
+                    <div class="flex  gap-3 flex-column">
+                        <div class="flex justify-content-between w-full align-items-center">
+                            <label for="claim_ailment">a) AILMENT FOR WHICH CLAIM WAS MADE</label>
+                            <p-tag class="text-xs"
+                                [value]="getValueAndSeverityFromConfidence(extractedApplication.claim_ailment_confidence).value"
+                                [severity]="getValueAndSeverityFromConfidence(extractedApplication.claim_ailment_confidence).severity"
+                                [rounded]="true" />
+                        </div>
+                        <input claim_ailment type="text" pInputText formControlName="claim_ailment" class="w-full" />
+                    </div>
+                    <div class="flex gap-2 flex-column">
+                        <div class="flex justify-content-between w-full align-items-center">
+                            <label for="claim_amount">b) CLAIM AMOUNT PAID/REJECTED</label>
+                            <p-tag class="text-xs"
+                                [value]="getValueAndSeverityFromConfidence(extractedApplication.claim_amount_confidence).value"
+                                [severity]="getValueAndSeverityFromConfidence(extractedApplication.claim_amount_confidence).severity"
+                                [rounded]="true" />
+                        </div>
+                        <input claim_amount type="text" pInputText formControlName="claim_amount" class="w-full" />
+                    </div>
+                    <div>HAVE YOU EVER BEEN DECLINED HEALTH INSURANCE COVERAGE DUE TO A DIAGNOSIS OF A HEALTH CONDITION?
+                    </div>
+                    <div class="flex justify-content-between w-full align-items-center">
+                        <div class="flex gap-3">
+                            <div>TICK IF YES: </div>
+                            <div class="flex gap-3">
+                                <p-checkbox [binary]="true" formControlName="declined_coverage" />
+                            </div>
+                        </div>
+                        <p-tag class="text-xs"
+                            [value]="getValueAndSeverityFromConfidence(extractedApplication.declined_coverage_confidence).value"
+                            [severity]="getValueAndSeverityFromConfidence(extractedApplication.declined_coverage_confidence).severity"
+                            [rounded]="true" />
+                    </div>
+                    <!-- <div></div> -->
+                    <div class="flex gap-2 flex-column">
+
+                        <label for="declined_cover_reason">IF THE ANSWER TO THE ABOVE IS YES, STATE THE
+                            REASON</label>
+                        <div class="flex justify-content-end w-full align-items-center">
+                            <p-tag class="text-xs"
+                                [value]="getValueAndSeverityFromConfidence(extractedApplication.declined_cover_reason_confidence).value"
+                                [severity]="getValueAndSeverityFromConfidence(extractedApplication.declined_cover_reason_confidence).severity"
+                                [rounded]="true" />
+                        </div>
+                        <textarea rows="3" pTextarea class="w-full" formControlName="declined_cover_reason"
+                            class="w-full"></textarea>
+                    </div>
+                </div>
+
+
+                <div class="card flex justify-content-around mt-6">
+                    <p-paginator (onPageChange)="onPageChange($event)" [first]="page" [rows]="1" [totalRecords]="2" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<ng-template #hasDependents>
+    <p-table [value]="combinedDependents" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }" [showGridlines]="true">
+        <ng-template #header>
+            <tr>
+                <th style="width:25%" class="surface-100">
+                    Full Name
+                </th>
+                <th style="width:25%" class="surface-100">
+                    ID Number
+                </th>
+                <th style="width:25%" class="surface-100">
+                    Date of Birth
+                </th>
+                <th style="width:25%" class="surface-100">
+                    Age
+                </th>
+                <th style="width:25%" class="surface-100">
+                    Gender
+                </th>
+                <th style="width:25%" class="surface-100">
+                    Relationship
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-product let-editing="editing">
+            <tr>
+                <td [pEditableColumn]="product.full_name" pEditableColumnField="full_name">
+                    <p-cellEditor>
+                        <ng-template #input>
+                            <input pInputText type="text" [(ngModel)]="product.full_name" />
+                        </ng-template>
+                        <ng-template #output>
+                            <div class="flex flex-column gap-2">
+                                {{ product.full_name }}
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(product.full_name_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(product.full_name_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td [pEditableColumn]="product.id_number" pEditableColumnField="id_number">
+                    <p-cellEditor>
+                        <ng-template #input>
+                            <input pInputText type="text" [(ngModel)]="product.id_number" required />
+                        </ng-template>
+                        <ng-template #output>
+
+                            <div class="flex flex-column gap-2">
+                                {{ product.id_number }}
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(product.id_number_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(product.id_number_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td [pEditableColumn]="product.date_of_birth" pEditableColumnField="date_of_birth">
+                    <p-cellEditor>
+                        <ng-template #input>
+                            <input pInputText [(ngModel)]="product.date_of_birth" />
+                        </ng-template>
+                        <ng-template #output>
+                            <div class="flex flex-column gap-2">
+                                {{ product.date_of_birth }}
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(product.date_of_birth_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(product.date_of_birth_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td [pEditableColumn]="product.age" pEditableColumnField="age">
+                    <p-cellEditor>
+                        <ng-template #input>
+                            <input pInputText type="text" [(ngModel)]="product.age" />
+                        </ng-template>
+                        <ng-template #output>
+                            <div class="flex flex-column gap-2">
+                                {{ product.age }}
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(product.age_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(product.age_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td [pEditableColumn]="product.gender" pEditableColumnField="gender">
+                    <p-cellEditor>
+                        <ng-template #input>
+                            <input pInputText type="text" [(ngModel)]="product.gender" />
+                        </ng-template>
+                        <ng-template #output>
+                            <div class="flex flex-column gap-2">
+                                {{ product.gender }} <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(product.gender_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(product.gender_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+                <td [pEditableColumn]="product.client_relationship" pEditableColumnField="client_relationship">
+                    <p-cellEditor>
+                        <ng-template #input>
+                            <input pInputText type="text" [(ngModel)]="product.client_relationship" />
+                        </ng-template>
+                        <ng-template #output>
+
+                            <div class="flex flex-column gap-2">
+                                {{ product.client_relationship }}
+                                <p-tag class="text-xs"
+                                    [value]="getValueAndSeverityFromConfidence(product.client_relationship_confidence).value"
+                                    [severity]="getValueAndSeverityFromConfidence(product.client_relationship_confidence).severity"
+                                    [rounded]="true" />
+                            </div>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</ng-template>

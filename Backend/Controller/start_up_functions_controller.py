@@ -42,16 +42,16 @@ async def lifespan(app):
                 password="passworddd"  # Password would need to be set separately
             ),
             UserCreateRequest(
-                id_number="45-190221 E 45",
-                email="expetrollcapolator@gmail.com",  # email not available in the image
-                first_name="EXPETROLLCAPOLATOR",
-                last_name="CHIMUNDEGE",
+                id_number="75-2033056J42",
+                email="brandon@gmail.com",  # email not available in the image
+                first_name="TONDERAI BRANDO",
+                last_name="MUTOMBWA",
                 other_names=None,
                 user_role=UserRole.CUSTOMER,  # user_role not available in the image
                 date_of_birth=date(1994, 4, 3),
-                village_of_origin="KAJOKOTO",
-                place_of_birth="MOUNT DARWIN",
-                phone_number=None,  # phone_number not available in the image
+                village_of_origin="MUTARE",
+                place_of_birth="CHIPUNZA",
+                phone_number='0776464136',  # phone_number not available in the image
                 address=None,  # address not available in the image
                 password="passworddd"  # password not available in the image
             )

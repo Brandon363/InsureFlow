@@ -50,8 +50,8 @@ export class ExtractedTemporaryLossApplicationService {
   }
 
 
-  extractUser(formData: any, user_id: number): Observable<ExtractedTemporaryLossApplicationResponse> {
-    return this.httpclient.post(`${this.baseURL}/${this.subUrl}/extract-temporary-loss-application/${user_id}`, formData).pipe(
+  extractUser(files: FormData, user_id: number): Observable<ExtractedTemporaryLossApplicationResponse> {
+    return this.httpclient.post(`${this.baseURL}/${this.subUrl}/extract-temporary-loss-application/${user_id}`, files).pipe(
       map((response: any) => {
         // console.log(response);
         const ExtractedTemporaryLossApplicationResponse = this.mapToResponse(response);

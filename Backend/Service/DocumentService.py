@@ -118,6 +118,15 @@ def get_active_documents_by_policy_id(db_session: Session, policy_id: int) -> Do
                             documents=documents or [])
 
 
+def get_active_documents_by_temporary_loss_application_id(db_session: Session, application_id: int) -> DocumentResponse:
+    # _validate_id_not_null(application_id, "Policy")
+
+    documents = document_repository.find_active_document_by_application_id(db_session, application_id)
+
+    return DocumentResponse(status_code=200, success=True, message="Documents retrieved successfully",
+                            documents=documents or [])
+
+
 def create_document(db_session: Session, create_request: DocumentCreate) -> DocumentResponse:
     _validate_user_exists(db_session, create_request.user_id)
     _validate_claim_exists(db_session, create_request.claim_id)
@@ -209,6 +218,76 @@ def get_document_file_by_id(db_session: Session, document_id: int):
 def get_id_document_file_by_user_id(db_session: Session, user_id: int):
     """Endpoint to stream a document file"""
     document = document_repository.find_active_id_document_by_user_id(db_session, user_id)
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    # print("document found", document)
+
+    # file_path = Path(document.url)
+    file_path = Path("backend") / document.url
+    # print(file_path)
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Security check - prevent directory traversal
+    if not file_path.is_file() or not file_path.resolve().is_relative_to(Path("backend/Documents").resolve()):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    async def file_sender():
+        async with aiofiles.open(file_path, 'rb') as f:
+            while True:
+                chunk = await f.read(65536)  # 64KB chunks
+                if not chunk:
+                    break
+                yield chunk
+
+    return StreamingResponse(
+        file_sender(),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"inline; filename={document.name}",
+            "Content-Length": str(file_path.stat().st_size)
+        }
+    )
+
+
+def get_id_document_file_by_application_id(db_session: Session, application_id: int):
+    """Endpoint to stream a document file"""
+    document = document_repository.find_active_temporary_loss_application_document_by_application_id(db_session, application_id)
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    # print("document found", document)
+
+    # file_path = Path(document.url)
+    file_path = Path("backend") / document.url
+    # print(file_path)
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Security check - prevent directory traversal
+    if not file_path.is_file() or not file_path.resolve().is_relative_to(Path("backend/Documents").resolve()):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    async def file_sender():
+        async with aiofiles.open(file_path, 'rb') as f:
+            while True:
+                chunk = await f.read(65536)  # 64KB chunks
+                if not chunk:
+                    break
+                yield chunk
+
+    return StreamingResponse(
+        file_sender(),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"inline; filename={document.name}",
+            "Content-Length": str(file_path.stat().st_size)
+        }
+    )
+
+
+def get_temporary_loss_application_document_file_by_user_id(db_session: Session, user_id: int):
+    """Endpoint to stream a document file"""
+    document = document_repository.find_active_temporary_loss_application_document_by_user_id(db_session, user_id)
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     # print("document found", document)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, String, Enum as SQLEnum, Date, DateTime, Integer, ForeignKey
+from sqlalchemy import Column, String, Enum as SQLEnum, Date, DateTime, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from Config.database import Base
 from Utils.Enums import ApplicationStatus, EntityStatus
@@ -31,7 +31,7 @@ class TemporaryLossApplicationEntity(Base):
     b_date_of_birth = Column(Date)
     claim_ailment = Column(String(100))
     claim_amount = Column(String(50))
-    declined_coverage = Column(String(10))
+    declined_coverage = Column(Boolean)
     declined_cover_reason = Column(String(100))
 
     status = Column(SQLEnum(ApplicationStatus), nullable=False, default=ApplicationStatus.PENDING)
@@ -43,3 +43,4 @@ class TemporaryLossApplicationEntity(Base):
     dependents = relationship("DependentEntity", back_populates="application")
     extracted_applications = relationship("ExtractedTemporaryLossApplicationEntity", back_populates="application")
     application_tracking_stages = relationship("ApplicationTrackingEntity", back_populates="application")
+    documents = relationship("DocumentEntity", back_populates="temporary_loss_application")

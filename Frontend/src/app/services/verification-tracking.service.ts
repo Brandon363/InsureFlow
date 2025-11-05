@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class VerificationTrackingService {
-private baseURL = environment.baseUrl;
+  private baseURL = environment.baseUrl;
   private subUrl = 'verification-tracking';
   private allActiveVerificationTrackings = new BehaviorSubject<VerificationTrackingDTO[]>([]);
 

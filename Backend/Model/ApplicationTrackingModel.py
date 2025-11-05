@@ -11,7 +11,7 @@ class ApplicationTrackingDTO(BaseModel):
     stage: ApplicationStage
     status: TrackingStatus
     date_created: datetime
-    user_id: int
+    # user_id: int
     action_performed_by_id: int
     notes: Optional[str]
 
@@ -22,7 +22,7 @@ class ApplicationTrackingCreateRequest(BaseModel):
     application_id: int
     stage: ApplicationStage
     status: TrackingStatus
-    user_id: int
+    # user_id: int
     action_performed_by_id: int
     notes: Optional[str] = None
 
@@ -34,7 +34,7 @@ class ApplicationTrackingUpdateRequest(BaseModel):
     application_id: Optional[int]
     stage: Optional[ApplicationStage]
     status: Optional[TrackingStatus]
-    user_id: Optional[int]
+    # user_id: Optional[int]
     action_performed_by_id: Optional[int]
     notes: Optional[str]
 

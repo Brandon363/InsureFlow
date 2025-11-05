@@ -1,3 +1,5 @@
+import { ApplicationTrackingDTO } from "./application_tracking.interface";
+import { DependentDTO, DependentUpdateRequest } from "./dependents.interface";
 import { ApplicationStatus } from "./enum.interface";
 import { ExtractedTemporaryLossApplicationDTO } from "./extracted_temporary_loss_application.interface";
 import { BaseResponse } from "./shared.interface";
@@ -26,9 +28,11 @@ export interface TemporaryLossApplicationDTO {
   b_date_of_birth?: Date;
   claim_ailment?: string;
   claim_amount?: string;
-  declined_coverage?: string;
+  declined_coverage?: boolean;
   declined_cover_reason?: string;
   extracted_applications?: ExtractedTemporaryLossApplicationDTO[];
+  dependents?: DependentDTO[];
+  application_tracking_stages?: ApplicationTrackingDTO[];
   date_created?: Date;
   date_updated?: Date;
 }
@@ -55,7 +59,7 @@ export interface TemporaryLossApplicationCreateRequest {
   b_date_of_birth?: Date;
   claim_ailment?: string;
   claim_amount?: string;
-  declined_coverage?: string;
+  declined_coverage?: boolean;
   declined_cover_reason?: string;
 }
 
@@ -82,8 +86,9 @@ export interface TemporaryLossApplicationUpdateRequest {
   b_date_of_birth?: Date;
   claim_ailment?: string;
   claim_amount?: string;
-  declined_coverage?: string;
+  declined_coverage?: boolean;
   declined_cover_reason?: string;
+  dependents?: DependentUpdateRequest[];
 }
 
 export interface TemporaryLossApplicationResponse extends BaseResponse {

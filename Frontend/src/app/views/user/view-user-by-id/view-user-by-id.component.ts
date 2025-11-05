@@ -84,7 +84,6 @@ export class ViewUserByIdComponent implements OnInit, OnDestroy {
             this.user = response.user;
             if (response.user.extracted_users && response.user.extracted_users.length > 0) {
               this.extractedUser = response.user.extracted_users![response.user.extracted_users!.length - 1];
-              // console.log(this.extractedUser);
               this.comparisons = this.compareFields();
               this.viewDocument(this.user.id);
 

@@ -76,9 +76,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
             routerLink: "/notifications",
           },
           {
-            label: 'My Account',
-            icon: 'pi pi-cog',
-            routerLink: '/settings'
+            label: 'Text test',
+            icon: 'pi pi-camera',
+            routerLink: '/free-text-test'
           },
           {
             label: 'Logout',
@@ -118,9 +118,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
             routerLink: "/notifications",
           },
           {
-            label: 'Settings',
-            icon: 'pi pi-cog',
-            routerLink: '/settings'
+            label: 'Text test',
+            icon: 'pi pi-camera',
+            routerLink: '/free-text-test'
           },
           {
             label: 'Logout',

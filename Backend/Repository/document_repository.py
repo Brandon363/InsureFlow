@@ -27,6 +27,31 @@ def find_active_id_document_by_user_id(db_session: Session, user_id: int):
     )
 
 
+def find_active_temporary_loss_application_document_by_user_id(db_session: Session, user_id: int):
+    return (
+        db_session.query(DocumentEntity)
+        .filter(
+            DocumentEntity.user_id == user_id,
+            DocumentEntity.type == DocumentType.CLAIM_DOCUMENT,
+            DocumentEntity.entity_status == EntityStatus.ACTIVE,
+        )
+        .order_by(DocumentEntity.date_created.desc())
+        .first()
+    )
+
+def find_active_temporary_loss_application_document_by_application_id(db_session: Session, application_id: int):
+    return (
+        db_session.query(DocumentEntity)
+        .filter(
+            DocumentEntity.temporary_loss_application_id == application_id,
+            DocumentEntity.type == DocumentType.CLAIM_DOCUMENT,
+            DocumentEntity.entity_status == EntityStatus.ACTIVE,
+        )
+        .order_by(DocumentEntity.date_created.desc())
+        .first()
+    )
+
+
 def find_all_active_documents(db_session: Session, skip: int = 0, limit: int = 100):
     return db_session.query(DocumentEntity).filter(
         DocumentEntity.entity_status == EntityStatus.ACTIVE).offset(skip).limit(limit).all()
@@ -53,4 +78,10 @@ def find_active_documents_by_type(db_session: Session, document_type: str, skip:
 def find_active_documents_by_policy_id(db_session: Session, policy_id: int, skip: int = 0, limit: int = 100):
     return db_session.query(DocumentEntity).filter(
         DocumentEntity.policy_id == policy_id, DocumentEntity.entity_status == EntityStatus.ACTIVE).offset(skip).limit(
+        limit).all()
+
+
+def find_active_document_by_application_id(db_session: Session, application_id: int, skip: int = 0, limit: int = 100):
+    return db_session.query(DocumentEntity).filter(
+        DocumentEntity.temporary_loss_application_id == application_id, DocumentEntity.entity_status == EntityStatus.ACTIVE).offset(skip).limit(
         limit).all()

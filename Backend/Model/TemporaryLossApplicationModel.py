@@ -2,6 +2,8 @@ from datetime import datetime, date
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 
+from Model.ApplicationTrackingModel import ApplicationTrackingDTO
+from Model.DependentModel import DependentDTO, DependentUpdateRequest
 from Model.ExtractedTemporaryLossApplicationModel import ExtractedTemporaryLossApplicationDTO
 from Model.ResponseModel import BaseResponse
 from Utils.Enums import ApplicationStatus
@@ -32,7 +34,7 @@ class TemporaryLossApplicationDTO(BaseModel):
     b_date_of_birth: Optional[date]
     claim_ailment: Optional[str]
     claim_amount: Optional[str]
-    declined_coverage: Optional[str]
+    declined_coverage: Optional[bool] = None
     declined_cover_reason: Optional[str]
 
     date_created: Optional[datetime]
@@ -40,6 +42,8 @@ class TemporaryLossApplicationDTO(BaseModel):
 
     # extracted_applications: Optional[List[ExtractedTemporaryLossApplicationDTO]] = None
     extracted_applications: Optional[List[ExtractedTemporaryLossApplicationDTO]] = []
+    dependents: Optional[List[DependentDTO]]= None
+    application_tracking_stages: Optional[List[ApplicationTrackingDTO]] = None
 
 
     model_config = ConfigDict(from_attributes=True)
@@ -67,7 +71,7 @@ class TemporaryLossApplicationCreateRequest(BaseModel):
     b_date_of_birth: Optional[date]
     claim_ailment: Optional[str]
     claim_amount: Optional[str]
-    declined_coverage: Optional[str]
+    declined_coverage: Optional[bool] = None
     declined_cover_reason: Optional[str]
 
     model_config = ConfigDict(from_attributes=True)
@@ -97,8 +101,9 @@ class TemporaryLossApplicationUpdateRequest(BaseModel):
     b_date_of_birth: Optional[date]
     claim_ailment: Optional[str]
     claim_amount: Optional[str]
-    declined_coverage: Optional[str]
+    declined_coverage: Optional[bool] = None
     declined_cover_reason: Optional[str]
+    dependents: Optional[List[DependentUpdateRequest]] = None
 
     model_config = ConfigDict(from_attributes=True)
 

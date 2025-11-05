@@ -6,10 +6,6 @@
         </div>
 
         <div class="flex gap-3 justify-content-end md:justify-content-between align-items-center mb-2">
-            <!-- <p-button label="Download Empty Template" icon="pi pi-download" variant="outlined" severity="primary"/>
-            <p-button label="Download Null Buffers" icon="pi pi-download" variant="outlined" severity="warn"/>
-            <p-button label="Bulk CSV Update" icon="pi pi-upload" severity="primary"  variant="outlined"
-                routerLink="/product-buffer-levels-bulk-upload" /> -->
             <p-button label="Create client" icon="pi pi-user-plus" severity="primary" />
         </div>
     </div>
@@ -43,127 +39,110 @@
     </div>
     <!-- </div> -->
 
-
     <div class="card p-4 surface-card shadow-3 border-0 border-round-2xl mt-4">
         <p class="font-bold text-2xl mt-2">Clients</p>
 
-        <p-dataview #dv [value]="filteredUsers" [layout]="'grid'" [rows]="10" [paginator]="true" [sortField]="sortField"
-            [sortOrder]="sortOrder">
-
-            <ng-template #header>
-                <!-- <div class="flex flex-column md:flex-row md:justify-content-end mb-3">
-                <p-select [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By Deadline"
-                    (onChange)="onSortChange($event)" class="mb-2 md:mb-0" />
-            </div> -->
-            </ng-template>
-
-            <ng-template #grid let-items>
-                <div class="grid">
-                    <div *ngFor="let user of items; let first = first" class="col-12 lg:col-12">
-                        <div
-                            class="card surface-card p-4 hover:shadow-3 transition-duration-400 border-1 surface-border border-round-lg h-full flex flex-column">
-                            <div class="flex flex-column flex-grow-1"> <!-- Add flex-grow-1 here -->
-
-                                <!-- Header section -->
-                                <div class="flex align-items-center justify-content-between">
-                                    <div>
-                                        <div class="flex align-items-center ">
-                                            <p-avatar [label]="user.first_name[0] + user.last_name[0]"
-                                                class="text-base text-700" styleClass="mr-4" size="large"
-                                                shape="circle" />
-                                            <div class="flex flex-column gap-2">
-                                                <div class="flex align-items-center">
-                                                    <div class="flex gap-1">
-                                                        <div class="font-semibold text-900"
-                                                            pTooltip="{{user.first_name| titlecase | highlightText:tenderStatusSelectedValue }}"
-                                                            tooltipPosition="bottom"
-                                                            [innerHTML]="user.first_name | titlecase | highlightText:tenderStatusSelectedValue">
-                                                        </div>
-
-                                                        <div class="font-semibold text-900 mr-3"
-                                                            pTooltip="{{user.last_name| titlecase | highlightText:tenderStatusSelectedValue }}"
-                                                            tooltipPosition="bottom"
-                                                            [innerHTML]="user.last_name | titlecase | highlightText:tenderStatusSelectedValue">
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <i *ngIf="user.verification_status === verificationStatus.VERIFIED"
-                                                            class="pi pi-verified text-green-500" pTooltip="Verified"
-                                                            tooltipPosition="bottom"></i>
-                                                        <i *ngIf="user.verification_status === verificationStatus.REJECTED"
-                                                            class="pi pi-times-circle text-red-500" pTooltip="Rejected"
-                                                            tooltipPosition="bottom"></i>
-                                                        <i *ngIf="user.verification_status === verificationStatus.PENDING"
-                                                            class="pi pi-clock text-orange-500" pTooltip="Pending"
-                                                            tooltipPosition="bottom"></i>
-                                                        <i *ngIf="user.verification_status === verificationStatus.UNVERIFIED"
-                                                            class="pi pi-exclamation-circle text-orange-500"
-                                                            pTooltip="Unverified" tooltipPosition="bottom"></i>
-
-                                                        <!-- <p-tag
-                                                            *ngIf="user.verification_status === verificationStatus.VERIFIED"
-                                                            value="Verified" class="text-xs" severity="success"
-                                                            icon="pi pi-verified" [rounded]="true"/>
-                                                        <p-tag
-                                                            *ngIf="user.verification_status === verificationStatus.REJECTED"
-                                                            value="Rejected" class="text-xs" severity="danger"
-                                                            icon="pi pi-times-circle" [rounded]="true"/>
-                                                        <p-tag
-                                                            *ngIf="user.verification_status === verificationStatus.PENDING"
-                                                            value="Pending" class="text-xs" severity="warn"
-                                                            icon="pi pi-clock" [rounded]="true"/>
-                                                        <p-tag
-                                                            *ngIf="user.verification_status === verificationStatus.UNVERIFIED"
-                                                            value="Unverified" class="text-xs" severity="warn"
-                                                            icon="pi pi-exclamation-circle" [rounded]="true"/> -->
-                                                    </div>
-                                                </div>
-                                                <div class="text-500 flex gap-3">
-                                                    <span>{{user.email}}</span>
-                                                    <span> ~ </span>
-                                                    <span
-                                                        [innerHTML]="user.id_number | titlecase | highlightText:tenderStatusSelectedValue"></span>
-                                                </div>
-                                                <div class="flex gap-2 mt-2">
-                                                    <div class="text-blue-500 text-sm">Date Joined:</div>
-                                                    <div class="text-600 text-sm">
-                                                        {{user.date_created | date:'mediumDate'}}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="w-3 flex gap-4 justify-content-between align-items-center">
-                                        <div class="w-full">
-                                            <div class="text-600 text-sm mb-2">Verification accuracy</div>
-                                            <span *ngIf="user.extracted_users?.length === 0">--</span>
-                                            <div *ngIf="user.extracted_users.length > 0">
-                                                <p-progressbar
-                                                    *ngIf="user.extracted_users[user.extracted_users.length-1].overall_accuracy"
-                                                    [value]="user.extracted_users[user.extracted_users.length-1].overall_accuracy * 100 | number:'1.0-0'"
-                                                    [style]="{ height: '14px' }" />
-                                            </div>
-                                        </div>
-                                        <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
-                                            (click)="viewUserDetails(user)" pTooltip="View Details"
-                                            tooltipPosition="bottom" />
-                                    </div>
-                                </div>
-
-
-
-                                <!-- <div class="flex flex-wrap gap-2 align-items-stretch mt-4">
-                                    <button pButton label="View Details" class="flex-grow-1 md:flex-grow-5"
-                                        (click)="viewUserDetails(user)" icon="pi pi-eye"></button>
-                                    <button pButton label="Analyze and Save" class="flex-grow-1 md:flex-grow-5"
-                                        icon="pi pi-save" [outlined]="true" severity="help"></button>
-                                </div> -->
-                            </div>
-                        </div>
-                    </div>
+        <p-table #dt1 [value]="filteredUsers" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+            [loading]="loading" [paginator]="true" (onFilter)="updateCardNumbers(dt1)" [scrollable]="true"
+            [globalFilterFields]="['first_name', 'last_name']" [rowHover]="true">
+            <ng-template #caption>
+                <div class="flex flex-wrap align-items-center justify-content-between">
+                    <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1)"
+                        class="mr-2" />
+                    <p-iconfield iconPosition="left" class="ml-auto">
+                        <p-inputicon>
+                            <i class="pi pi-search"></i>
+                        </p-inputicon>
+                        <input pInputText type="text" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                            placeholder="Search keyword" class="w-full sm:w-16rem" />
+                    </p-iconfield>
                 </div>
             </ng-template>
-        </p-dataview>
+            <ng-template #header>
+                <tr>
+                    <th></th>
+                    <th style="min-width:10rem" pSortableColumn="first_name">
+                        <div class="flex align-items-center justify-content-between">
+                            First name
+                            <p-sortIcon field="first_name"></p-sortIcon>
+                        </div>
+                    </th>
+                    <th style="min-width:10rem" pSortableColumn="last_name">
+                        <div class="flex align-items-center justify-content-between">
+                            Last Name
+                            <p-sortIcon field="last_name"></p-sortIcon>
+                            <p-columnFilter type="text" field="last_name" display="menu" />
+                        </div>
+                    </th>
+                    <th pSortableColumn="overall_accuracy">
+                        <div class="flex align-items-center justify-content-between">
+                            Accuracy
+                            <p-sortIcon field="overall_accuracy"></p-sortIcon>
+                            <p-columnFilter type="number" field="overall_accuracy" display="menu"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th pSortableColumn="verification_status">
+                        <div class="flex align-items-center justify-content-between">
+                            Status
+                            <p-sortIcon field="verification_status"></p-sortIcon>
+                            <!-- <p-columnFilter type="text" field="verification_status" display="menu" /> -->
+                        </div>
+                    </th>
+                    <th style="min-width:3rem" pSortableColumn="date_created">
+                        <div class="flex align-items-center justify-content-between">
+                            Date Joined
+                            <p-sortIcon field="date_created"></p-sortIcon>
+                            <p-columnFilter field="date_created" matchMode="equals" display="menu">
+                                <ng-template #filter let-value let-filter="filterCallback">
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-case>
+                <tr [pSelectableRow]="case">
+                    <td><p-avatar [label]="case.first_name[0] + case.last_name[0]" class="text-base text-700"
+                            shape="circle" /></td>
+                    <td>{{ case.first_name }}</td>
+                    <td>{{ case.last_name }}</td>
+                    <td>
+                        <span *ngIf="case.extracted_users?.length === 0">--</span>
+                        <div *ngIf="case.extracted_users?.length>0">
+                            <ng-container
+                                *ngIf="case.extracted_users[case.extracted_users.length-1].overall_accuracy !== undefined">
+                                <p-progressbar
+                                    [value]="case.extracted_users[case.extracted_users.length-1].overall_accuracy * 100| number:'1.0-0'"
+                                    [style]="{ height: '14px' }" />
+                            </ng-container>
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag [value]="getStatusSeverityAndWord(case.verification_status).status"
+                            [severity]="getStatusSeverityAndWord(case.verification_status).severity"></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex align-items-center gap-2">
+                            <span>{{ case.date_created | date | nullDisplay}}</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="flex gap-2">
+                            <p-button icon="pi pi-eye" severity="info" (click)="viewUserDetails(case)"
+                                pTooltip="view client" variant="outlined"></p-button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="8" class="text-center py-4">No records found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
     </div>
 </div>
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Enum as SQLEnum, Date, DateTime, Integer, Float, ForeignKey
+from sqlalchemy import Column, String, Enum as SQLEnum, Date, DateTime, Integer, Float, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from Config.database import Base
 from Utils.Enums import EntityStatus, ApplicationStatus
@@ -52,7 +52,7 @@ class ExtractedTemporaryLossApplicationEntity(Base):
     claim_ailment_confidence = Column(Float)
     claim_amount = Column(String(50))
     claim_amount_confidence = Column(Float)
-    declined_coverage = Column(String(10))
+    declined_coverage = Column(Boolean)
     declined_coverage_confidence = Column(Float)
     declined_cover_reason = Column(String(100))
     declined_cover_reason_confidence = Column(Float)

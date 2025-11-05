@@ -47,7 +47,17 @@ export class DocumentService {
 
 
   getIdDocumentFileByUserId(user_id: number): Observable<Blob> {
-    return this.httpclient.get(`${this.baseURL}/${this.subUrl}/get-id-document-file-by-id/${user_id}`, {
+    return this.httpclient.get(`${this.baseURL}/${this.subUrl}/get-id-document-file-by-user-id/${user_id}`, {
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Accept': '*/*' 
+      })
+    });
+  }
+
+  
+  getApplicationDocumentFileByTemporaryLossApplicationId(user_id: number): Observable<Blob> {
+    return this.httpclient.get(`${this.baseURL}/${this.subUrl}/get-id-document-file-by-application-id/${user_id}`, {
       responseType: 'blob',
       headers: new HttpHeaders({
         'Accept': '*/*' 

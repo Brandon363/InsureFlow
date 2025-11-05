@@ -58,9 +58,7 @@ def create_multiple_dependents(db_session: Session, create_requests: List[Depend
 
     return DependentResponse(status_code=201, success=True, message="Dependents created successfully",
                              dependents=dependent_entities)
-    # except Exception as e:
-    #     db_session.rollback()
-    #     return DependentResponse(status_code=500, success=False, message="Failed to create dependents")
+
 
 
 def update_dependent(db_session: Session, dependent_id: int, update_request: DependentUpdateRequest) -> DependentResponse:
@@ -78,6 +76,28 @@ def update_dependent(db_session: Session, dependent_id: int, update_request: Dep
     db_session.commit()
     db_session.refresh(db_dependent)
     return DependentResponse(status_code=200, success=True, message="Dependent successfully updated", dependent=db_dependent)
+
+
+def update_multiple_dependents(db_session: Session, update_requests: List[DependentUpdateRequest]) -> DependentResponse:
+    dependent_entities = []
+    for update_request in update_requests:
+        dependent_entity = db_session.query(DependentEntity).get(update_request.id)
+        if dependent_entity:
+            update_dict = update_request.dict(exclude_unset=True)
+            for key, value in update_dict.items():
+                if key != "id" and hasattr(dependent_entity, key):
+                    setattr(dependent_entity, key, value)
+            dependent_entities.append(dependent_entity)
+        else:
+            #dependent was not found
+            pass
+
+    db_session.commit()
+    for dependent_entity in dependent_entities:
+        db_session.refresh(dependent_entity)
+
+    return DependentResponse(status_code=200, success=True, message="Dependents updated successfully",
+                             dependents=dependent_entities)
 
 
 def delete_dependent(db_session: Session, dependent_id: int) -> DependentResponse:

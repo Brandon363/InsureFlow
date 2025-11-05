@@ -51,7 +51,7 @@ class ExtractedTemporaryLossApplicationDTO(BaseModel):
     claim_ailment_confidence: Optional[float] = None
     claim_amount: Optional[str] = None
     claim_amount_confidence: Optional[float] = None
-    declined_coverage: Optional[str] = None
+    declined_coverage: Optional[bool] = None
     declined_coverage_confidence: Optional[float] = None
     declined_cover_reason: Optional[str] = None
     declined_cover_reason_confidence: Optional[float] = None
@@ -109,7 +109,7 @@ class ExtractedTemporaryLossApplicationCreateRequest(BaseModel):
     claim_ailment_confidence: Optional[float] = None
     claim_amount: Optional[str] = None
     claim_amount_confidence: Optional[float] = None
-    declined_coverage: Optional[str] = None
+    declined_coverage: Optional[bool] = None
     declined_coverage_confidence: Optional[float] = None
     declined_cover_reason: Optional[str] = None
     declined_cover_reason_confidence: Optional[float] = None
@@ -160,7 +160,7 @@ class ExtractedTemporaryLossApplicationUpdateRequest(BaseModel):
     claim_ailment_confidence: Optional[float] = None
     claim_amount: Optional[str] = None
     claim_amount_confidence: Optional[float] = None
-    declined_coverage: Optional[str] = None
+    declined_coverage: Optional[bool] = None
     declined_coverage_confidence: Optional[float] = None
     declined_cover_reason: Optional[str] = None
     declined_cover_reason_confidence: Optional[float] = None

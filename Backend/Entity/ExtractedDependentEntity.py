@@ -9,6 +9,7 @@ class ExtractedDependentEntity(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     extracted_application_id = Column(Integer, ForeignKey("extracted_temporary_loss_applications.id"))
+    dependant_id = Column(Integer, ForeignKey("dependents.id"))
     full_name = Column(String(100))
     full_name_confidence = Column(Float)
     id_number = Column(String(50))
@@ -27,3 +28,4 @@ class ExtractedDependentEntity(Base):
     date_updated = Column(DateTime, onupdate=datetime.utcnow, nullable=True)
 
     extracted_application = relationship("ExtractedTemporaryLossApplicationEntity", back_populates="extracted_dependents")
+    dependant = relationship("DependentEntity", back_populates="extracted_dependents")

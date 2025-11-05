@@ -45,7 +45,7 @@ export interface ExtractedTemporaryLossApplicationDTO {
   claim_ailment_confidence?: number;
   claim_amount?: string;
   claim_amount_confidence?: number;
-  declined_coverage?: string;
+  declined_coverage?: boolean;
   declined_coverage_confidence?: number;
   declined_cover_reason?: string;
   declined_cover_reason_confidence?: number;
@@ -100,7 +100,7 @@ export interface ExtractedTemporaryLossApplicationCreateRequest {
   claim_ailment_confidence?: number;
   claim_amount?: string;
   claim_amount_confidence?: number;
-  declined_coverage?: string;
+  declined_coverage?: boolean;
   declined_coverage_confidence?: number;
   declined_cover_reason?: string;
   declined_cover_reason_confidence?: number;
@@ -148,7 +148,7 @@ export interface ExtractedTemporaryLossApplicationUpdateRequest {
   claim_ailment_confidence?: number;
   claim_amount?: string;
   claim_amount_confidence?: number;
-  declined_coverage?: string;
+  declined_coverage?: boolean;
   declined_coverage_confidence?: number;
   declined_cover_reason?: string;
   declined_cover_reason_confidence?: number;

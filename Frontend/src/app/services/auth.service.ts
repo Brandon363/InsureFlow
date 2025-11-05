@@ -144,6 +144,9 @@ export class AuthService {
 
   isAuthenticated(): Observable<boolean> {
     const user = this.getCurrentUser();
+    if (!user) {
+      return of(false);
+    }
 
     return this.httpClient.get<UserResponse>(`${this.baseURL}/${this.subUrl}/is-user-logged-in/` + user.id).pipe(
       map((user: UserResponse) => {

@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from Controller import agent_controller, user_controller, policy_controller, claim_controller, document_controller, \
     payment_controller, notification_controller, ExtractedUserController, TemporaryLossApplicationController, \
     DependentController, ApplicationTrackingController, ExtractedTemporaryLossApplicationController, \
-    ExtractedDependentsController, VerificationTrackingController
+    ExtractedDependentsController, VerificationTrackingController, FreeTextController
 from fastapi.responses import JSONResponse
 from Controller.start_up_functions_controller import lifespan
 from sqlalchemy import MetaData, text
@@ -47,6 +47,7 @@ api_router.include_router(claim_controller.router, tags=["Claims"])
 api_router.include_router(policy_controller.router, tags=["Policies"])
 api_router.include_router(user_controller.router, tags=["Users"])
 api_router.include_router(ExtractedUserController.router, tags=["Extracted Users"])
+api_router.include_router(FreeTextController.router, tags=["Free Text"])
 api_router.include_router(agent_controller.router, tags=["Agents"])
 api_router.include_router(TemporaryLossApplicationController.router, tags=["Temporary Loss Application"])
 api_router.include_router(ApplicationTrackingController.router, tags=["Application Tracking"])

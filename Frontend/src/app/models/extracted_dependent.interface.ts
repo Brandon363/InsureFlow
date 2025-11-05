@@ -1,8 +1,9 @@
 import { BaseResponse } from "./shared.interface";
 
 export interface ExtractedDependentDTO {
-  id?: number;
+  id: number;
   extracted_application_id?: number;
+  dependant_id?: number;
   full_name?: string;
   full_name_confidence?: number;
   id_number?: string;
@@ -22,6 +23,7 @@ export interface ExtractedDependentDTO {
 
 export interface ExtractedDependentCreateRequest {
   extracted_application_id?: number;
+  dependant_id?: number;
   full_name?: string;
   full_name_confidence?: number;
   id_number?: string;
@@ -38,6 +40,7 @@ export interface ExtractedDependentCreateRequest {
 
 export interface ExtractedDependentUpdateRequest {
   extracted_application_id?: number;
+  dependant_id?: number;
   full_name?: string;
   full_name_confidence?: number;
   id_number?: string;

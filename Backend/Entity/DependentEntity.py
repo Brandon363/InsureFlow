@@ -24,3 +24,4 @@ class DependentEntity(Base):
     date_updated = Column(DateTime, onupdate=datetime.utcnow, nullable=True)
 
     application = relationship("TemporaryLossApplicationEntity", back_populates="dependents")
+    extracted_dependents = relationship("ExtractedDependentEntity", back_populates="dependant")

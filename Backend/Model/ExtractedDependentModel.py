@@ -8,6 +8,7 @@ from Model.ResponseModel import BaseResponse
 class ExtractedDependentDTO(BaseModel):
     id: Optional[int] = None
     extracted_application_id: Optional[int] = None
+    dependant_id: Optional[int] = None
     full_name: Optional[str] = None
     full_name_confidence: Optional[float] = None
     id_number: Optional[str] = None
@@ -20,6 +21,7 @@ class ExtractedDependentDTO(BaseModel):
     gender_confidence: Optional[float] = None
     client_relationship: Optional[str] = None
     client_relationship_confidence: Optional[float] = None
+
     entity_status: Optional[str] = None
     date_created: Optional[datetime] = None
     date_updated: Optional[datetime] = None
@@ -28,6 +30,7 @@ class ExtractedDependentDTO(BaseModel):
 
 class ExtractedDependentCreateRequest(BaseModel):
     extracted_application_id: Optional[int] = None
+    dependant_id: Optional[int] = None
     full_name: Optional[str] = None
     full_name_confidence: Optional[float] = None
     id_number: Optional[str] = None
@@ -45,6 +48,7 @@ class ExtractedDependentCreateRequest(BaseModel):
 
 class ExtractedDependentUpdateRequest(BaseModel):
     extracted_application_id: Optional[int] = None
+    dependant_id: Optional[int] = None
     full_name: Optional[str] = None
     full_name_confidence: Optional[float] = None
     id_number: Optional[str] = None

@@ -43,9 +43,9 @@ class UserEntity(Base):
 
     # application_tracking_actions = relationship("ApplicationTrackingEntity", back_populates="user")
 
-    tracked_application_tracking = relationship("ApplicationTrackingEntity",
-                                                foreign_keys="[ApplicationTrackingEntity.user_id]",
-                                                back_populates="user")
+    # tracked_application_tracking = relationship("ApplicationTrackingEntity",
+    #                                             foreign_keys="[ApplicationTrackingEntity.user_id]",
+    #                                             back_populates="user")
     performed_application_tracking = relationship("ApplicationTrackingEntity",
                                                   foreign_keys="[ApplicationTrackingEntity.action_performed_by_id]",
                                                   back_populates="action_performed_by")

@@ -71,9 +71,19 @@ def get_document_file_by_id(document_id: int, db: db_dependency):
     return DocumentService.get_document_file_by_id(db, document_id)
 
 
-@router.get("/get-id-document-file-by-id/{user_id}")
+@router.get("/get-id-document-file-by-user-id/{user_id}")
 def get_id_document_file_by_user_id(user_id: int, db: db_dependency):
     return DocumentService.get_id_document_file_by_user_id(db_session=db, user_id=user_id)
+
+
+@router.get("/get-id-document-file-by-application-id/{application_id}")
+def get_id_document_file_by_user_id(application_id: int, db: db_dependency):
+    return DocumentService.get_id_document_file_by_application_id(db_session=db, application_id=application_id)
+
+
+@router.get("/get-temporary-loss-application-document-file-by-user-id/{user_id}")
+def get_id_document_file_by_user_id(user_id: int, db: db_dependency):
+    return DocumentService.get_temporary_loss_application_document_file_by_user_id(db_session=db, user_id=user_id)
 
 
 @router.delete("/{document_id}", response_model=DocumentResponse)

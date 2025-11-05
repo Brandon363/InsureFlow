@@ -7,7 +7,7 @@ export interface ApplicationTrackingDTO {
   stage: ApplicationStage;
   status: TrackingStatus;
   date_created: Date;
-  user_id: number;
+  // user_id: number;
   action_performed_by_id: number;
   notes?: string;
 }
@@ -16,7 +16,7 @@ export interface ApplicationTrackingCreateRequest {
   application_id: number;
   stage: ApplicationStage;
   status: TrackingStatus;
-  user_id: number;
+  // user_id: number;
   action_performed_by_id: number;
   notes?: string;
 }
@@ -26,12 +26,12 @@ export interface ApplicationTrackingUpdateRequest {
   application_id?: number;
   stage?: ApplicationStage;
   status?: TrackingStatus;
-  user_id?: number;
+  // user_id?: number;
   action_performed_by_id?: number;
   notes?: string;
 }
 
 export interface ApplicationTrackingResponse extends BaseResponse {
-  application_tracking?: ApplicationTrackingDTO;
-  application_trackings?: ApplicationTrackingDTO[];
+  applicationTracking?: ApplicationTrackingDTO;
+  applicationTrackings?: ApplicationTrackingDTO[];
 }

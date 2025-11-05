@@ -84,22 +84,40 @@ export class TemporaryLossApplicationService {
   }
 
 
-  // verifyUser(request: UserVerifificationRequest): Observable<TemporaryLossApplicationResponse> {
-  //   return this.httpclient.put(`${this.baseURL}/${this.subUrl}/verify-user`, request).pipe(
-  //     map((response: any) => {
-  //       const TemporaryLossApplicationResponse = this.mapToResponse(response);
-  //       if (TemporaryLossApplicationResponse.success && TemporaryLossApplicationResponse.user) {
-  //         const current = this.allActiveApplications.getValue();
-  //         const updated = current.map((p: any) =>
-  //           p.id === TemporaryLossApplicationResponse.user?.id ? TemporaryLossApplicationResponse.user : p
-  //         );
-  //         this.allActiveApplications.next(updated);
-  //       }
+  editApplicationAndDependents(id: number, updateRequest: TemporaryLossApplicationUpdateRequest): Observable<TemporaryLossApplicationResponse> {
+    return this.httpclient.put(`${this.baseURL}/${this.subUrl}/update-temporary-loss-application-and-dependents/${id}`, updateRequest).pipe(
+      map((response: any) => {
+        const TemporaryLossApplicationResponse = this.mapToResponse(response);
+        if (TemporaryLossApplicationResponse.success && TemporaryLossApplicationResponse.temporaryLossApplication) {
+          const current = this.allActiveApplications.getValue();
+          const updated = current.map((p: any) =>
+            p.id === TemporaryLossApplicationResponse.temporaryLossApplication?.id ? TemporaryLossApplicationResponse.temporaryLossApplication : p
+          );
+          this.allActiveApplications.next(updated);
+        }
 
-  //       return TemporaryLossApplicationResponse;
-  //     })
-  //   );
-  // }
+        return TemporaryLossApplicationResponse;
+      })
+    );
+  }
+
+
+  verifyDocuments(application_id: number, verifier_id: number): Observable<TemporaryLossApplicationResponse> {
+    return this.httpclient.put(`${this.baseURL}/${this.subUrl}/verify-documents/${application_id}/${verifier_id}`, {}).pipe(
+      map((response: any) => {
+        const TemporaryLossApplicationResponse = this.mapToResponse(response);
+        if (TemporaryLossApplicationResponse.success && TemporaryLossApplicationResponse.temporaryLossApplication) {
+          const current = this.allActiveApplications.getValue();
+          const updated = current.map((p: any) =>
+            p.id === TemporaryLossApplicationResponse.temporaryLossApplication?.id ? TemporaryLossApplicationResponse.temporaryLossApplication : p
+          );
+          this.allActiveApplications.next(updated);
+        }
+
+        return TemporaryLossApplicationResponse;
+      })
+    );
+  }
 
 
   // rejectUserVerification(request: UserVerifificationRequest): Observable<TemporaryLossApplicationResponse> {
@@ -156,14 +174,14 @@ export class TemporaryLossApplicationService {
   }
 
 
-  // getByUserId(id: number): Observable<TemporaryLossApplicationResponse> {
-  //   return this.httpclient.get(`${this.baseURL}/${this.subUrl}/get-active-user-by-id/${id}`).pipe(
-  //     map((response: any) => {
-  //       const TemporaryLossApplicationResponse = this.mapToResponse(response);
-  //       return TemporaryLossApplicationResponse;
-  //     })
-  //   )
-  // }
+  getApplicationById(id: number): Observable<TemporaryLossApplicationResponse> {
+    return this.httpclient.get(`${this.baseURL}/${this.subUrl}/get-temporary-loss-application-by-id/${id}`).pipe(
+      map((response: any) => {
+        const TemporaryLossApplicationResponse = this.mapToResponse(response);
+        return TemporaryLossApplicationResponse;
+      })
+    )
+  }
 
   createApplication(createRequest: TemporaryLossApplicationDTO): Observable<TemporaryLossApplicationResponse> {
     return this.httpclient.post(`${this.baseURL}/${this.subUrl}/create-temporary-loss-application`, createRequest).pipe(

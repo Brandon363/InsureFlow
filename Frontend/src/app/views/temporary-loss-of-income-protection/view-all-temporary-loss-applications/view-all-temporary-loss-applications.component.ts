@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { UserDTO } from '../../../models/user.interface';
 import { TemporaryLossApplicationDTO } from '../../../models/temporary_loss_application.interface';
@@ -7,7 +7,7 @@ import { LoadingService } from '../../../services/loading.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
-import { ApplicationStatus, VerificationStatus } from '../../../models/enum.interface';
+import { ApplicationStage, ApplicationStatus, TrackingStatus, VerificationStatus } from '../../../models/enum.interface';
 import { Table } from 'primeng/table';
 import { SharedModules } from '../../shared/shared_modules';
 
@@ -17,7 +17,7 @@ import { SharedModules } from '../../shared/shared_modules';
   templateUrl: './view-all-temporary-loss-applications.component.html',
   styleUrl: './view-all-temporary-loss-applications.component.scss'
 })
-export class ViewAllTemporaryLossApplicationsComponent implements OnInit, OnDestroy {
+export class ViewAllTemporaryLossApplicationsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   getAllSubscription!: Subscription;
   retrieveSubscription!: Subscription;
@@ -54,6 +54,14 @@ export class ViewAllTemporaryLossApplicationsComponent implements OnInit, OnDest
     private authService: AuthService,
     private confirmationService: ConfirmationService) { }
 
+  ngAfterViewInit(): void {
+    this.allProductBufferLevels = this.allProductBufferLevels.sort((a, b) => {
+      const dateA = a.date_updated ? new Date(a.date_updated).getTime() : 0;
+      const dateB = b.date_updated ? new Date(b.date_updated).getTime() : 0;
+      return dateB - dateA;
+    });
+  }
+
   cards: any[] = [];
   loading = true;
   uploadedFiles: any[] = [];
@@ -82,22 +90,26 @@ export class ViewAllTemporaryLossApplicationsComponent implements OnInit, OnDest
   }
 
   getAllTestConfigs() {
-    this.loadingService.setLoadingState(true);
+    // console.log("getting")
+    // this.loadingService.setLoadingState(true);
     this.loading = true;
-    this.getAllSubscription = this.productBufferLevelService.getAllActiveApplications().subscribe();
-    this.retrieveSubscription = this.productBufferLevelService.retrieveApplicationData().subscribe((response) => {
-      console.log(response);
-      this.allProductBufferLevels = response;
-      this.allProductBufferLevels = response.sort((a, b) => {
-        const dateA = a.date_updated ? new Date(a.date_updated).getTime() : 0;
-        const dateB = b.date_updated ? new Date(b.date_updated).getTime() : 0;
-        return dateB - dateA;
-      });
+    this.getAllSubscription = this.productBufferLevelService.getAllActiveApplications().subscribe(() => {
+      this.retrieveSubscription = this.productBufferLevelService.retrieveApplicationData().subscribe((response) => {
+        // console.log(response);
+        this.allProductBufferLevels = response;
 
-      this.updateCardNumbers(null);
-      this.loadingService.setLoadingState(false);
-      this.loading = false;
-    })
+        this.allProductBufferLevels = response.sort((a, b) => {
+          const dateA = a.date_updated ? new Date(a.date_updated).getTime() : 0;
+          const dateB = b.date_updated ? new Date(b.date_updated).getTime() : 0;
+          return dateA - dateB;
+        });
+        // console.log(this.allProductBufferLevels)
+        this.updateCardNumbers(null);
+        // this.loadingService.setLoadingState(false);
+        this.loading = false;
+      })
+    });
+
   }
 
 
@@ -174,6 +186,42 @@ export class ViewAllTemporaryLossApplicationsComponent implements OnInit, OnDest
         return { severity: 'info' as const, status: 'Unknown' };
     }
   }
+
+
+  getStageSeverityAndWord(dto: TemporaryLossApplicationDTO) {
+    const tracks = dto.application_tracking_stages;
+    if (tracks && tracks.length > 0) {
+      const lastTrack = tracks[tracks.length - 1];
+      const appStatus = lastTrack.stage
+      switch (appStatus) {
+        case ApplicationStage.DECLINED:
+          return { severity: 'danger' as const, status: 'Rejected' };
+
+        case ApplicationStage.IN_PROGRESS:
+          return { severity: 'warn' as const, status: 'In Progress' };
+
+        case ApplicationStage.SUBMITTED:
+          return { severity: 'warn' as const, status: 'Submitted' };
+
+        case ApplicationStage.COMPLETED:
+          return { severity: 'secondary' as const, status: 'Completed' };
+
+        case ApplicationStage.DOCUMENTS_VERIFIED:
+          return { severity: 'info' as const, status: 'Documents Verified' };
+
+        case ApplicationStage.UNDER_REVIEW:
+          return { severity: 'secondary' as const, status: 'Under Review' };
+
+        case ApplicationStage.APPROVED:
+          return { severity: 'success' as const, status: 'Verified' };
+
+        default:
+          return { severity: 'info' as const, status: 'Unknown' };
+      }
+    } else {
+      return { severity: 'info' as const, status: 'Unknown' };
+    }
+}
 
 
   updateCardNumbers(dt: any) {

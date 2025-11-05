@@ -9,12 +9,12 @@ from Model.ResponseModel import BaseResponse
 class DependentDTO(BaseModel):
     id: int
     application_id: int
-    full_name: str
-    id_number: str
-    date_of_birth: date
-    age: int
-    gender: str
-    client_relationship: str
+    full_name: Optional[str]
+    id_number: Optional[str]
+    date_of_birth: Optional[date]
+    age: Optional[int]
+    gender: Optional[str]
+    client_relationship: Optional[str]
     date_created: Optional[datetime]
     date_updated: Optional[datetime]
 
@@ -23,12 +23,12 @@ class DependentDTO(BaseModel):
 
 class DependentCreateRequest(BaseModel):
     application_id: int
-    full_name: str
-    id_number: str
-    date_of_birth: date
-    age: int
-    gender: str
-    client_relationship: str
+    full_name: Optional[str]
+    id_number:  Optional[str]
+    date_of_birth: Optional[date]
+    age: Optional[int]
+    gender:  Optional[str]
+    client_relationship: Optional[str]
 
     model_config = ConfigDict(from_attributes=True)
 
